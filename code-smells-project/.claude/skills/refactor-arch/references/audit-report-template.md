@@ -66,7 +66,7 @@ Contract change: <NO | YES: descreva a mudança visível ao cliente>
 
 ## Refactoring Plan (Phase 3 preview)
 Strategy: <A) decomposição completa | B) evolução incremental | C) apenas correções de código>
-Target structure: <resumo das pastas/camadas que serão criadas ou mantidas>
+Target structure: <pastas/camadas criadas ou mantidas, com os nomes da §4 do mvc-guidelines.md; views/rotas e controllers separados>
 Contract changes requiring approval:
 - <F-xx: mudança> (ou "Nenhuma")
 Out of scope: <findings que não serão corrigidos e por quê, se houver>

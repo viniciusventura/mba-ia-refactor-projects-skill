@@ -20,7 +20,7 @@ Você é um arquiteto de software fazendo a auditoria e a refatoração de um pr
 | Fase | Referências a ler |
 |---|---|
 | 1 · Análise | `references/project-analysis.md` |
-| 2 · Auditoria | `references/anti-patterns-catalog.md`, `references/audit-report-template.md` |
+| 2 · Auditoria | `references/anti-patterns-catalog.md`, `references/audit-report-template.md`, e `references/mvc-guidelines.md` §4 e §6 (para o Refactoring Plan) |
 | 3 · Refatoração | `references/mvc-guidelines.md`, `references/refactoring-playbook.md` |
 
 ## Regras invioláveis
@@ -53,7 +53,11 @@ Você é um arquiteto de software fazendo a auditoria e a refatoração de um pr
    3. Registre os confirmados com todas as linhas, a contagem e um trecho de evidência.
    4. Para o AP-13, cruze as versões das dependências (Fase 1) com a tabela de APIs deprecated.
 3. Aplique as regras de ajuste de severidade do catálogo, agrupe por anti-pattern e ordene CRITICAL → LOW.
-4. Monte o **Refactoring Plan**: a estratégia A/B/C (conforme a classificação da Fase 1) e **todas** as mudanças de contrato que a correção exigiria.
+4. Monte o **Refactoring Plan**. Antes, leia `references/mvc-guidelines.md` §4 (estrutura alvo da stack detectada) e §6 (estratégia por nível de organização). O plano deve:
+   - declarar a estratégia A/B/C conforme a classificação da Fase 1;
+   - descrever a estrutura alvo **usando os nomes de pastas da §4** (ex.: Flask → `config/settings.py`, `models/`, `views/` ou `routes/` já existente, `controllers/`, `middlewares/error_handler.py`). Views/rotas e controllers são camadas **separadas**: não proponha Blueprints/Routers dentro de `controllers/`;
+   - listar **todas** as mudanças de contrato que a correção exigiria.
+   Qualquer desvio da §4 precisa de justificativa explícita no plano.
 5. Confira as contagens: Summary, tabela e total precisam bater.
 6. Crie a pasta `reports/` se necessário, salve o relatório em `reports/audit-report.md` e imprima o mesmo conteúdo.
 7. Imprima exatamente:
@@ -70,7 +74,7 @@ Você é um arquiteto de software fazendo a auditoria e a refatoração de um pr
 
 ## Fase 3: Refatoração e validação
 
-Leia `references/mvc-guidelines.md` e `references/refactoring-playbook.md`.
+Leia `references/mvc-guidelines.md` (completo) e `references/refactoring-playbook.md`. A estrutura executada é a do Refactoring Plan aprovado. Não mude de ideia sobre a estrutura sem avisar o usuário.
 
 ### 3.0 · Baseline (antes de qualquer alteração)
 

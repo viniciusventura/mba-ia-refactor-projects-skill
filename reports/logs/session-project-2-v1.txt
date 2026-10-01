@@ -1,0 +1,1155 @@
+ ▐▛███▛█   Claude Code v2.1.286
+▝▜██████▀  Opus 5.5 · Claude Pro
+ ▝▝   ▝▝   C:\Treinamentos\MBA\Desafios Praticos\skill_review\ecommerce-api…
+
+▎ Your voice can help guide AI
+▎ Take 15 min to share your experiences with Anthropic Interviewer. Start now
+
+❯ /refactor-arch                                                                
+
+● Vou começar pela Fase 1, lendo a referência de análise.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && cat
+      .claude/skills/refactor-arch/references/project-analysis.md && echo ----
+      &&…)
+  ⎿  # Análise de Projeto: heurísticas da Fase 1
+
+     Referência da **Fase 1 (Análise)**. Objetivo: entender o projeto **sem
+     … +200 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && for f in package.json
+      README.md api.http src/app.js src/AppManager.js src/utils.…)
+  ⎿  ===== package.json
+          1     {
+          2       "name": "desafio-arquitetura-ia-boilerplate",
+     … +254 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && node -v && node -p
+      "require('./node_modules/express/package.json').version + ' /…)
+  ⎿  v22.17.0
+     4.22.1 / sqlite3 5.1.7
+     # Catálogo de Anti-patterns
+     … +567 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Agora as seções §4 e §6 do mvc-guidelines.md e rodo os sinais de detecção.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && grep -n "^## "
+      .claude/skills/refactor-arch/references/mvc-guidelines.md)
+  ⎿  7:## 1. MVC aplicado a uma API
+     30:## 2. Responsabilidades: pode × não pode
+     71:## 3. Direção das dependências
+     … +4 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && echo "AP-01:"; grep -nE
+      '(SELECT|INSERT|UPDATE|DELETE)[^"'"'"'\n]*["'"'"'] *\+|\…)
+  ⎿  AP-01:
+     AP-02:
+     src/utils.js:3:    dbPass: "senha_super_secreta_prod_123",
+     … +45 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && node -e "const
+      {badCrypto}=require('./src/utils'); for (const p of ['senhaforte'…)
+  ⎿  senhaforte c2c2c2c2c2
+     segredo c2c2c2c2c2
+     123 MTMTMTMTMT
+     … +2 lines (ctrl+o to expand)
+
+● Write(reports\audit-report.md)
+  ⎿  Wrote 282 lines to reports\audit-report.md
+       1 ================================
+       3 ================================
+       4 Project:  ecommerce-api-legacy
+       5 Stack:    JavaScript (Node.js v22.17.0) + Express ^4.18.2 (insta
+       6 Files:    3 analyzed | ~180 lines of code
+       7 Date:     2026-10-01
+         ager.js` concentra conexão, DDL, seed, rotas, regra de pagamento
+          e relatório; `src/utils.js` mistura config com segredos, cache 
+         global e "hash" de senha.
+      10 ## Summary
+     … +453 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && sed -i 's/- Todas as 13
+      queries usam placeholders `?`/- As 10 queries que recebe…)
+  ⎿  103:Description: 4 regras de domínio dentro dos handlers HTTP, mistura
+     das com SQL: aprovação do pagamento pelo prefixo do cartão (46) junto
+     da "integração" com o gateway (45); criação implícita do usuário no ch
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated reports\audit-report.md (+2 -2)
+      100  ### F-06 [HIGH] Regra de negócio na camada errada (AP-07)
+      101  File: src/AppManager.js:35, 45-48, 66-72, 108-115
+      102  Principle: SRP (SOLID) + MVC
+      103 -Description: 4 regras de domínio dentro dos handlers HTTP, mis
+          -turadas com SQL: aprovação do pagamento pelo prefixo do cartão
+          - (46) junto da "integração" com o gateway (45); criação implíc
+          -ita do usuário no checkout com senha default (66-72); cálculo 
+          -da receita só com pagamentos `PAID` (108-110); montagem do alu
+          -no no relatório (112-115). A validação do body (35) está no me
+          -smo corpo que 11 acessos ao banco.                            
+      103 +Description: 4 regras de domínio dentro dos handlers HTTP, mis
+          +turadas com SQL: aprovação do pagamento pelo prefixo do cartão
+          + (46) junto da "integração" com o gateway (45); criação implíc
+          +ita do usuário no checkout com senha default (66-72); cálculo 
+          +da receita só com pagamentos `PAID` (108-110); montagem do alu
+          +no no relatório (112-115). A validação do body (35) está no me
+          +smo corpo que 6 acessos ao banco (37, 40, 50, 54, 57, 69).    
+      104  Evidence:
+      105  ```js
+      106  let status = cc.startsWith("4") ? "PAID" : "DENIED";
+     ...
+      236  Nenhuma API deprecated identificada estaticamente para as vers
+           ões em uso (Node 22.17.0, Express 4.22.1, sqlite3 5.1.7). Não 
+           há `new Buffer`, `url.parse`, `substr`, `req.param`, `app.del`
+           , `body-parser` ou `res.send(status)`; `express.json()` já é u
+           sado. A API de callbacks do `sqlite3` é estilo antigo, mas não
+            deprecated (tratada em F-08). A confirmação dinâmica (`node -
+           -trace-deprecation`) será feita no baseline da Fase 3.
+      237  
+      238  ## Positive Points
+      239 -- Todas as 13 queries usam placeholders `?`: nenhuma SQL Injec
+          -tion (AP-01 ausente). A refatoração deve manter isso.         
+      239 +- As 10 queries que recebem valores externos usam placeholders
+          + `?`: nenhuma SQL Injection (AP-01 ausente). A refatoração dev
+          +e manter isso.                                                
+      240  - `express.json()` nativo em vez de `body-parser`.
+      241  - CommonJS consistente e `npm start` → `node src/app.js` simpl
+           es; serão mantidos.
+      242  
+
+● ================================
+  PHASE 1: PROJECT ANALYSIS
+  ================================
+  Language:      JavaScript (Node.js v22.17.0; nenhum runtime declarado em 
+  engines/.nvmrc)
+  Framework:     Express ^4.18.2 (instalado 4.22.1)
+  Dependencies:  web: express | dados: sqlite3 ^5.1.6 (instalado 5.1.7) | 
+  outras: nenhuma
+  Database:      SQLite via sqlite3 (callbacks, SQL manual), em memória 
+  (:memory:), dados perdidos a cada boot
+  Domain:        LMS com checkout (usuários, cursos, matrículas, pagamentos, 
+  logs de auditoria)
+  Architecture:  A) Monolítica / God Class: 3 arquivos; AppManager.js concentra 
+  conexão, DDL, seed, rotas, regra de pagamento e relatório
+  Entry point:   src/app.js · npm start (node src/app.js) · porta 3000 (fixa em 
+  utils.js)
+  Source files:  3 files analyzed | ~180 lines (sem script auxiliar; o seed roda
+  no boot)
+  DB tables:     users, courses, enrollments, payments, audit_logs
+  Endpoints:     3 endpoints (lista abaixo)
+  ================================
+
+  ┌──────┬────────────────────────┬────────────────────┬───────────────────┐
+  │ Méto │          Rota          │      Handler       │       Local       │
+  │  do  │                        │                    │                   │
+  ├──────┼────────────────────────┼────────────────────┼───────────────────┤
+  │ POST │ /api/checkout          │ AppManager.setupRo │ src/AppManager.js │
+  │      │                        │ utes (anon.)       │ :28               │
+  ├──────┼────────────────────────┼────────────────────┼───────────────────┤
+  │ GET  │ /api/admin/financial-r │ AppManager.setupRo │ src/AppManager.js │
+  │      │ eport                  │ utes (anon.)       │ :80               │
+  ├──────┼────────────────────────┼────────────────────┼───────────────────┤
+  │ DELE │                        │ AppManager.setupRo │ src/AppManager.js │
+  │ TE   │ /api/users/:id         │ utes (anon.) ⚠️    │ :131              │
+  │      │                        │ destrutiva         │                   │
+  └──────┴────────────────────────┴────────────────────┴───────────────────┘
+
+  ---
+
+  ================================
+  ARCHITECTURE AUDIT REPORT
+  ================================
+  Project:  ecommerce-api-legacy
+  Stack:    JavaScript (Node.js v22.17.0) + Express ^4.18.2 (instalado 4.22.1) +
+  sqlite3 ^5.1.6 (instalado 5.1.7)
+  Files:    3 analyzed | ~180 lines of code
+  Date:     2026-10-01
+  Architecture: A) Monolítica / God Class
+
+  Summary
+
+  CRITICAL: 5 | HIGH: 3 | MEDIUM: 3 | LOW: 4
+
+  ┌──────┬──────────┬─────────────────────┬─────────────────────────────────┐
+  │  ID  │ Severity │    Anti-pattern     │            Location             │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │ F-01 │ CRITICAL │ Credenciais         │ src/utils.js:2-6                │
+  │      │          │ hardcoded (AP-02)   │                                 │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │      │          │ Armazenamento       │ src/utils.js:17-23,             │
+  │ F-02 │ CRITICAL │ inseguro de senha   │ src/AppManager.js:18, 68-69     │
+  │      │          │ (AP-03)             │                                 │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │ F-03 │ CRITICAL │ Exposição de dados  │ src/AppManager.js:45            │
+  │      │          │ sensíveis (AP-04)   │                                 │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │      │          │ Endpoint sensível   │ src/AppManager.js:80-129,       │
+  │ F-04 │ CRITICAL │ sem autenticação    │ 131-137                         │
+  │      │          │ (AP-05)             │                                 │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │ F-05 │ CRITICAL │ God Class / God     │ src/AppManager.js:4-139         │
+  │      │          │ File (AP-06)        │                                 │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │      │          │ Regra de negócio na │ src/AppManager.js:35, 45-48,    │
+  │ F-06 │ HIGH     │  camada errada      │ 66-72, 108-115                  │
+  │      │          │ (AP-07)             │                                 │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │      │          │ Estado global       │ src/utils.js:9-15, 25;          │
+  │ F-07 │ HIGH     │ mutável / sem DI    │ src/AppManager.js:7, 59         │
+  │      │          │ (AP-08)             │                                 │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │      │          │ Operação            │ src/AppManager.js:50-61, 66-72, │
+  │ F-08 │ HIGH     │ multi-etapa sem     │  133                            │
+  │      │          │ transação (AP-09)   │                                 │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │ F-09 │ MEDIUM   │ Query N+1 (AP-10)   │ src/AppManager.js:89-106        │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │ F-10 │ MEDIUM   │ Código duplicado    │ src/AppManager.js:96-98,        │
+  │      │          │ (AP-11)             │ 119-121                         │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │      │          │ Erro engolido / sem │ src/AppManager.js:35, 38, 57,   │
+  │ F-11 │ MEDIUM   │  handler /          │ 68, 92-93, 104, 106, 133;       │
+  │      │          │ validação (AP-12)   │ src/app.js:5-10                 │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │      │          │ Magic               │ src/AppManager.js:21, 46, 48,   │
+  │ F-12 │ LOW      │ numbers/strings     │ 68, 108; src/utils.js:19, 20,   │
+  │      │          │ (AP-14)             │ 22                              │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │ F-13 │ LOW      │ Nomes ruins (AP-14) │ src/AppManager.js:26, 29-33     │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │ F-14 │ LOW      │ Código morto        │ src/utils.js:2, 3, 5, 9-10, 14, │
+  │      │          │ (AP-14)             │  25; src/AppManager.js:2        │
+  ├──────┼──────────┼─────────────────────┼─────────────────────────────────┤
+  │ F-15 │ LOW      │ Logging inadequado  │ src/app.js:13; src/utils.js:13  │
+  │      │          │ (AP-14)             │                                 │
+  └──────┴──────────┴─────────────────────┴─────────────────────────────────┘
+
+  Findings
+
+  F-01 [CRITICAL] Credenciais hardcoded (AP-02): src/utils.js:2-6. Há 4 segredos
+  escritos como literal: dbUser, dbPass, paymentGatewayKey (pk_live_…) e
+  smtpUser, e a porta também é fixa. A chave do gateway é usada e aparece no log
+  (F-03). Correção: config/index.js lendo process.env (PT-02). Contract change:
+  NO
+
+  F-02 [CRITICAL] Armazenamento inseguro de senha (AP-03): o badCrypto só usa os
+  2 primeiros caracteres do base64, repetidos. Rodei a função isolada e obtive
+  colisões: senhaforte e segredo → c2c2c2c2c2; 123, 123456 e 19 → MTMTMTMTMT. A
+  senha default é "123456" (AppManager.js:68) e o seed grava '123' em texto puro
+  (:18). Correção: crypto.scrypt com salt (PT-03). Contract change: NO
+
+  F-03 [CRITICAL] Exposição de dados sensíveis (AP-04): AppManager.js:45
+  registra no log o número completo do cartão e a chave do gateway. Correção:
+  mascarar o cartão e nunca logar a chave (PT-04). Contract change: NO
+
+  F-04 [CRITICAL] Endpoint sensível sem autenticação (AP-05): o relatório
+  financeiro e o DELETE /api/users/:id estão abertos, e o projeto não tem nenhum
+  mecanismo de autenticação. Correção: requireAdmin com Bearer ADMIN_TOKEN e
+  fail-closed (PT-05). Contract change: YES, 401 sem credencial.
+
+  F-05 [CRITICAL] God Class (AP-06): AppManager junta conexão (7), DDL (12-16),
+  seed (18-21), rotas (28, 80, 131), validação (35), SQL (11 pontos), pagamento
+  (45-48) e agregação (108-115). Correção: decompor (PT-06). Contract change: NO
+
+  F-06 [HIGH] Regra na camada errada (AP-07): a aprovação pelo prefixo "4", a
+  criação implícita de usuário, a receita só com PAID e a validação ficam no
+  mesmo handler que 6 acessos ao banco. Correção: paymentService + models
+  (PT-07). Contract change: NO
+
+  F-07 [HIGH] Estado global (AP-08): globalCache é exportado e cresce sem limite
+  a cada checkout; totalRevenue é um let exportado; a conexão é criada dentro
+  da classe. Correção: remover o cache e injetar o banco pelo app.js (PT-08).
+  Contract change: NO
+
+  F-08 [HIGH] Sem transação (AP-09): o checkout grava em 4 tabelas por callbacks
+  aninhados, sem BEGIN/COMMIT. O usuário é criado antes da recusa do pagamento.
+  O DELETE deixa matrículas e pagamentos órfãos. Correção: transaction()
+  (PT-09). Contract change: YES, o texto do DELETE muda e um id inexistente
+  passa a dar 404.
+
+  F-09 [MEDIUM] N+1 (AP-10): o relatório faz 1 + C + 2E queries (5 com o seed),
+  e a ordem do resultado não é determinística. Correção: uma query com JOIN
+  (PT-10). Contract change: NO
+
+  F-10 [MEDIUM] Duplicação (AP-11): o bloco de fechamento do relatório está
+  repetido em 96-98 e 119-121. Correção: some com o JOIN. Contract change: NO
+
+  F-11 [MEDIUM] Erros e validação (AP-12):
+  - Há 5 callbacks que ignoram err. Em 92-93, enrollments.length sobre undefined
+    derruba o processo.
+  - Um erro de banco vira 404 (38).
+  - Não existe middleware de erro.
+  - card numérico causa TypeError e retorna 500.
+
+  Correção: errorHandler + asyncHandler + validação na borda, mantendo os textos
+  atuais (PT-12). Contract change: só entradas malformadas, que passam de 500
+  para 400.
+
+  F-12 a F-15 [LOW] (AP-14):
+  - Magic numbers/strings: 8 ocorrências.
+  - Nomes ruins: u, e, p, cid, cc e self. Os campos do contrato usr, eml etc.
+    serão mantidos.
+  - Código morto: dbUser, dbPass, smtpUser, totalRevenue e globalCache.
+  - Logging: 2 console.log.
+
+  Deprecated APIs
+
+  Não encontrei nenhuma API deprecated nas versões em uso. A busca foi só no
+  código, e vou confirmar com --trace-deprecation no baseline da Fase 3.
+
+  Positive Points
+
+  - As 10 queries que recebem valores externos usam placeholders ?, então não há
+    SQL Injection.
+  - O projeto já usa express.json() nativo e CommonJS de forma consistente.
+
+  Refactoring Plan (Phase 3 preview)
+
+  Strategy: A) decomposição completa.
+
+  Target structure (§4 Express, em src/, npm start sem mudança):
+  - app.js: composition root
+  - config/index.js
+  - database/connection.js e database/schema.js
+  - models/: userModel, courseModel, enrollmentModel, paymentModel,
+    auditLogModel
+  - controllers/: checkoutController, reportController, userController
+  - routes/index.js: a View, separada dos controllers
+  - services/paymentService.js
+  - middlewares/: errorHandler.js e auth.js
+  - utils/: constants, password, logger
+
+  Removo AppManager.js e utils.js, crio .env.example e atualizo o README.
+
+  Mudanças de contrato que precisam da sua aprovação:
+  - F-04: o relatório financeiro e o DELETE /api/users/:id passam a exigir
+    Authorization: Bearer <ADMIN_TOKEN>. Sem token ou com token inválido, a
+    resposta é 401.
+  - F-08: o DELETE /api/users/:id também apaga as matrículas e os pagamentos do
+    usuário. A resposta passa a ser Usuário deletado, e um id inexistente
+    retorna 404 Usuário não encontrado.
+  - F-11: entradas malformadas passam a retornar 400 Bad Request. O pwd continua
+    opcional, mas sem a senha default conhecida: quando ausente, gero uma senha
+    aleatória e gravo só o hash.
+
+  Out of scope: o checkout com um e-mail já cadastrado não verifica a senha.
+  Corrigir isso mudaria o contrato do checkout, então não está incluído sem sua
+  aprovação explícita.
+
+  ================================
+  Total: 15 findings
+  ================================
+
+  O relatório completo, com evidências e trechos de código, está em
+  reports/audit-report.md.
+
+  Phase 2 complete. Report saved to reports/audit-report.md.
+  Proceed with refactoring (Phase 3)? [y/n]
+
+✻ Cogitated for 3m 31s · done 8:48
+
+❯ y, e atualize o api.http com o header Authorization nas rotas protegidas      
+
+● Plano ajustado: o mesmo plano aprovado, com o api.http passando a mandar
+  Authorization: Bearer {{adminToken}} nas duas rotas protegidas. Vou ler as
+  referências da Fase 3.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/ecommerce-api-lega
+      cy/.claude/skills/refactor-arch/references" && sed -n '1,92p;226,400p'
+      mvc-guidelines.m…)
+  ⎿  # Guidelines de Arquitetura: MVC alvo
+
+     Referência da **Fase 3**. Define **para onde** o código vai: as camada
+     … +722 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Gravando o baseline: subo o app atual com --trace-deprecation e chamo cada
+  endpoint.
+
+● Bash(S="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-De
+      safios-Praticos-skill-review-ecommerce-api-legacy/8da7dfe4-d0b9-4cc5-a2cb-
+      d2a3e3436d0c/…)
+  ⎿  ok
+
+● Bash(S="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-De
+      safios-Praticos-skill-review-ecommerce-api-legacy/8da7dfe4-d0b9-4cc5-a2cb-
+      d2a3e3436d0c/…)
+  ⎿  POST   /api/checkout                  200 | checkout sucesso (novo usu
+     ário) | keys: msg,enrollment_id
+     POST   /api/checkout                  400 | checkout recusado | text:
+     … +16 lines (ctrl+o to expand)
+
+● Bash(S="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-De
+      safios-Praticos-skill-review-ecommerce-api-legacy/8da7dfe4-d0b9-4cc5-a2cb-
+      d2a3e3436d0c/…)
+  ⎿  card num�rico: 000
+     [
+       {
+     … +50 lines (ctrl+o to expand)
+
+● Bash(S="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-De
+      safios-Praticos-skill-review-ecommerce-api-legacy/8da7dfe4-d0b9-4cc5-a2cb-
+      d2a3e3436d0c/…)
+  ⎿  [LOG] Salvando no cache: last_checkout_1
+     Processando cartão 4111 na chave pk_live_1234567890abcdef
+     C:\Treinamentos\MBA\Desafios Praticos\skill_review\ecommerce-api-legac
+     … +16 lines (ctrl+o to expand)
+
+● Baseline confirmado: 9 chamadas sem warnings, mas um card numérico derruba o
+  processo inteiro e o DELETE deixa pagamentos órfãos de alunos Unknown
+  (F-08/F-09), além da ordem do relatório instável. Vou começar agora pela
+  configuração e infraestrutura.
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy/src" && mkdir -p config
+      database models controllers routes services middlewares util…)
+  ⎿  ok
+  ⎿  Created src\config\index.js (+8 -0)
+      1 +// Única fonte de configuração: tudo vem do ambiente (12-Factor)
+        +.                                                               
+      2 +// Segredos não têm default; sem ADMIN_TOKEN as rotas administra
+        +tivas ficam bloqueadas.                                         
+      3 +module.exports = {                                              
+      4 +    port: Number(process.env.PORT) || 3000,                     
+      5 +    databasePath: process.env.DATABASE_PATH || ':memory:',      
+      6 +    paymentGatewayKey: process.env.PAYMENT_GATEWAY_KEY,         
+      7 +    adminToken: process.env.ADMIN_TOKEN,                        
+      8 +};                                                              
+  ⎿  Created src\database\connection.js (+41 -0)
+       1 +const sqlite3 = require('sqlite3');                            
+       2 +                                                               
+       3 +// Abre o banco e expõe helpers promisificados + transaction().
+       4 +function createConnection(databasePath) {                      
+       5 +    return new Promise((resolve, reject) => {                  
+       6 +        const raw = new sqlite3.Database(databasePath, (err) =>
+         + (err ? reject(err) : resolve(wrap(raw))));                    
+       7 +    });                                                        
+       8 +}                                                              
+       9 +                                                               
+      10 +function wrap(raw) {                                           
+      11 +    // Uma única conexão: as transações são enfileiradas para n
+         +ão se sobreporem.                                              
+      12 +    let queue = Promise.resolve();                             
+      13 +                                                               
+      14 +    const db = {                                               
+      15 +        get: (sql, params = []) => new Promise((ok, ko) => raw.
+         +get(sql, params, (e, row) => (e ? ko(e) : ok(row)))),          
+      16 +        all: (sql, params = []) => new Promise((ok, ko) => raw.
+         +all(sql, params, (e, rows) => (e ? ko(e) : ok(rows)))),        
+      17 +        run: (sql, params = []) => new Promise((ok, ko) => raw.
+         +run(sql, params, function (e) {                                
+      18 +            return e ? ko(e) : ok({ lastID: this.lastID, change
+         +s: this.changes });                                            
+      19 +        })),                                                   
+      20 +        exec: (sql) => new Promise((ok, ko) => raw.exec(sql, (e
+         +) => (e ? ko(e) : ok()))),                                     
+      21 +        transaction(fn) {                                      
+      22 +            const result = queue.then(async () => {            
+      23 +                await db.run('BEGIN');                         
+      24 +                try {                                          
+      25 +                    const value = await fn(db);                
+      26 +                    await db.run('COMMIT');                    
+      27 +                    return value;                              
+      28 +                } catch (err) {                                
+      29 +                    await db.run('ROLLBACK');                  
+      30 +                    throw err;                                 
+      31 +                }                                              
+      32 +            });                                                
+      33 +            queue = result.catch(() => {});                    
+      34 +            return result;                                     
+      35 +        },                                                     
+      36 +        close: () => new Promise((ok, ko) => raw.close((e) => (
+         +e ? ko(e) : ok()))),                                           
+      37 +    };                                                         
+      38 +    return db;                                                 
+      39 +}                                                              
+      40 +                                                               
+     … 1 more lines (ctrl+o to expand)
+  ⎿  Created src\database\schema.js (+28 -0)
+       1 +const { hashPassword } = require('../utils/password');         
+       2 +const { PAYMENT_STATUS } = require('../utils/constants');      
+       3 +                                                               
+       4 +const SCHEMA = `                                               
+       5 +    CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, n
+         +ame TEXT, email TEXT, pass TEXT);                              
+       6 +    CREATE TABLE IF NOT EXISTS courses (id INTEGER PRIMARY KEY,
+         + title TEXT, price REAL, active INTEGER);                      
+       7 +    CREATE TABLE IF NOT EXISTS enrollments (id INTEGER PRIMARY 
+         +KEY, user_id INTEGER, course_id INTEGER);                      
+       8 +    CREATE TABLE IF NOT EXISTS payments (id INTEGER PRIMARY KEY
+         +, enrollment_id INTEGER, amount REAL, status TEXT);            
+       9 +    CREATE TABLE IF NOT EXISTS audit_logs (id INTEGER PRIMARY K
+         +EY, action TEXT, created_at DATETIME);                         
+      10 +`;                                                             
+      11 +                                                               
+      12 +async function initSchema(db) {                                
+      13 +    await db.exec(SCHEMA);                                     
+      14 +    const { total } = await db.get('SELECT COUNT(*) AS total FR
+         +OM users');                                                    
+      15 +    if (total === 0) await seed(db);                           
+      16 +}                                                              
+      17 +                                                               
+      18 +async function seed(db) {                                      
+      19 +    const seedPassword = await hashPassword('123');            
+      20 +    await db.transaction(async (tx) => {                       
+      21 +        await tx.run('INSERT INTO users (name, email, pass) VAL
+         +UES (?, ?, ?)', ['Leonan', 'leonan@fullcycle.com.br', seedPassw
+         +ord]);                                                         
+      22 +        await tx.run("INSERT INTO courses (title, price, active
+         +) VALUES ('Clean Architecture', 997.00, 1), ('Docker', 497.00, 
+         +1)");                                                          
+      23 +        await tx.run('INSERT INTO enrollments (user_id, course_
+         +id) VALUES (1, 1)');                                           
+      24 +        await tx.run('INSERT INTO payments (enrollment_id, amou
+         +nt, status) VALUES (1, 997.00, ?)', [PAYMENT_STATUS.PAID]);    
+      25 +    });                                                        
+      26 +}                                                              
+      27 +                                                               
+      28 +module.exports = { initSchema };                               
+  ⎿  Created src\utils\constants.js (+11 -0)
+       1 +const PAYMENT_STATUS = Object.freeze({                         
+       2 +    PAID: 'PAID',                                              
+       3 +    DENIED: 'DENIED',                                          
+       4 +});                                                            
+       5 +                                                               
+       6 +// Regra do gateway simulado: cartões iniciados em "4" são apro
+         +vados.                                                         
+       7 +const APPROVED_CARD_PREFIX = '4';                              
+       8 +                                                               
+       9 +const UNKNOWN_STUDENT = 'Unknown';                             
+      10 +                                                               
+      11 +module.exports = { PAYMENT_STATUS, APPROVED_CARD_PREFIX, UNKNOW
+         +N_STUDENT };                                                   
+  ⎿  Created src\utils\logger.js (+8 -0)
+      1 +// Logger mínimo com nível; erros vão para stderr.              
+      2 +const logger = {                                                
+      3 +    info: (message) => console.log(`[INFO] ${message}`),        
+      4 +    warn: (message) => console.warn(`[WARN] ${message}`),       
+      5 +    error: (message, err) => console.error(`[ERROR] ${message}`,
+        + err || ''),                                                    
+      6 +};                                                              
+      7 +                                                                
+      8 +module.exports = logger;                                        
+  ⎿  … 1 more file changed
+
+● Agora os models, o service, os middlewares, os controllers, as rotas e o
+  composition root.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy/src" && cat >
+      models/userModel.js <<'EOF'
+      // Acesso a dados de users. Recebe a conex…)
+  ⎿  ok
+  ⎿  Created src\middlewares\auth.js (+18 -0)
+       1 +const crypto = require('crypto');                              
+       2 +const { AppError } = require('./errorHandler');                
+       3 +                                                               
+       4 +function safeEqual(a, b) {                                     
+       5 +    const x = Buffer.from(String(a));                          
+       6 +    const y = Buffer.from(String(b));                          
+       7 +    return x.length === y.length && crypto.timingSafeEqual(x, y
+         +);                                                             
+       8 +}                                                              
+       9 +                                                               
+      10 +// Exige "Authorization: Bearer <ADMIN_TOKEN>". Sem ADMIN_TOKEN
+         + configurado, nega tudo (fail-closed).                         
+      11 +module.exports = ({ adminToken }) => function requireAdmin(req,
+         + res, next) {                                                  
+      12 +    const header = req.get('authorization') || '';             
+      13 +    const token = header.startsWith('Bearer ') ? header.slice('
+         +Bearer '.length).trim() : '';                                  
+      14 +    if (!adminToken || !token || !safeEqual(token, adminToken))
+         + {                                                             
+      15 +        return next(new AppError('Não autorizado', 401));      
+      16 +    }                                                          
+      17 +    return next();                                             
+      18 +};                                                             
+  ⎿  Created src\middlewares\errorHandler.js (+25 -0)
+       1 +const logger = require('../utils/logger');                     
+       2 +                                                               
+       3 +// Erros de domínio com status HTTP; a mensagem é enviada como 
+         +texto puro (formato original da API).                          
+       4 +class AppError extends Error {                                 
+       5 +    constructor(message, status = 400) {                       
+       6 +        super(message);                                        
+       7 +        this.status = status;                                  
+       8 +    }                                                          
+       9 +}                                                              
+      10 +                                                               
+      11 +// Express 4 não captura rejeições de handlers async.          
+      12 +const asyncHandler = (fn) => (req, res, next) => Promise.resolv
+         +e(fn(req, res, next)).catch(next);                             
+      13 +                                                               
+      14 +// eslint-disable-next-line no-unused-vars                     
+      15 +function errorHandler(err, req, res, next) {                   
+      16 +    if (err instanceof AppError) return res.status(err.status).
+         +send(err.message);                                             
+      17 +                                                               
+      18 +    const status = err.status || err.statusCode;               
+      19 +    if (status && status < 500) return res.status(status).send(
+         +'Bad Request'); // ex.: JSON malformado                        
+      20 +                                                               
+      21 +    logger.error(`Erro inesperado em ${req.method} ${req.origin
+         +alUrl}`, err);                                                 
+      22 +    return res.status(500).send('Erro interno');               
+      23 +}                                                              
+      24 +                                                               
+      25 +module.exports = { AppError, asyncHandler, errorHandler };     
+  ⎿  Created src\models\auditLogModel.js (+5 -0)
+      1 +function record(db, action) {                                   
+      2 +    return db.run("INSERT INTO audit_logs (action, created_at) V
+        +ALUES (?, datetime('now'))", [action]);                         
+      3 +}                                                               
+      4 +                                                                
+      5 +module.exports = { record };                                    
+  ⎿  Created src\models\courseModel.js (+36 -0)
+       1 +const { PAYMENT_STATUS, UNKNOWN_STUDENT } = require('../utils/c
+         +onstants');                                                    
+       2 +                                                               
+       3 +function findActiveById(db, id) {                              
+       4 +    return db.get('SELECT * FROM courses WHERE id = ? AND activ
+         +e = 1', [id]);                                                 
+       5 +}                                                              
+       6 +                                                               
+       7 +// Relatório financeiro: uma única query (sem N+1) + agregação 
+         +por curso.                                                     
+       8 +// Regra de domínio: receita soma apenas pagamentos PAID; aluno
+         + sem cadastro aparece como "Unknown".                          
+       9 +async function getFinancialReport(db) {                        
+      10 +    const rows = await db.all(`                                
+      11 +        SELECT c.id AS course_id, c.title, e.id AS enrollment_i
+         +d,                                                             
+      12 +               u.name AS student, p.amount, p.status           
+      13 +        FROM courses c                                         
+      14 +        LEFT JOIN enrollments e ON e.course_id = c.id          
+      15 +        LEFT JOIN users u       ON u.id = e.user_id            
+      16 +        LEFT JOIN payments p    ON p.id = (SELECT MIN(id) FROM 
+         +payments WHERE enrollment_id = e.id)                           
+      17 +        ORDER BY c.id, e.id`);                                 
+      18 +                                                               
+      19 +    const report = new Map();                                  
+      20 +    for (const row of rows) {                                  
+      21 +        if (!report.has(row.course_id)) {                      
+      22 +            report.set(row.course_id, { course: row.title, reve
+         +nue: 0, students: [] });                                       
+      23 +        }                                                      
+      24 +        if (row.enrollment_id === null) continue;              
+      25 +                                                               
+      26 +        const courseData = report.get(row.course_id);          
+      27 +        if (row.status === PAYMENT_STATUS.PAID) courseData.reve
+         +nue += row.amount;                                             
+      28 +        courseData.students.push({                             
+      29 +            student: row.student || UNKNOWN_STUDENT,           
+      30 +            paid: row.amount || 0,                             
+      31 +        });                                                    
+      32 +    }                                                          
+      33 +    return [...report.values()];                               
+      34 +}                                                              
+      35 +                                                               
+      36 +module.exports = { findActiveById, getFinancialReport };       
+  ⎿  Created src\models\enrollmentModel.js (+10 -0)
+       1 +async function create(db, { userId, courseId }) {              
+       2 +    const { lastID } = await db.run('INSERT INTO enrollments (u
+         +ser_id, course_id) VALUES (?, ?)', [userId, courseId]);        
+       3 +    return lastID;                                             
+       4 +}                                                              
+       5 +                                                               
+       6 +function removeByUser(db, userId) {                            
+       7 +    return db.run('DELETE FROM enrollments WHERE user_id = ?', 
+         +[userId]);                                                     
+       8 +}                                                              
+       9 +                                                               
+      10 +module.exports = { create, removeByUser };                     
+  ⎿  … 3 more files changed
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy/src" && cat >
+      controllers/checkoutController.js <<'EOF'
+      const userModel = require('.…)
+  ⎿  app.js
+     config
+     controllers
+     … +10 lines (ctrl+o to expand)
+  ⎿  Deleted src\AppManager.js (+0 -141)
+        1 -const sqlite3 = require('sqlite3').verbose();                 
+        2 -const { config, logAndCache, badCrypto, totalRevenue } = requi
+          -re('./utils');                                                
+        3 -                                                              
+        4 -class AppManager {                                            
+        5 -    constructor() {                                           
+        6 -                                                              
+        7 -        this.db = new sqlite3.Database(':memory:');           
+        8 -    }                                                         
+        9 -                                                              
+       10 -    initDb() {                                                
+       11 -        this.db.serialize(() => {                             
+       12 -            this.db.run("CREATE TABLE users (id INTEGER PRIMAR
+          -Y KEY, name TEXT, email TEXT, pass TEXT)");                   
+       13 -            this.db.run("CREATE TABLE courses (id INTEGER PRIM
+          -ARY KEY, title TEXT, price REAL, active INTEGER)");           
+       14 -            this.db.run("CREATE TABLE enrollments (id INTEGER 
+          -PRIMARY KEY, user_id INTEGER, course_id INTEGER)");           
+       15 -            this.db.run("CREATE TABLE payments (id INTEGER PRI
+          -MARY KEY, enrollment_id INTEGER, amount REAL, status TEXT)"); 
+       16 -            this.db.run("CREATE TABLE audit_logs (id INTEGER P
+          -RIMARY KEY, action TEXT, created_at DATETIME)");              
+       17 -                                                              
+       18 -            this.db.run("INSERT INTO users (name, email, pass)
+          - VALUES ('Leonan', 'leonan@fullcycle.com.br', '123')");       
+       19 -            this.db.run("INSERT INTO courses (title, price, ac
+          -tive) VALUES ('Clean Architecture', 997.00, 1), ('Docker', 497
+          -.00, 1)");                                                    
+       20 -            this.db.run("INSERT INTO enrollments (user_id, cou
+          -rse_id) VALUES (1, 1)");                                      
+       21 -            this.db.run("INSERT INTO payments (enrollment_id, 
+          -amount, status) VALUES (1, 997.00, 'PAID')");                 
+       22 -        });                                                   
+       23 -    }                                                         
+       24 -                                                              
+       25 -    setupRoutes(app) {                                        
+       26 -        const self = this;                                    
+       27 -                                                              
+       28 -        app.post('/api/checkout', (req, res) => {             
+       29 -            let u = req.body.usr;                             
+       30 -            let e = req.body.eml;                             
+       31 -            let p = req.body.pwd;                             
+       32 -            let cid = req.body.c_id;                          
+       33 -            let cc = req.body.card;                           
+       34 -                                                              
+       35 -            if (!u || !e || !cid || !cc) return res.status(400
+          -).send("Bad Request");                                        
+       36 -                                                              
+       37 -            this.db.get("SELECT * FROM courses WHERE id = ? AN
+          -D active = 1", [cid], (err, course) => {                      
+       38 -                if (err || !course) return res.status(404).sen
+          -d("Curso não encontrado");                                    
+       39 -                                                              
+       40 -                this.db.get("SELECT id FROM users WHERE email 
+          -= ?", [e], (err, user) => {                                   
+     … 101 more lines (ctrl+o to expand)
+  ⎿  Updated src\app.js (+39 -10)
+       1  const express = require('express');
+       2 -const AppManager = require('./AppManager');                    
+       3 -const { config } = require('./utils');                         
+       2 +const config = require('./config');                            
+       3 +const logger = require('./utils/logger');                      
+       4 +const { createConnection } = require('./database/connection'); 
+       5 +const { initSchema } = require('./database/schema');           
+       6 +const createPaymentService = require('./services/paymentService
+         +');                                                            
+       7 +const createCheckoutController = require('./controllers/checkou
+         +tController');                                                 
+       8 +const createReportController = require('./controllers/reportCon
+         +troller');                                                     
+       9 +const createUserController = require('./controllers/userControl
+         +ler');                                                         
+      10 +const createRequireAdmin = require('./middlewares/auth');      
+      11 +const { errorHandler } = require('./middlewares/errorHandler');
+      12 +const buildRoutes = require('./routes');                       
+      13  
+       5 -const app = express();                                         
+       6 -app.use(express.json());                                       
+      14 +// Composition root: cria as dependências e as injeta nas camad
+         +as.                                                            
+      15 +async function createApp() {                                   
+      16 +    const db = await createConnection(config.databasePath);    
+      17 +    await initSchema(db);                                      
+      18  
+       8 -const manager = new AppManager();                              
+       9 -manager.initDb();                                              
+      10 -manager.setupRoutes(app);                                      
+      19 +    const paymentService = createPaymentService({ gatewayKey: c
+         +onfig.paymentGatewayKey, logger });                            
+      20 +    if (!config.adminToken) logger.warn('ADMIN_TOKEN não config
+         +urado: rotas administrativas responderão 401.');               
+      21  
+      12 -app.listen(config.port, () => {                                
+      13 -    console.log(`Frankenstein LMS rodando na porta ${config.por
+         -t}...`);                                                       
+      14 -});                                                            
+      22 +    const app = express();                                     
+      23 +    app.use(express.json());                                   
+      24 +    app.use(buildRoutes({                                      
+      25 +        checkoutController: createCheckoutController({ db, paym
+         +entService, logger }),                                         
+      26 +        reportController: createReportController({ db }),      
+      27 +        userController: createUserController({ db, logger }),  
+      28 +        requireAdmin: createRequireAdmin({ adminToken: config.a
+         +dminToken }),                                                  
+      29 +    }));                                                       
+      30 +    app.use(errorHandler);                                     
+     … 13 more lines (ctrl+o to expand)
+  ⎿  Created src\controllers\checkoutController.js (+50 -0)
+       1 +const userModel = require('../models/userModel');              
+       2 +const courseModel = require('../models/courseModel');          
+       3 +const enrollmentModel = require('../models/enrollmentModel');  
+       4 +const paymentModel = require('../models/paymentModel');        
+       5 +const auditLogModel = require('../models/auditLogModel');      
+       6 +const { AppError } = require('../middlewares/errorHandler');   
+       7 +const { PAYMENT_STATUS } = require('../utils/constants');      
+       8 +const { hashPassword, randomPassword } = require('../utils/pass
+         +word');                                                        
+       9 +                                                               
+      10 +const isFilledString = (value) => typeof value === 'string' && 
+         +value.trim() !== '';                                           
+      11 +                                                               
+      12 +// Valida a borda HTTP mantendo o contrato (usr, eml, pwd, c_id
+         +, card) e as mensagens originais.                              
+      13 +function parseCheckoutBody(body = {}) {                        
+      14 +    const { usr: name, eml: email, pwd: password, c_id: courseI
+         +d, card: cardNumber } = body;                                  
+      15 +    const validCourseId = Number.isInteger(Number(courseId)) &&
+         + Number(courseId) > 0;                                         
+      16 +    const validPassword = password === undefined || password ==
+         += null || password === '' || typeof password === 'string';     
+      17 +                                                               
+      18 +    if (!isFilledString(name) || !isFilledString(email) || !isF
+         +illedString(cardNumber) || !validCourseId || !validPassword) { 
+      19 +        throw new AppError('Bad Request', 400);                
+      20 +    }                                                          
+      21 +    return { name, email, password: password || null, courseId:
+         + Number(courseId), cardNumber };                               
+      22 +}                                                              
+      23 +                                                               
+      24 +module.exports = ({ db, paymentService, logger }) => ({        
+      25 +    async checkout(req, res) {                                 
+      26 +        const { name, email, password, courseId, cardNumber } =
+         + parseCheckoutBody(req.body);                                  
+      27 +                                                               
+      28 +        const course = await courseModel.findActiveById(db, cou
+         +rseId);                                                        
+      29 +        if (!course) throw new AppError('Curso não encontrado',
+         + 404);                                                         
+      30 +                                                               
+      31 +        const existingUser = await userModel.findByEmail(db, em
+         +ail);                                                          
+      32 +                                                               
+      33 +        // Pagamento decidido antes de qualquer escrita: recusa
+         + não deixa usuário órfão.                                      
+      34 +        const status = paymentService.charge(cardNumber);      
+      35 +        if (status === PAYMENT_STATUS.DENIED) throw new AppErro
+         +r('Pagamento recusado', 400);                                  
+      36 +                                                               
+      37 +        const passwordHash = existingUser ? null : await hashPa
+         +ssword(password || randomPassword());                          
+      38 +                                                               
+      39 +        const { userId, enrollmentId } = await db.transaction(a
+         +sync (tx) => {                                                 
+      40 +            const id = existingUser ? existingUser.id : await u
+         +serModel.create(tx, { name, email, passwordHash });            
+     … 10 more lines (ctrl+o to expand)
+  ⎿  Created src\controllers\reportController.js (+7 -0)
+      1 +const courseModel = require('../models/courseModel');           
+      2 +                                                                
+      3 +module.exports = ({ db }) => ({                                 
+      4 +    async financialReport(req, res) {                           
+      5 +        res.json(await courseModel.getFinancialReport(db));     
+      6 +    },                                                          
+      7 +});                                                             
+  ⎿  Created src\controllers\userController.js (+24 -0)
+       1 +const userModel = require('../models/userModel');              
+       2 +const enrollmentModel = require('../models/enrollmentModel');  
+       3 +const paymentModel = require('../models/paymentModel');        
+       4 +const { AppError } = require('../middlewares/errorHandler');   
+       5 +                                                               
+       6 +module.exports = ({ db, logger }) => ({                        
+       7 +    async deleteUser(req, res) {                               
+       8 +        const id = Number(req.params.id);                      
+       9 +        if (!Number.isInteger(id) || id <= 0) throw new AppErro
+         +r('Bad Request', 400);                                         
+      10 +                                                               
+      11 +        const user = await userModel.findById(db, id);         
+      12 +        if (!user) throw new AppError('Usuário não encontrado',
+         + 404);                                                         
+      13 +                                                               
+      14 +        // Remove dependentes na mesma transação: nada fica órf
+         +ão.                                                            
+      15 +        await db.transaction(async (tx) => {                   
+      16 +            await paymentModel.removeByUser(tx, id);           
+      17 +            await enrollmentModel.removeByUser(tx, id);        
+      18 +            await userModel.remove(tx, id);                    
+      19 +        });                                                    
+      20 +                                                               
+      21 +        logger.info(`Usuário ${id} removido com matrículas e pa
+         +gamentos`);                                                    
+      22 +        res.send('Usuário deletado');                          
+      23 +    },                                                         
+      24 +});                                                            
+  ⎿  … 2 more files changed
+
+● Vou desfazer apenas o stage do git rm (os arquivos continuam apagados), já que
+  o versionamento fica a seu critério. Em seguida crio .env.example e atualizo
+  o README e o api.http.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && git reset -q HEAD --
+      src/AppManager.js src/utils.js && git status --short . && l…)
+  ⎿   D src/AppManager.js
+      M src/app.js
+      D src/utils.js
+     … +23 lines (ctrl+o to expand)
+
+● .env já está no .gitignore da raiz.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && cat > .env.example <<'EOF'
+      # Porta HTTP (padrão: 3000)…)
+  ⎿  ok
+  ⎿  Created .env.example (+9 -0)
+      1 +# Porta HTTP (padrão: 3000)                                     
+      2 +PORT=3000                                                       
+      3 +# Caminho do banco SQLite (padrão: :memory:, recriado e populado
+        + a cada boot)                                                   
+      4 +DATABASE_PATH=:memory:                                          
+      5 +# Token exigido em "Authorization: Bearer <token>" nas rotas adm
+        +inistrativas.                                                   
+      6 +# Sem ele, GET /api/admin/financial-report e DELETE /api/users/:
+        +id respondem 401.                                               
+      7 +ADMIN_TOKEN=                                                    
+      8 +# Chave do gateway de pagamento (o gateway atual é simulado; nun
+        +ca é registrada em log)                                         
+      9 +PAYMENT_GATEWAY_KEY=                                            
+  ⎿  Updated README.md (+28 -1)
+       6  
+       7  ```bash
+       8  npm install
+       9 -npm start                                                      
+       9 +cp .env.example .env        # preencha ADMIN_TOKEN             
+      10 +node --env-file=.env src/app.js                                
+      11 +# ou, exportando as variáveis no shell:                        
+      12 +ADMIN_TOKEN=um-token-forte npm start                           
+      13  ```
+      14  
+      15  A aplicação sobe em `http://localhost:3000`. O banco SQLite é e
+          m memória e já carrega seeds automaticamente no boot.
+      16  
+      17 +### Variáveis de ambiente                                      
+      18 +                                                               
+      19 +| Variável | Obrigatória | Descrição |                         
+      20 +|---|---|---|                                                  
+      21 +| `PORT` | não (3000) | Porta HTTP |                           
+      22 +| `DATABASE_PATH` | não (`:memory:`) | Arquivo do SQLite |     
+      23 +| `ADMIN_TOKEN` | sim, para rotas admin | Token Bearer de `GET 
+         +/api/admin/financial-report` e `DELETE /api/users/:id`. Sem ele
+         +, essas rotas respondem 401 |                                  
+      24 +| `PAYMENT_GATEWAY_KEY` | não | Chave do gateway de pagamento (
+         +gateway simulado) |                                            
+      25 +                                                               
+      26 +## Estrutura                                                   
+      27 +                                                               
+      28 +```                                                            
+      29 +src/                                                           
+      30 +├── app.js            # composition root                       
+      31 +├── config/           # configuração lida do ambiente          
+      32 +├── database/         # conexão (helpers async + transaction) e
+         + schema/seed                                                   
+      33 +├── models/           # acesso a dados e regras de domínio     
+      34 +├── controllers/      # fluxo dos casos de uso e validação de e
+         +ntrada                                                         
+      35 +├── routes/           # view: URL → controller                 
+      36 +├── services/         # gateway de pagamento                   
+      37 +├── middlewares/      # tratamento de erro e autenticação      
+      38 +└── utils/            # constantes, hash de senha, logger      
+      39 +```                                                            
+      40 +                                                               
+      41  Exemplos de requisições estão em `api.http`.
+  ⎿  Updated api.http (+6 -2)
+      1  @baseUrl = http://localhost:3000
+      2 +# Mesmo valor da variável de ambiente ADMIN_TOKEN do servidor   
+      3 +@adminToken = troque-pelo-admin-token                           
+      4  
+      5  ### Checkout - sucesso
+      6  POST {{baseUrl}}/api/checkout
+     ...
+      26    "card": "5111222233334444"
+      27  }
+      28  
+      27 -### Relatório financeiro administrativo                        
+      29 +### Relatório financeiro administrativo (requer ADMIN_TOKEN)   
+      30  GET {{baseUrl}}/api/admin/financial-report
+      31 +Authorization: Bearer {{adminToken}}                           
+      32  
+      30 -### Deletar usuário                                            
+      33 +### Deletar usuário (requer ADMIN_TOKEN)                       
+      34  DELETE {{baseUrl}}/api/users/1
+      35 +Authorization: Bearer {{adminToken}}                           
+
+● Validação: mesma preparação (banco em memória, boot limpo), agora com
+  ADMIN_TOKEN definido.
+
+● Bash(S="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-De
+      safios-Praticos-skill-review-ecommerce-api-legacy/8da7dfe4-d0b9-4cc5-a2cb-
+      d2a3e3436d0c/…)
+  ⎿  POST   /api/checkout                  200 | checkout sucesso (novo usu
+     ário) | keys: msg,enrollment_id
+     POST   /api/checkout                  400 | checkout recusado | text:
+     … +67 lines (ctrl+o to expand)
+
+● Todas as rotas batem com o baseline, com exceção das mudanças aprovadas. Antes
+  de parar o app, testo checkouts concorrentes para exercitar a fila de
+  transações.
+
+● Bash(S="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-De
+      safios-Praticos-skill-review-ecommerce-api-legacy/8da7dfe4-d0b9-4cc5-a2cb-
+      d2a3e3436d0c/…)
+  ⎿  status: 200 count 20
+     Clean Architecture: 10 alunos, receita 9970 | Docker: 11 alunos, recei
+     ta 5467
+     … +4 lines (ctrl+o to expand)
+
+● Concorrência OK: 20 respostas 200, contagens e receitas exatas. A porta foi
+  liberada. Rodo de novo os sinais de detecção no código novo.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy/src" && echo "AP-02 segredos
+      literais:"; grep -rnE '((secret|passw|pwd|senha|token|a…)
+  ⎿  AP-02 segredos literais:
+       nenhum
+     AP-03 base64/badCrypto/123456:
+     … +25 lines (ctrl+o to expand)
+
+● A única ocorrência em loop (courseModel.js:20) só agrega em memória, sem query
+  dentro. Escrevo o resumo final.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && find src -name "*.js" |
+      xargs wc -l | sort -k2)
+  ⎿     43 src/app.js
+         8 src/config/index.js
+        50 src/controllers/checkoutController.js
+     … +17 lines (ctrl+o to expand)
+
+● Write(reports\refactor-summary.md)
+  ⎿  Wrote 108 lines to reports\refactor-summary.md
+       1 ================================
+       2 PHASE 3: REFACTORING COMPLETE
+       4 ## Strategy
+       5 A) Decomposição completa: `AppManager.js` (God Class) e `utils.j
+         s` foram desmontados por camada e domínio na estrutura Express d
+       6 
+       7 ## New Project Structure
+       8 ```
+      10 ├── package.json                    # inalterado ("start": "node
+          src/app.js")
+     … +174 lines (ctrl+o to expand)
+
+● A refatoração está pronta e validada: os 15 findings foram corrigidos e todas
+  as verificações passaram. O resumo completo está em
+  reports/refactor-summary.md. Não fiz commit.
+
+  ================================
+  PHASE 3: REFACTORING COMPLETE
+  ================================
+  ## Strategy
+  A) Decomposição completa: AppManager.js e utils.js desmontados por camada e 
+  domínio (§4 Express) e removidos; npm start mantido.
+
+  New Project Structure
+
+  src/
+  ├── app.js                      # entry point: monta e injeta as dependências
+  ├── config/index.js             # config lida do ambiente
+  ├── database/connection.js      # helpers async + transaction()
+  ├── database/schema.js          # tabelas + seed
+  ├── models/                     # Model: user, course (relatório), enrollment,
+  payment, auditLog
+  ├── controllers/                # Controller: checkout, report, user
+  ├── routes/index.js             # View: URL → controller (+ requireAdmin)
+  ├── services/paymentService.js  # gateway de pagamento simulado
+  ├── middlewares/                # errorHandler.js, auth.js
+  └── utils/                      # constants.js, password.js (scrypt), 
+  logger.js
+  Também criei .env.example e atualizei o README e o api.http, que agora manda
+  Authorization: Bearer {{adminToken}} nas rotas protegidas.
+
+  Findings Resolved
+
+  Os 15 findings estão RESOLVED, de F-01 a F-15: 5 CRITICAL, 3 HIGH, 3 MEDIUM e
+  4 LOW. A tabela com o padrão aplicado em cada um (PT-xx) está no arquivo de
+  resumo.
+
+  Contract Changes Applied
+
+  - F-04: o relatório financeiro e o DELETE /api/users/:id exigem Authorization:
+    Bearer <ADMIN_TOKEN>. Sem token ou com token inválido, respondem 401. Se o
+    ADMIN_TOKEN não estiver configurado, respondem sempre 401.
+  - F-08: o DELETE apaga também as matrículas e os pagamentos do usuário e
+    responde Usuário deletado. Um id inexistente retorna 404.
+  - F-11: entradas malformadas retornam 400 Bad Request. No baseline, um card
+    numérico derrubava o processo inteiro.
+
+  Duas mudanças fora da lista aprovada:
+  - Um erro interno inesperado agora responde 500 Erro interno, no lugar dos
+    textos antigos (Erro DB, Erro Matrícula…).
+  - Um checkout com pagamento recusado não cria mais o usuário.
+
+  Validation
+
+    ✓ Application boots without errors
+    ✓ All endpoints respond as baseline (6/6 sem mudança; 3 com mudança aprovada
+  também conferidas)
+    ✓ Approved contract changes verified (401 sem token e com token inválido; 
+  status original com token)
+    ✓ No deprecation warnings from project code (--trace-deprecation, antes e 
+  depois)
+    ✓ No CRITICAL/HIGH anti-patterns remaining (sinais rodados de novo)
+    ✓ MVC structure checklist complete (§7)
+  Também disparei 20 checkouts simultâneos: todos responderam 200, e as
+  contagens e receitas do relatório saíram exatas. O relatório com token traz os
+  mesmos valores do baseline, agora em ordem determinística.
+
+  Endpoint Comparison
+
+  ┌──────────┬────────────────────────┬─────────────┬─────────────┬────────┐
+  │  Método  │          Rota          │  Baseline   │   Depois    │   OK   │
+  ├──────────┼────────────────────────┼─────────────┼─────────────┼────────┤
+  │          │ /api/checkout (sucesso │ 200 {msg,   │ 200 {msg,   │        │
+  │ POST     │  / usuário existente)  │ enrollment_ │ enrollment_ │ ✓      │
+  │          │                        │ id}         │ id}         │        │
+  ├──────────┼────────────────────────┼─────────────┼─────────────┼────────┤
+  │          │ /api/checkout          │             │ 400, mesmos │        │
+  │ POST     │ (recusado / sem        │ 400         │  textos     │ ✓      │
+  │          │ campos)                │             │             │        │
+  ├──────────┼────────────────────────┼─────────────┼─────────────┼────────┤
+  │ POST     │ /api/checkout (curso   │ 404         │ 404         │ ✓      │
+  │          │ inexistente)           │             │             │        │
+  ├──────────┼────────────────────────┼─────────────┼─────────────┼────────┤
+  │ POST     │ /api/checkout (card    │ processo    │ 400         │ ✓ apro │
+  │          │ numérico)              │ cai         │             │ vado   │
+  ├──────────┼────────────────────────┼─────────────┼─────────────┼────────┤
+  │ GET      │ /api/admin/financial-r │ 200 array   │ 200, mesmos │ ✓      │
+  │          │ eport (com token)      │             │  valores    │        │
+  ├──────────┼────────────────────────┼─────────────┼─────────────┼────────┤
+  │ GET/DELE │ rotas admin sem token  │ 200         │ 401         │ ✓ apro │
+  │ TE       │                        │             │             │ vado   │
+  ├──────────┼────────────────────────┼─────────────┼─────────────┼────────┤
+  │ DELETE   │ /api/users/999         │ 200         │ 404         │ ✓ apro │
+  │          │                        │             │             │ vado   │
+  ├──────────┼────────────────────────┼─────────────┼─────────────┼────────┤
+  │ DELETE   │ /api/users/1           │ 200 texto   │ 200 Usuário │ ✓ apro │
+  │          │                        │ antigo      │  deletado   │ vado   │
+  └──────────┴────────────────────────┴─────────────┴─────────────┴────────┘
+
+  How to run
+
+  npm install
+  cp .env.example .env              # defina ADMIN_TOKEN
+  node --env-file=.env src/app.js   # ou: ADMIN_TOKEN=<token> npm start
+  No api.http, troque @adminToken pelo mesmo valor do ADMIN_TOKEN.
+
+  - Git: usei git rm por engano e já tirei a remoção do stage. AppManager.js e
+    utils.js aparecem apenas como apagados no git status, sem nada no stage.
+  - Processos: o app foi parado e a porta 3000 está livre.
+  - Fora do escopo: o checkout com um e-mail já cadastrado continua sem
+    verificar a senha. Corrigir isso muda o contrato e fica para sua decisão.
+
+✻ Sautéed for 4m 23s · done 8:53

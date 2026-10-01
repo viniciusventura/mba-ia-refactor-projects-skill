@@ -1,0 +1,1417 @@
+ ▐▛███▛█   Claude Code v2.1.286
+▝▜██████▀  Opus 5.5 · Claude Pro
+ ▝▝   ▝▝   C:\Treinamentos\MBA\Desafios Praticos\skill_review\ecommerce-api…
+
+▎ Your voice can help guide AI
+▎ Take 15 min to share your experiences with Anthropic Interviewer. Start now
+
+❯ /refactor-arch                                                                
+
+● Vou começar pela Fase 1: análise do projeto.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && cat
+      .claude/skills/refactor-arch/references/project-analysis.md && echo ----
+      &&…)
+  ⎿  # Análise de Projeto: heurísticas da Fase 1
+
+     Referência da **Fase 1 (Análise)**. Objetivo: entender o projeto **sem
+     … +200 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && cat package.json README.md
+      api.http && for f in src/*.js; do echo "==== $f"; cat…)
+  ⎿  {
+       "name": "desafio-arquitetura-ia-boilerplate",
+       "version": "1.0.0",
+     … +252 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && node -p
+      "require('./node_modules/express/package.json').version + ' ' + require(…)
+  ⎿  4.22.1 5.1.7
+     node_modules
+     ignored
+
+● Analisei o projeto: uma aplicação Express/SQLite para LMS com checkout,
+  estrutura monolítica concentrada em AppManager.js, 3 endpoints mapeados
+  (checkout, relatório financeiro e exclusão de usuário). Agora sigo para a Fase
+  2.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/ecommerce-api-lega
+      cy/.claude/skills/refactor-arch/references" && cat
+      anti-patterns-catalog.md audit-repor…)
+  ⎿  # Catálogo de Anti-patterns
+
+     Referência da **Fase 2 (Auditoria)**. Cada entrada define **o que proc
+     … +547 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/ecommerce-api-lega
+      cy/.claude/skills/refactor-arch/references" && grep -n "^## \|^### "
+      mvc-guidelines.md)
+  ⎿  7:## 1. MVC aplicado a uma API
+     30:## 2. Responsabilidades: pode × não pode
+     32:### Model
+     … +15 lines (ctrl+o to expand)
+
+● Lendo agora as seções §4 e §6 das guidelines de MVC para montar o Refactoring
+  Plan.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/ecommerce-api-lega
+      cy/.claude/skills/refactor-arch/references" && sed -n '93,94p;165,225p'
+      mvc-guidelines.…)
+  ⎿  ## 4. Estrutura alvo por stack
+
+     ### Node.js / Express
+     … +59 lines (ctrl+o to expand)
+
+● Rodando os sinais de detecção do catálogo sobre src/.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" &&
+      echo "AP01"; grep -nE "(SELECT|INSERT|UPDATE|DELETE)[^\"'\`]*[\"']
+      *\+|\\\$\{[^…)
+  ⎿  AP01
+     AP02
+     src/utils.js:2:    dbUser: "admin_master",
+     … +81 lines (ctrl+o to expand)
+
+● Sinais confirmados lendo o código. Montando e salvando o relatório.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && node -e "for (const p of
+      ['senhaforte','senha','se123','123','1234567']) { let h…)
+  ⎿  senhaforte c2c2c2c2c2
+     senha c2c2c2c2c2
+     se123 c2c2c2c2c2
+     … +2 lines (ctrl+o to expand)
+
+● Write(reports\audit-report.md)
+  ⎿  Wrote 291 lines to reports\audit-report.md
+       1 ================================
+       3 ================================
+       4 Project:  ecommerce-api-legacy
+       5 Stack:    JavaScript (Node.js v22.17.0, CommonJS) + Express ^4.1
+       6 Files:    3 analyzed | ~180 lines of code
+       7 Date:     2026-10-01
+         centra conexão, schema, seed, SQL, regra de pagamento, validação
+          e as 3 rotas; `src/utils.js` mistura config com segredos, cache
+          global e "hash" de senha
+      10 ## Summary
+     … +462 lines (ctrl+o to expand)
+
+● ================================
+  ARCHITECTURE AUDIT REPORT
+
+  Project:  ecommerce-api-legacy
+  Stack:    JavaScript (Node.js v22.17.0, CommonJS) + Express ^4.18.2 (instalado
+  4.22.1) + sqlite3 ^5.1.6 (instalado 5.1.7)
+  Files:    3 analyzed | ~180 lines of code
+  Date:     2026-10-01
+  Architecture: A) Monolítica / God Class: src/AppManager.js concentra conexão,
+  schema, seed, SQL, regra de pagamento, validação e as 3 rotas. src/utils.js
+  mistura config com segredos, cache global e "hash" de senha.
+
+  Summary
+
+  CRITICAL: 5 | HIGH: 4 | MEDIUM: 3 | LOW: 4
+
+  ┌──────┬──────────┬──────────────────────┬────────────────────────────────┐
+  │  ID  │ Severity │     Anti-pattern     │            Location            │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │ F-01 │ CRITICAL │ Credenciais          │ src/utils.js:2-6               │
+  │      │          │ hardcoded (AP-02)    │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │      │          │ Armazenamento        │ src/utils.js:17-23,            │
+  │ F-02 │ CRITICAL │ inseguro de senha    │ src/AppManager.js:18, 68-69    │
+  │      │          │ (AP-03)              │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │ F-03 │ CRITICAL │ Exposição de dados   │ src/AppManager.js:45           │
+  │      │          │ sensíveis (AP-04)    │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │      │          │ Endpoint sensível    │                                │
+  │ F-04 │ CRITICAL │ sem autenticação     │ src/AppManager.js:80, 131      │
+  │      │          │ (AP-05)              │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │ F-05 │ CRITICAL │ God Class / God File │ src/AppManager.js:1-141,       │
+  │      │          │  (AP-06)             │ src/utils.js:1-25              │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │      │          │ Regra de negócio na  │ src/AppManager.js:43-75, 46,   │
+  │ F-06 │ HIGH     │ camada errada        │ 66-75, 89-127, 108-110         │
+  │      │          │ (AP-07)              │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │      │          │ Estado global        │                                │
+  │ F-07 │ HIGH     │ mutável /            │ src/utils.js:9, 14, 25;        │
+  │      │          │ acoplamento sem DI   │ src/AppManager.js:7, 26        │
+  │      │          │ (AP-08)              │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │      │          │ Operação multi-etapa │                                │
+  │ F-08 │ HIGH     │  sem transação:      │ src/AppManager.js:50-63, 69-71 │
+  │      │          │ checkout (AP-09)     │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │      │          │ Exclusão física de   │                                │
+  │ F-09 │ HIGH     │ usuário com          │ src/AppManager.js:131-137      │
+  │      │          │ histórico (AP-09)    │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │ F-10 │ MEDIUM   │ Query N+1 (AP-10)    │ src/AppManager.js:83, 92, 104, │
+  │      │          │                      │  106                           │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │ F-11 │ MEDIUM   │ Código duplicado     │ src/AppManager.js:95-99,       │
+  │      │          │ (AP-11)              │ 118-122                        │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │      │          │ Erro engolido / sem  │ src/AppManager.js:35, 38, 46,  │
+  │ F-12 │ MEDIUM   │ handler central /    │ 57, 68, 92-93, 104, 106,       │
+  │      │          │ validação ausente    │ 133-135; src/app.js:1-14       │
+  │      │          │ (AP-12)              │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │      │          │ Magic                │ src/AppManager.js:21, 46, 108; │
+  │ F-13 │ LOW      │ numbers/strings      │  src/utils.js:6, 19-22         │
+  │      │          │ (AP-14)              │                                │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │ F-14 │ LOW      │ Nomes ruins (AP-14)  │ src/AppManager.js:29-33, 26    │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │ F-15 │ LOW      │ Código morto (AP-14) │ src/utils.js:2-3, 5, 10, 25;   │
+  │      │          │                      │ src/AppManager.js:2            │
+  ├──────┼──────────┼──────────────────────┼────────────────────────────────┤
+  │ F-16 │ LOW      │ Logging inadequado   │ src/app.js:13, src/utils.js:13 │
+  │      │          │ (AP-14)              │                                │
+  └──────┴──────────┴──────────────────────┴────────────────────────────────┘
+
+  Findings
+
+  F-01 [CRITICAL] Credenciais hardcoded (AP-02)
+
+  File: src/utils.js:2-6
+  Principle: OWASP A07 / 12-Factor App (Config)
+  Description: há 2 segredos escritos como texto fixo no código, sem leitura de
+  ambiente: dbPass (linha 3) e paymentGatewayKey, com prefixo pk_live_ (linha
+  4). Também há configuração fixa: dbUser (linha 2), smtpUser (linha 5) e port
+  (linha 6). Nenhum arquivo do projeto usa process.env. A chave do gateway
+  também vaza em log (ver F-03).
+  Evidence:
+  dbPass: "senha_super_secreta_prod_123",
+  paymentGatewayKey: "pk_live_1234567890abcdef",
+  Impact: quem tem acesso ao repositório tem a chave de produção do gateway e a
+  senha do banco. Trocar um segredo exige novo deploy de código.
+  Recommendation: extrair para src/config/index.js, lendo process.env
+  (PAYMENT_GATEWAY_KEY, PORT, ADMIN_TOKEN), com um .env.example sem valores
+  reais. Remover dbUser, dbPass e smtpUser, que nunca são usados (PT-02).
+  Contract change: NO
+
+  F-02 [CRITICAL] Armazenamento inseguro de senha (AP-03)
+
+  File: src/utils.js:17-23, src/AppManager.js:18, 68-69
+  Principle: OWASP A02 Cryptographic Failures
+  Description: o "hash" badCrypto só repete os 2 primeiros caracteres do base64
+  da senha, então o resultado depende apenas dos ~12 primeiros bits dela. Quando
+  a senha não é enviada, ela vira o default "123456" (linha 68). O usuário do
+  seed é gravado em texto puro ('123', linha 18). O projeto não usa bcrypt,
+  scrypt, argon2 nem pbkdf2.
+  Evidence:
+  hash += Buffer.from(pwd).toString('base64').substring(0, 2);
+  let hash = badCrypto(p || "123456");
+  Teste executado: senhaforte, senha e se123 geram o mesmo valor c2c2c2c2c2. 123
+  e 1234567 geram MTMTMTMTMT.
+  Impact: as colisões são triviais e a reversão é imediata. Se o banco vazar,
+  todas as senhas ficam expostas.
+  Recommendation: usar o crypto.scrypt nativo do Node com salt aleatório por
+  senha (sem dependência nova). O seed também passa a gravar hash, e a senha
+  vira obrigatória na criação de usuário (PT-03).
+  Contract change: YES: POST /api/checkout sem pwd para um e-mail novo passa a
+  responder 400 "Bad Request" (hoje cria o usuário com a senha "123456"). Para
+  e-mail já existente, pwd continua opcional.
+
+  F-03 [CRITICAL] Exposição de dados sensíveis (AP-04)
+
+  File: src/AppManager.js:45
+  Principle: OWASP A01/A09
+  Description: a cada checkout, o número completo do cartão e a chave de
+  produção do gateway são escritos em log (1 ocorrência).
+  Evidence:
+  console.log(`Processando cartão ${cc} na chave ${config.paymentGatewayKey}`);
+  Impact: o número do cartão e a chave do gateway ficam gravados nos logs, o que
+  viola o PCI-DSS. Qualquer pessoa com acesso aos logs pode usá-los.
+  Recommendation: remover o log. Se for necessário, registrar só os 4 últimos
+  dígitos, sem a chave (PT-04 + PT-02).
+  Contract change: NO
+
+  F-04 [CRITICAL] Endpoint sensível sem autenticação (AP-05)
+
+  File: src/AppManager.js:80, 131
+  Principle: OWASP A01 Broken Access Control
+  Description: duas rotas sensíveis estão abertas, e o projeto não tem nenhum
+  mecanismo de autenticação (nem auth, nem jwt, nem middleware antes das rotas).
+  GET /api/admin/financial-report expõe o faturamento e os nomes dos alunos.
+  DELETE /api/users/:id apaga qualquer usuário.
+  Evidence:
+  app.get('/api/admin/financial-report', (req, res) => {
+  app.delete('/api/users/:id', (req, res) => {
+  Impact: qualquer cliente anônimo lê dados financeiros e pessoais ou apaga
+  usuários. É explorável sem autenticação.
+  Recommendation: criar o middleware requireAdmin em src/middlewares/auth.js,
+  exigindo Authorization: Bearer <ADMIN_TOKEN>. O token vem do ambiente e é
+  comparado em tempo constante. Sem token configurado, a rota fica fechada
+  (PT-05).
+  Contract change: YES: as duas rotas passam a responder 401 sem credencial
+  válida. Com credencial, respondem o status original.
+
+  F-05 [CRITICAL] God Class / God File (AP-06)
+
+  File: src/AppManager.js:1-141, src/utils.js:1-25
+  Principle: SRP (SOLID) + MVC
+  Description: AppManager acumula responsabilidades de camadas diferentes:
+  - conexão (7)
+  - DDL (12-16)
+  - seed (18-21)
+  - rotas/HTTP (28, 80, 131)
+  - validação de entrada (35)
+  - regra de pagamento / integração com o gateway (45-46)
+  - acesso a dados (37, 40, 50, 54, 57, 69, 83, 92, 104, 106, 133)
+  - agregação do relatório (89-127)
+
+  Já utils.js mistura config (1-7), cache (9-15) e criptografia (17-23).
+  Evidence:
+  class AppManager {
+      constructor() { this.db = new sqlite3.Database(':memory:'); }
+      initDb() { ... CREATE TABLE ... INSERT ... }
+      setupRoutes(app) { app.post('/api/checkout', ...) ... }
+  Impact: qualquer mudança mexe no mesmo arquivo. Não dá para testar a regra sem
+  HTTP e banco, e o código tem 4 níveis de callbacks aninhados.
+  Recommendation: decomposição completa em config/, database/, models/,
+  controllers/, routes/, services/ e middlewares/ (PT-06).
+  Contract change: NO
+
+  F-06 [HIGH] Regra de negócio na camada errada (AP-07)
+
+  File: src/AppManager.js:43-75, 46, 66-75, 89-127, 108-110
+  Principle: SRP (SOLID) + MVC
+  Description: há 3 regras de domínio dentro de handlers HTTP:
+  - a aprovação do pagamento (cc.startsWith("4"), linha 46);
+  - o fluxo "cria o usuário se não existe → matricula → paga → audita" (43-75);
+  - o cálculo do faturamento por curso, que soma só os pagamentos PAID
+    (108-110).
+    Evidence:
+  let status = cc.startsWith("4") ? "PAID" : "DENIED";
+  if (payment && payment.status === 'PAID') { courseData.revenue +=
+  payment.amount; }
+  Impact: a regra não pode ser reaproveitada (CLI, fila) nem testada sem HTTP. A
+  integração com o gateway fica misturada com o handler.
+  Recommendation: a aprovação do pagamento vai para services/paymentService.js.
+  A orquestração do checkout vai para controllers/checkoutController.js. O
+  relatório é montado no controller, com os dados vindos do model (PT-07).
+  Contract change: NO
+
+  F-07 [HIGH] Estado global mutável / acoplamento sem DI (AP-08)
+
+  File: src/utils.js:9, 14, 25; src/AppManager.js:7, 26
+  Principle: DIP (SOLID)
+  Description: globalCache é um objeto de módulo exportado e alterado a cada
+  checkout (linha 14). Ele não tem limite de tamanho e nunca é lido. A conexão é
+  criada dentro do construtor (new sqlite3.Database(':memory:')), sem injeção,
+  e as rotas dependem de this/self capturados por closure.
+  Evidence:
+  let globalCache = {};
+  function logAndCache(key, data) { globalCache[key] = data; }
+  Impact: a memória cresce sem limite (uma chave por usuário) e o estado é
+  compartilhado entre requisições. Também não dá para trocar o banco nos testes.
+  Recommendation: remover o cache, que é escrito e nunca lido. A conexão passa a
+  ser criada em database/connection.js e injetada nos models e controllers pelo
+  composition root app.js (PT-08).
+  Contract change: NO
+
+  F-08 [HIGH] Operação multi-etapa sem transação: checkout (AP-09)
+
+  File: src/AppManager.js:50-63, 69-71
+  Principle: Integridade (ACID)
+  Description: o checkout grava em até 4 tabelas (users 69, enrollments 50,
+  payments 54, audit_logs 57) em callbacks aninhados, sem BEGIN/COMMIT/ROLLBACK.
+  Evidence:
+  this.db.run("INSERT INTO enrollments ...", [userId, cid], function(err) {
+      self.db.run("INSERT INTO payments ...", [enrId, course.price, status],
+  function(err) {
+  Impact: se o INSERT do pagamento falhar, a matrícula fica gravada sem
+  pagamento, e o aluno tem acesso ao curso sem pagar. Quando o pagamento é
+  recusado, o usuário já foi criado.
+  Recommendation: criar helpers promisificados e um transaction() em
+  database/connection.js. A criação do usuário, a matrícula, o pagamento e a
+  auditoria passam a rodar numa única transação, com async/await (PT-09).
+  Contract change: NO
+
+  F-09 [HIGH] Exclusão física de usuário com histórico (AP-09)
+
+  File: src/AppManager.js:131-137
+  Principle: Integridade (ACID)
+  Description: DELETE FROM users apaga o aluno e deixa enrollments e payments
+  órfãos, como a própria resposta admite. Depois disso, o relatório financeiro
+  mostra 'Unknown' no lugar do aluno.
+  Evidence:
+  this.db.run("DELETE FROM users WHERE id = ?", [id], (err) => {
+      res.send("Usuário deletado, mas as matrículas e pagamentos ficaram sujos 
+  no banco.");
+  Impact: perde-se o histórico de negócio (quem pagou o quê) e sobram dados
+  órfãos.
+  Recommendation: soft delete (PT-09):
+  - novas colunas users.deleted INTEGER NOT NULL DEFAULT 0 e deleted_at 
+    DATETIME;
+  - o DELETE vira um UPDATE;
+  - as leituras de negócio (busca de usuário por e-mail no checkout) filtram
+    deleted = 0;
+  - o relatório financeiro continua mostrando o aluno.
+
+  Não há cascata: matrículas e pagamentos são histórico e permanecem.
+  Contract change: YES: o texto da resposta muda de "Usuário deletado, mas as
+  matrículas e pagamentos ficaram sujos no banco." para "Usuário removido." (o
+  status 200 é mantido). No relatório, o aluno removido aparece pelo nome em vez
+  de 'Unknown'.
+
+  F-10 [MEDIUM] Query N+1 (AP-10)
+
+  File: src/AppManager.js:83, 92, 104, 106
+  Principle: Performance
+  Description: o relatório roda 1 query de cursos, mais 1 de matrículas por
+  curso (linha 92, dentro do forEach da 89), mais 2 por matrícula (104 e 106,
+  dentro do forEach da 102). O total é 1 + C + 2E queries. Com o seed, são 1 + 2
+  + 2 = 5. Com 100 cursos e 10 mil matrículas, seriam 20.101.
+  Evidence:
+  courses.forEach(c => {
+      this.db.all("SELECT * FROM enrollments WHERE course_id = ?", [c.id], ...
+          enrollments.forEach(enr => { this.db.get("SELECT name, email FROM 
+  users WHERE id = ?", ...
+  Impact: o tempo de resposta cresce linearmente com o número de matrículas.
+  Recommendation: usar uma única query com LEFT JOIN courses → enrollments →
+  users → payments, agrupada no controller (PT-10).
+  Contract change: NO. Hoje, a ordem dos alunos dentro de cada curso depende da
+  ordem de chegada dos callbacks. Depois da mudança, ela passa a seguir o id da
+  matrícula.
+
+  F-11 [MEDIUM] Código duplicado (AP-11)
+
+  File: src/AppManager.js:95-99, 118-122
+  Principle: DRY
+  Description: o bloco de "fechamento de curso" (push no relatório, decremento
+  do contador e resposta quando o contador chega a zero) aparece 2 vezes, com o
+  mesmo comportamento.
+  Evidence:
+  report.push(courseData);
+  coursesPending--;
+  if (coursesPending === 0) res.json(report);
+  Impact: o contador manual está duplicado. Se uma correção for feita num ramo e
+  esquecida no outro, a resposta nunca é enviada e a requisição fica pendurada.
+  Recommendation: a duplicação desaparece ao trocar os contadores por
+  async/await e um agrupamento único (PT-11 + PT-10).
+  Contract change: NO
+
+  F-12 [MEDIUM] Erro engolido / sem handler central / validação ausente (AP-12)
+
+  File: src/AppManager.js:35, 38, 46, 57, 68, 92-93, 104, 106, 133-135;
+  src/app.js:1-14
+  Principle: Robustez / Fail-fast
+  Description:
+  - Erros ignorados: em 5 callbacks, err nunca é testado (57, 92, 104,
+    106, 133). Na linha 93, se a query falhar, enrollments.length lança
+    TypeError dentro do callback e derruba o processo.
+  - Erro mal classificado: um erro de banco na linha 38 vira 404 "Curso não
+    encontrado".
+  - Sem handler central: não existe middleware de erro (err, req, res, next).
+  - Validação mínima: só a presença dos campos é checada (35). Se card não for
+    string (por exemplo, um número JSON), cc.startsWith (46) lança TypeError
+    dentro do callback do sqlite e derruba o servidor. c_id, o formato do e-mail
+    e pwd (68) não são validados.
+  - Falso sucesso: o DELETE responde sucesso mesmo quando dá erro (133-135).
+    Evidence:
+  this.db.all("SELECT * FROM enrollments WHERE course_id = ?", [c.id], (err,
+  enrollments) => {
+      let enrPending = enrollments.length;
+  let status = cc.startsWith("4") ? "PAID" : "DENIED";   // card: 4111... 
+  (number) → TypeError
+  Impact: uma única requisição malformada derruba a API para todos (DoS), e as
+  falhas de banco ficam invisíveis.
+  Recommendation: criar middlewares/errorHandler.js e asyncHandler, e validar a
+  entrada do checkout na borda (tipos de card e c_id, formato do e-mail)
+  (PT-12).
+  Contract change: YES: POST /api/checkout com card não-string ou c_id não
+  inteiro passa a responder 400 "Bad Request" (hoje derruba o processo ou
+  responde 404). Erros inesperados passam a responder 500 em texto, pelo handler
+  central.
+
+  F-13 [LOW] Magic numbers/strings (AP-14)
+
+  File: src/AppManager.js:21, 46, 108; src/utils.js:6, 19-22
+  Principle: Clean Code
+  Description: 5 valores de domínio aparecem sem nome no código:
+  - o prefixo de aprovação "4" (46);
+  - os status 'PAID'/'DENIED', repetidos como string (21, 46, 108);
+  - a porta 3000 (utils 6);
+  - os números 10000 e 10 no hash (19, 22).
+    Evidence:
+  let status = cc.startsWith("4") ? "PAID" : "DENIED";
+  Impact: a regra fica escondida e há risco de erro de digitação nos status.
+  Recommendation: criar as constantes PAYMENT_STATUS e APPROVED_CARD_PREFIX em
+  services/paymentService.js e ler a porta da config (PT-14).
+  Contract change: NO
+
+  F-14 [LOW] Nomes ruins (AP-14)
+
+  File: src/AppManager.js:29-33, 26
+  Principle: Clean Code
+  Description: há 5 variáveis de 1 a 3 letras (u, e, p, cid, cc) e o alias self
+  (26). Os campos do contrato (usr, eml, pwd, c_id, card) também são abreviados,
+  mas fazem parte da API e serão mantidos.
+  Evidence:
+  let u = req.body.usr; let e = req.body.eml; let p = req.body.pwd; let cid =
+  req.body.c_id; let cc = req.body.card;
+  Impact: o código fica mais lento de ler.
+  Recommendation: mapear o body para nomes claros (name, email, password,
+  courseId, cardNumber) logo na entrada (PT-14).
+  Contract change: NO
+
+  F-15 [LOW] Código morto (AP-14)
+
+  File: src/utils.js:2-3, 5, 10, 25; src/AppManager.js:2
+  Principle: Clean Code
+  Description: 5 símbolos não são usados:
+  - totalRevenue: declarado na linha 10 e importado em AppManager.js:2, mas
+    nunca usado;
+  - globalCache: exportado (25) e nunca importado;
+  - config.dbUser, config.dbPass e config.smtpUser (2, 3, 5): nunca lidos.
+    Evidence:
+  let totalRevenue = 0;
+  const { config, logAndCache, badCrypto, totalRevenue } = require('./utils');
+  Impact: gera ruído e a falsa impressão de que existe integração com SMTP ou
+  com um banco remoto.
+  Recommendation: remover (PT-14).
+  Contract change: NO
+
+  F-16 [LOW] Logging inadequado (AP-14)
+
+  File: src/app.js:13, src/utils.js:13
+  Principle: Clean Code
+  Description: console.log é usado como log da aplicação em 2 pontos, entre eles
+  o log de cada escrita no cache. O terceiro uso, em AppManager.js:45, já está
+  coberto pelo F-03.
+  Evidence:
+  console.log(`[LOG] Salvando no cache: ${key}`);
+  Impact: o log não tem nível nem estrutura e gera ruído a cada requisição.
+  Recommendation: remover o log do cache (junto com o próprio cache) e manter só
+  o log de boot, com uma mensagem neutra (PT-14).
+  Contract change: NO
+
+  Deprecated APIs
+
+  Nenhuma API deprecated foi identificada para as versões em uso (Node 22,
+  Express 4.22.1, sqlite3 5.1.7). Buffer.from já é a forma moderna. A API de
+  callbacks do sqlite3 é um estilo antigo, mas não está deprecated (é tratada em
+  F-08 e F-11). A confirmação em execução (node --trace-deprecation) fica para
+  o baseline da Fase 3.
+
+  Positive Points
+
+  - Todas as queries com entrada externa usam placeholders ?, então não há SQL
+    injection.
+  - O projeto usa o express.json() nativo em vez do body-parser.
+  - O projeto é pequeno, usa CommonJS e não tem dependências desnecessárias.
+
+  Refactoring Plan (Phase 3 preview)
+
+  Strategy: A) decomposição completa (monolito: 3 arquivos, God Class
+  AppManager).
+  Target structure (mvc-guidelines §4, Node/Express; o script "start" do
+  package.json não muda):
+  src/
+  ├── app.js                          # composition root: config → db → schema →
+  models → controllers → routes → errorHandler → listen
+  ├── config/index.js                 # PORT, PAYMENT_GATEWAY_KEY, ADMIN_TOKEN 
+  via process.env
+  ├── database/
+  │   ├── connection.js               # abre ':memory:' + run/get/all 
+  promisificados + transaction()
+  │   └── schema.js                   # CREATE TABLE (users.deleted / 
+  deleted_at) + seed com senha em hash
+  ├── models/
+  │   ├── userModel.js                # findActiveByEmail, create, softDelete
+  │   ├── courseModel.js              # findActiveById
+  │   ├── enrollmentModel.js          # create
+  │   ├── paymentModel.js             # create
+  │   ├── auditLogModel.js            # create
+  │   └── reportModel.js              # financialRows (LEFT JOIN único)
+  ├── controllers/
+  │   ├── checkoutController.js       # checkout (validação de borda + 
+  transação)
+  │   ├── reportController.js         # financialReport (agrupa linhas por 
+  curso)
+  │   └── userController.js           # deleteUser (soft delete)
+  ├── routes/index.js                 # View: Router com as 3 rotas (URLs 
+  inalteradas) + requireAdmin
+  ├── services/paymentService.js      # aprovação do cartão, PAYMENT_STATUS
+  ├── middlewares/
+  │   ├── errorHandler.js             # HttpError, asyncHandler, handler central
+  (respostas em texto, como hoje)
+  │   └── auth.js                     # requireAdmin (Bearer ADMIN_TOKEN)
+  └── utils/password.js               # hashPassword com crypto.scrypt + salt
+  src/AppManager.js e src/utils.js serão removidos. Também serão criados o
+  .env.example e a atualização do README (variáveis e uso do token).
+
+  Soft delete:
+  - DELETE /api/users/:id passa a executar UPDATE users SET deleted = 1, 
+    deleted_at = datetime('now') WHERE id = ? AND deleted = 0.
+  - Migração: colunas deleted INTEGER NOT NULL DEFAULT 0 e deleted_at DATETIME
+    no CREATE TABLE users de database/schema.js. O banco é em memória e recriado
+    a cada boot, então não há dados persistidos a migrar.
+  - Sem cascata: matrículas, pagamentos e auditoria são histórico e ficam
+    intactos. O relatório financeiro continua listando o aluno.
+  - O checkout busca usuários apenas entre os ativos (deleted = 0).
+
+  Contract changes requiring approval:
+  - F-04: GET /api/admin/financial-report e DELETE /api/users/:id passam a
+    exigir Authorization: Bearer <ADMIN_TOKEN>, com 401 sem credencial válida.
+  - F-09: a resposta do DELETE passa a ser "Usuário removido." (200 mantido), e
+    o relatório mostra o nome do aluno removido em vez de 'Unknown'.
+  - F-02: checkout de e-mail novo sem pwd passa a responder 400 "Bad Request"
+    (fim da senha default "123456").
+  - F-12: checkout com card não-string ou c_id não inteiro passa a responder 400
+    "Bad Request" (hoje derruba o processo ou responde 404).
+
+  Out of scope:
+  - Não há endpoint de login, então não existe verificação de senha a corrigir.
+  - Não serão adicionadas constraint UNIQUE em users.email nem FOREIGN KEY,
+    porque isso mudaria o comportamento sem pedido.
+  - DELETE /api/users/:id com id inexistente continua respondendo 200, como
+    hoje.
+
+  ================================
+  Total: 16 findings
+
+  Phase 2 complete. Report saved to reports/audit-report.md.
+  Proceed with refactoring (Phase 3)? [y/n]
+
+✻ Cooked for 4m 0s · done 9:23
+
+❯  y, mas mantenha o pwd opcional no checkout como no contrato atual: sem pwd,  
+  gere uma senha aleatória e grave só o hash                                    
+    (sem default conhecido). E atualize o api.http com o header Authorization   
+  nas rotas protegidas.                                                         
+
+● Plano ajustado: pwd continua opcional no checkout (sem ele, gero uma senha
+  aleatória com crypto.randomBytes e gravo só o hash scrypt), e o api.http ganha
+  o header Authorization nas duas rotas protegidas. O resto do plano segue como
+  aprovado. Vou começar a Fase 3.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/ecommerce-api-lega
+      cy/.claude/skills/refactor-arch/references" && sed -n '1,92p;226,400p'
+      mvc-guidelines.m…)
+  ⎿  # Guidelines de Arquitetura: MVC alvo
+
+     Referência da **Fase 3**. Define **para onde** o código vai: as camada
+     … +678 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Plano ajustado e referências lidas. Agora vou registrar o baseline 3.0 antes
+  de qualquer alteração.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && git ls-files | grep -E
+      "\.db$" ; ls *.db 2>/dev/null; netstat -ano | grep ":3000…)
+  ⎿  scratch: C:\Users\VINICI~1.VEN\AppData\Local\Temp
+
+  Made 1 scratchpad edit +55 (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && S="C:/Users/VINICI~1.VEN/Ap
+      pData/Local/Temp/claude/C--Treinamentos-MBA-Desafios-…)
+  ⎿  {
+       "label": "checkout ok (novo usuário)",
+       "method": "POST",
+     … +213 lines (ctrl+o to expand)
+● Baseline registrado: 13 chamadas, com o DoS do F-12 confirmado (um card
+  numérico derruba o processo) e nenhum warning de deprecation emitido. Como o
+  banco é :memory:, não há limpeza de arquivos a fazer — já inicio a execução na
+  ordem config → camadas → segurança → integridade → erros → legibilidade.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && cat .gitignore 2>/dev/null
+      || echo "no .gitignore"; git check-ignore -v node_mod…)
+  ⎿  no .gitignore
+     .gitignore:2:node_modules/ node_modules
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && git rev-parse
+      --show-toplevel && cat "$(git rev-parse --show-toplevel)/.gitignor…)
+  ⎿  C:/Treinamentos/MBA/Desafios Praticos/skill_review
+     .env
+     node_modules/
+     … +10 lines (ctrl+o to expand)
+
+● .env já está ignorado na raiz do repositório. Bloco 1, config (PT-02):
+
+● Write(src\config\index.js)
+  ⎿  Wrote 7 lines to src\config\index.js
+      1 // Única fonte de configuração: tudo vem do ambiente, sem segredo
+        s no código.
+      2 module.exports = {
+      3     port: Number(process.env.PORT) || 3000,
+      4     databaseFile: process.env.DATABASE_FILE || ':memory:',
+      5     paymentGatewayKey: process.env.PAYMENT_GATEWAY_KEY,
+      6     adminToken: process.env.ADMIN_TOKEN,
+      7 };
+
+● Write(.env.example)
+  ⎿  Wrote 12 lines to .env.example
+       1 # Porta HTTP (default 3000)
+       2 PORT=3000
+       3 
+          cada boot
+       5 DATABASE_FILE=:memory:
+       6 
+       7 # Chave do gateway de pagamento (nunca versionar o valor real)
+       9 
+      10 # Token exigido em "Authorization: Bearer <token>" nas rotas adm
+         inistrativas.
+     … +4 lines (ctrl+o to expand)
+
+● Bloco 2, camadas (PT-06/PT-08/PT-09): database, models, services, controllers,
+  routes e middlewares.
+
+● Write(src\database\connection.js)
+  ⎿  Wrote 49 lines to src\database\connection.js
+       1 const sqlite3 = require('sqlite3');
+       3 // Envolve a conexão sqlite3 (API de callbacks) em helpers basea
+         dos em Promise.
+       4 function wrap(rawDb) {
+          não aceita BEGIN aninhado.
+       6     let transactionQueue = Promise.resolve();
+       8     const db = {
+       9         get: (sql, params = []) => new Promise((resolve, reject)
+          => {
+         rr) : resolve(row)));
+     … +48 lines (ctrl+o to expand)
+
+● Write(src\utils\password.js)
+  ⎿  Wrote 30 lines to src\utils\password.js
+       1 const crypto = require('crypto');
+       2 const { promisify } = require('util');
+       3 
+       4 const scrypt = promisify(crypto.scrypt);
+       5 
+       6 const SALT_BYTES = 16;
+       7 const KEY_LENGTH = 64;
+       8 const RANDOM_PASSWORD_BYTES = 24;
+       9 
+      10 // Formato gravado: "<salt hex>:<hash hex>"
+     … +24 lines (ctrl+o to expand)
+
+● Write(src\database\schema.js)
+  ⎿  Wrote 49 lines to src\database\schema.js
+       1 const { hashPassword } = require('../utils/password');
+       2 
+       3 const TABLES = [
+       4     `CREATE TABLE IF NOT EXISTS users (
+       5         id INTEGER PRIMARY KEY,
+       6         name TEXT,
+       7         email TEXT,
+       8         pass TEXT,
+       9         deleted INTEGER NOT NULL DEFAULT 0,
+      10         deleted_at DATETIME
+     … +52 lines (ctrl+o to expand)
+
+● Write(src\models\userModel.js)
+  ⎿  Wrote 20 lines to src\models\userModel.js
+      1 // Leituras de negócio ignoram usuários removidos (soft delete).
+      2 function findActiveByEmail(db, email) {
+      3     return db.get('SELECT id FROM users WHERE email = ? AND delet
+        ed = 0', [email]);
+      4 }
+      6 async function create(db, { name, email, passwordHash }) {
+      7     const { lastID } = await db.run('INSERT INTO users (name, ema
+        il, pass) VALUES (?, ?, ?)', [name, email, passwordHash]);
+      8     return lastID;
+      9 }
+     … +14 lines (ctrl+o to expand)
+
+● Write(src\models\courseModel.js)
+  ⎿  Wrote 5 lines to src\models\courseModel.js
+      1 function findActiveById(db, id) {
+      2     return db.get('SELECT * FROM courses WHERE id = ? AND active 
+        = 1', [id]);
+      3 }
+      4 
+      5 module.exports = { findActiveById };
+
+● Write(src\models\enrollmentModel.js)
+  ⎿  Wrote 6 lines to src\models\enrollmentModel.js
+      1 async function create(db, { userId, courseId }) {
+      2     const { lastID } = await db.run('INSERT INTO enrollments (use
+        r_id, course_id) VALUES (?, ?)', [userId, courseId]);
+      3     return lastID;
+      4 }
+      5 
+      6 module.exports = { create };
+
+● Write(src\models\paymentModel.js)
+  ⎿  Wrote 16 lines to src\models\paymentModel.js
+      1 const PAYMENT_STATUS = Object.freeze({ PAID: 'PAID', DENIED: 'DEN
+        IED' });
+      2 
+      3 async function create(db, { enrollmentId, amount, status }) {
+      4     const { lastID } = await db.run(
+        UES (?, ?, ?)',
+      6         [enrollmentId, amount, status],
+      7     );
+      8     return lastID;
+      9 }
+     … +9 lines (ctrl+o to expand)
+
+● Write(src\models\auditLogModel.js)
+  ⎿  Wrote 5 lines to src\models\auditLogModel.js
+      1 function create(db, action) {
+      2     return db.run("INSERT INTO audit_logs (action, created_at) VA
+        LUES (?, datetime('now'))", [action]);
+      3 }
+      4 
+      5 module.exports = { create };
+
+● Write(src\models\reportModel.js)
+  ⎿  Wrote 16 lines to src\models\reportModel.js
+       1 // Leitura histórica: NÃO filtra usuários removidos, para o rela
+         tório manter o nome do aluno.
+       2 // Uma única query no lugar de 1 + C + 2E (N+1).
+       4     return db.all(`
+       5         SELECT c.id AS course_id, c.title, e.id AS enrollment_id
+         ,
+       6                u.name AS student, p.amount, p.status
+       8         LEFT JOIN enrollments e ON e.course_id = c.id
+       9         LEFT JOIN users u       ON u.id = e.user_id
+      10         LEFT JOIN payments p    ON p.id = (
+     … +8 lines (ctrl+o to expand)
+
+● Write(src\services\paymentService.js)
+  ⎿  Wrote 17 lines to src\services\paymentService.js
+       1 // Gateway de pagamento simulado. A chave é injetada pela config
+          e nunca vai para log.
+       2 const APPROVED_CARD_PREFIX = '4';
+       3 const VISIBLE_CARD_DIGITS = 4;
+       4 
+       6     return `**** ${cardNumber.slice(-VISIBLE_CARD_DIGITS)}`;
+       7 }
+       8 
+       9 module.exports = ({ gatewayKey }) => ({
+      10     isConfigured: Boolean(gatewayKey),
+     … +9 lines (ctrl+o to expand)
+
+● Write(src\middlewares\errorHandler.js)
+  ⎿  Wrote 23 lines to src\middlewares\errorHandler.js
+      1 class AppError extends Error {
+      2     constructor(message, status = 400) {
+      3         super(message);
+      4         this.status = status;
+      5     }
+      6 }
+      7 
+      8 // Express 4 não captura rejeições de handlers async.
+      9 const asyncHandler = (fn) => (req, res, next) => Promise.resolve(
+        fn(req, res, next)).catch(next);
+     … +17 lines (ctrl+o to expand)
+
+● Write(src\middlewares\auth.js)
+  ⎿  Wrote 22 lines to src\middlewares\auth.js
+       1 const crypto = require('crypto');
+       2 const { AppError } = require('./errorHandler');
+       3 
+       5     const x = Buffer.from(String(a));
+       6     const y = Buffer.from(String(b));
+       7     return x.length === y.length && crypto.timingSafeEqual(x, y)
+         ;
+       9 
+      10 // Exige "Authorization: Bearer <ADMIN_TOKEN>". Sem token config
+         urado, a rota fica fechada.
+     … +15 lines (ctrl+o to expand)
+
+● Write(src\controllers\checkoutController.js)
+  ⎿  Wrote 59 lines to src\controllers\checkoutController.js
+      1 const courseModel = require('../models/courseModel');
+      2 const userModel = require('../models/userModel');
+      3 const enrollmentModel = require('../models/enrollmentModel');
+      4 const paymentModel = require('../models/paymentModel');
+      5 const auditLogModel = require('../models/auditLogModel');
+      6 const { AppError } = require('../middlewares/errorHandler');
+      7 const { hashPassword, generateRandomPassword } = require('../util
+        s/password');
+      8 
+      9 const COURSE_ID_PATTERN = /^\d+$/;
+     … +63 lines (ctrl+o to expand)
+
+● Write(src\controllers\reportController.js)
+  ⎿  Wrote 30 lines to src\controllers\reportController.js
+       1 const reportModel = require('../models/reportModel');
+       2 const paymentModel = require('../models/paymentModel');
+       3 
+       4 const UNKNOWN_STUDENT = 'Unknown';
+       5 
+         al da resposta.
+       7 function buildFinancialReport(rows) {
+       8     const byCourse = new Map();
+       9     for (const row of rows) {
+      10         if (!byCourse.has(row.course_id)) {
+     … +23 lines (ctrl+o to expand)
+
+● Write(src\controllers\userController.js)  ⎿  Wrote 9 lines to src\controllers\userController.js
+      1 const userModel = require('../models/userModel');
+      2 
+      3 module.exports = ({ db }) => ({
+      4     // Soft delete. Id inexistente ou já removido mantém o 200 do
+         contrato original.
+      5     async deleteUser(req, res) {
+      6         await userModel.softDelete(db, req.params.id);
+      7         res.send('Usuário removido.');
+      8     },
+      9 });
+
+● Write(src\routes\index.js)
+  ⎿  Wrote 13 lines to src\routes\index.js
+       1 const { Router } = require('express');
+       3 
+       4 // View: só liga URL + método ao controller (e à proteção da rot
+       5 module.exports = ({ checkoutController, reportController, userCo
+         ntroller, requireAdmin }) => {
+       7 
+       8     router.post('/api/checkout', asyncHandler(checkoutController
+       9     router.get('/api/admin/financial-report', requireAdmin, asyn
+         cHandler(reportController.financialReport));
+         serController.deleteUser));
+     … +7 lines (ctrl+o to expand)
+
+● Write(src\app.js)
+  ⎿  Added 45 lines, removed 10 lines
+       1 +// Composition root: cria as dependências, injeta nas camadas e
+         + sobe o servidor.                                              
+       2  const express = require('express');
+       2 -const AppManager = require('./AppManager');                    
+       3 -const { config } = require('./utils');                         
+       3 +const config = require('./config');                            
+       4 +const { createConnection } = require('./database/connection'); 
+       5 +const { initSchema } = require('./database/schema');           
+       6 +const createPaymentService = require('./services/paymentService
+         +');                                                            
+       7 +const createCheckoutController = require('./controllers/checkou
+         +tController');                                                 
+       8 +const createReportController = require('./controllers/reportCon
+         +troller');                                                     
+       9 +const createUserController = require('./controllers/userControl
+         +ler');                                                         
+      10 +const buildRoutes = require('./routes');                       
+      11 +const { createRequireAdmin } = require('./middlewares/auth');  
+      12 +const { errorHandler } = require('./middlewares/errorHandler');
+      13  
+       5 -const app = express();                                         
+       6 -app.use(express.json());                                       
+      14 +async function createApp() {                                   
+      15 +    const db = await createConnection(config.databaseFile);    
+      16 +    await initSchema(db);                                      
+      17  
+       8 -const manager = new AppManager();                              
+       9 -manager.initDb();                                              
+      10 -manager.setupRoutes(app);                                      
+      18 +    const paymentService = createPaymentService({ gatewayKey: c
+         +onfig.paymentGatewayKey });                                    
+      19  
+      12 -app.listen(config.port, () => {                                
+      13 -    console.log(`Frankenstein LMS rodando na porta ${config.por
+         -t}...`);                                                       
+      14 -});                                                            
+      20 +    const app = express();                                     
+      21 +    app.use(express.json());                                   
+      22 +    app.use(buildRoutes({                                      
+      23 +        checkoutController: createCheckoutController({ db, paym
+         +entService }),                                                 
+      24 +        reportController: createReportController({ db }),      
+      25 +        userController: createUserController({ db }),          
+      26 +        requireAdmin: createRequireAdmin(config.adminToken),   
+      27 +    }));                                                       
+      28 +    app.use(errorHandler);                                     
+      29 +                                                               
+      30 +    return { app, db, paymentService };                        
+      31 +}                                                              
+      32 +                                                               
+      33 +async function main() {                                        
+      34 +    const { app, paymentService } = await createApp();         
+      35 +    if (!config.adminToken) console.warn('[config] ADMIN_TOKEN 
+         +não definido: rotas administrativas responderão 401.');        
+      36 +    if (!paymentService.isConfigured) console.warn('[config] PA
+         +YMENT_GATEWAY_KEY não definido.');                             
+      37 +    app.listen(config.port, () => {                            
+      38 +        console.info(`LMS API rodando na porta ${config.port}`)
+         +;                                                              
+      39 +    });                                                        
+      40 +}                                                              
+      41 +                                                               
+      42 +if (require.main === module) {                                 
+      43 +    main().catch((err) => {                                    
+      44 +        console.error('[boot] falha ao iniciar', err);         
+      45 +        process.exit(1);                                       
+      46 +    });                                                        
+      47 +}                                                              
+      48 +                                                               
+      49 +module.exports = { createApp };                                
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" &&
+      node - <<'EOF'…)
+  ⎿  load ok
+     createApp ok
+     async function hashPassword(password) {
+     … +13 lines (ctrl+o to expand)
+  ⎿  Deleted src\AppManager.js (+0 -141)
+        1 -const sqlite3 = require('sqlite3').verbose();                 
+        2 -const { config, logAndCache, badCrypto, totalRevenue } = requi
+          -re('./utils');                                                
+        3 -                                                              
+        4 -class AppManager {                                            
+        5 -    constructor() {                                           
+        6 -                                                              
+        7 -        this.db = new sqlite3.Database(':memory:');           
+        8 -    }                                                         
+        9 -                                                              
+       10 -    initDb() {                                                
+       11 -        this.db.serialize(() => {                             
+       12 -            this.db.run("CREATE TABLE users (id INTEGER PRIMAR
+          -Y KEY, name TEXT, email TEXT, pass TEXT)");                   
+       13 -            this.db.run("CREATE TABLE courses (id INTEGER PRIM
+          -ARY KEY, title TEXT, price REAL, active INTEGER)");           
+       14 -            this.db.run("CREATE TABLE enrollments (id INTEGER 
+          -PRIMARY KEY, user_id INTEGER, course_id INTEGER)");           
+       15 -            this.db.run("CREATE TABLE payments (id INTEGER PRI
+          -MARY KEY, enrollment_id INTEGER, amount REAL, status TEXT)"); 
+       16 -            this.db.run("CREATE TABLE audit_logs (id INTEGER P
+          -RIMARY KEY, action TEXT, created_at DATETIME)");              
+       17 -                                                              
+       18 -            this.db.run("INSERT INTO users (name, email, pass)
+          - VALUES ('Leonan', 'leonan@fullcycle.com.br', '123')");       
+       19 -            this.db.run("INSERT INTO courses (title, price, ac
+          -tive) VALUES ('Clean Architecture', 997.00, 1), ('Docker', 497
+          -.00, 1)");                                                    
+       20 -            this.db.run("INSERT INTO enrollments (user_id, cou
+          -rse_id) VALUES (1, 1)");                                      
+       21 -            this.db.run("INSERT INTO payments (enrollment_id, 
+          -amount, status) VALUES (1, 997.00, 'PAID')");                 
+       22 -        });                                                   
+       23 -    }                                                         
+       24 -                                                              
+       25 -    setupRoutes(app) {                                        
+       26 -        const self = this;                                    
+       27 -                                                              
+       28 -        app.post('/api/checkout', (req, res) => {             
+       29 -            let u = req.body.usr;                             
+       30 -            let e = req.body.eml;                             
+       31 -            let p = req.body.pwd;                             
+       32 -            let cid = req.body.c_id;                          
+       33 -            let cc = req.body.card;                           
+       34 -                                                              
+       35 -            if (!u || !e || !cid || !cc) return res.status(400
+          -).send("Bad Request");                                        
+       36 -                                                              
+       37 -            this.db.get("SELECT * FROM courses WHERE id = ? AN
+          -D active = 1", [cid], (err, course) => {                      
+       38 -                if (err || !course) return res.status(404).sen
+          -d("Curso não encontrado");                                    
+       39 -                                                              
+       40 -                this.db.get("SELECT id FROM users WHERE email 
+          -= ?", [e], (err, user) => {                                   
+     … 101 more lines (ctrl+o to expand)
+  ⎿  Updated src\controllers\checkoutController.js (+1 -1)
+      35  
+      36          // Usuário, matrícula, pagamento e auditoria: tudo ou n
+          ada.
+      37          const enrollmentId = await db.transaction(async (tx) =>
+           {
+      38 -            let user = await userModel.findActiveByEmail(tx, in
+         -put.email);                                                    
+      38 +            const user = await userModel.findActiveByEmail(tx, 
+         +input.email);                                                  
+      39              const userId = user
+      40                  ? user.id
+      41                  : await userModel.create(tx, {
+  ⎿  Updated src\middlewares\errorHandler.js (+1 -1)
+      14      if (err instanceof AppError) return res.status(err.status).
+          send(err.message);
+      15  
+      16      const status = err.status || err.statusCode;
+      17 -    if (status && status < 500) return res.status(status).send(
+         -'Bad Request');                                                
+      17 +    if (status && status < 500) return res.status(status).send(
+         +status === 400 ? 'Bad Request' : err.message);                 
+      18  
+      19      console.error('[error]', err);
+      20      res.status(500).send('Erro interno');
+  ⎿  Deleted src\utils.js (+0 -25)
+       1 -const config = {                                               
+       2 -    dbUser: "admin_master",                                    
+       3 -    dbPass: "senha_super_secreta_prod_123",                    
+       4 -    paymentGatewayKey: "pk_live_1234567890abcdef",             
+       5 -    smtpUser: "no-reply@fullcycle.com.br",                     
+       6 -    port: 3000                                                 
+       7 -};                                                             
+       8 -                                                               
+       9 -let globalCache = {};                                          
+      10 -let totalRevenue = 0;                                          
+      11 -                                                               
+      12 -function logAndCache(key, data) {                              
+      13 -    console.log(`[LOG] Salvando no cache: ${key}`);            
+      14 -    globalCache[key] = data;                                   
+      15 -}                                                              
+      16 -                                                               
+      17 -function badCrypto(pwd) {                                      
+      18 -    let hash = "";                                             
+      19 -    for(let i = 0; i < 10000; i++) {                           
+      20 -        hash += Buffer.from(pwd).toString('base64').substring(0
+         -, 2);                                                          
+      21 -    }                                                          
+      22 -    return hash.substring(0, 10);                              
+      23 -}                                                              
+      24 -                                                               
+      25 -module.exports = { config, logAndCache, badCrypto, globalCache,
+         - totalRevenue };                                               
+  ⎿  Updated src\utils\password.js (+1 -9)
+      14      return `${salt}:${derived.toString('hex')}`;
+      15  }
+      16  
+      17 -async function verifyPassword(password, stored) {              
+      18 -    const [salt, hash] = String(stored).split(':');            
+      19 -    if (!salt || !hash) return false;                          
+      20 -    const derived = await scrypt(password, salt, KEY_LENGTH);  
+      21 -    const expected = Buffer.from(hash, 'hex');                 
+      22 -    return expected.length === derived.length && crypto.timingS
+         -afeEqual(expected, derived);                                   
+      23 -}                                                              
+      24 -                                                               
+      17  // Usada quando o checkout cria um usuário sem senha: ninguém c
+          onhece o valor, só o hash é gravado.
+      18  function generateRandomPassword() {
+      19      return crypto.randomBytes(RANDOM_PASSWORD_BYTES).toString('
+          base64url');
+      20  }
+      21  
+      30 -module.exports = { hashPassword, verifyPassword, generateRandom
+         -Password };                                                    
+      22 +module.exports = { hashPassword, generateRandomPassword };     
+
+● Tudo carrega, e os arquivos antigos foram removidos. Agora atualizo o api.http
+  e o README.
+
+● Write(api.http)
+  ⎿  Added 6 lines, removed 2 lines
+      1  @baseUrl = http://localhost:3000
+      2 +# Mesmo valor da variável de ambiente ADMIN_TOKEN usada ao subir
+        + a API                                                          
+      3 +@adminToken = troque-pelo-seu-token                             
+      4  
+      5  ### Checkout - sucesso
+      6  POST {{baseUrl}}/api/checkout
+     ...
+      26    "card": "5111222233334444"
+      27  }
+      28  
+      27 -### Relatório financeiro administrativo                        
+      29 +### Relatório financeiro administrativo (exige token de admin) 
+      30  GET {{baseUrl}}/api/admin/financial-report
+      31 +Authorization: Bearer {{adminToken}}                           
+      32  
+      30 -### Deletar usuário                                            
+      33 +### Remover usuário (soft delete, exige token de admin)        
+      34  DELETE {{baseUrl}}/api/users/1
+      35 +Authorization: Bearer {{adminToken}}                           
+
+● Write(README.md)
+  ⎿  Added 36 lines, removed 2 lines
+       6  
+       7  ```bash
+       8  npm install
+       9 -npm start                                                      
+       9 +ADMIN_TOKEN=um-token-forte npm start                           
+      10  ```
+      11  
+      12 -A aplicação sobe em `http://localhost:3000`. O banco SQLite é e
+         -m memória e já carrega seeds automaticamente no boot.          
+      12 +A aplicação sobe em `http://localhost:3000`. O banco SQLite é e
+         +m memória por padrão e carrega os seeds automaticamente no boot
+         +.                                                              
+      13  
+      14 +## Variáveis de ambiente                                       
+      15 +                                                               
+      16 +Veja `.env.example`. As variáveis são lidas de `process.env`; o
+         + projeto não carrega `.env` sozinho.                           
+      17 +                                                               
+      18 +| Variável | Default | Uso |                                   
+      19 +|---|---|---|                                                  
+      20 +| `PORT` | `3000` | Porta HTTP |                               
+      21 +| `DATABASE_FILE` | `:memory:` | Arquivo SQLite (`:memory:` rec
+         +ria o banco a cada boot) |                                     
+      22 +| `PAYMENT_GATEWAY_KEY` | (vazio) | Chave do gateway de pagamen
+         +to |                                                           
+      23 +| `ADMIN_TOKEN` | (vazio) | Token das rotas administrativas. Se
+         +m ele, essas rotas respondem 401 |                             
+      24 +                                                               
+      25 +## Rotas                                                       
+      26 +                                                               
+      27 +| Método | Rota | Auth |                                       
+      28 +|---|---|---|                                                  
+      29 +| POST | `/api/checkout` | pública |                           
+      30 +| GET | `/api/admin/financial-report` | `Authorization: Bearer 
+         +<ADMIN_TOKEN>` |                                               
+      31 +| DELETE | `/api/users/:id` | `Authorization: Bearer <ADMIN_TOK
+         +EN>` (soft delete: matrículas e pagamentos são preservados) |  
+      32 +                                                               
+      33  Exemplos de requisições estão em `api.http`.
+      34 +                                                               
+      35 +## Estrutura                                                   
+      36 +                                                               
+      37 +```                                                            
+      38 +src/                                                           
+      39 +├── app.js            # composition root                       
+      40 +├── config/           # configuração via ambiente              
+      41 +├── database/         # conexão (helpers async + transação) e s
+         +chema/seed                                                     
+      42 +├── models/           # acesso a dados e regras de domínio, por
+         + entidade                                                      
+      43 +├── controllers/      # fluxo de cada caso de uso              
+      44 +├── routes/           # view: URL → controller                 
+      45 +├── services/         # integrações externas (pagamento)       
+      46 +├── middlewares/      # erro centralizado e autenticação de adm
+         +in                                                             
+      47 +└── utils/            # hash de senha                          
+      48 +```                                                            
+
+● Validação 3.3: mesma preparação do baseline (banco :memory:, seed no boot,
+  mesma bateria de chamadas), agora com ADMIN_TOKEN, e mais as chamadas sem
+  credencial.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && S="C:/Users/VINICI~1.VEN/Ap
+      pData/Local/Temp/claude/C--Treinamentos-MBA-Desafios-…)
+  ⎿  {
+       "label": "checkout ok (novo usuário)",
+       "method": "POST",
+     … +263 lines (ctrl+o to expand)
+
+● Todas as rotas batem com o baseline, exceto as mudanças aprovadas. Paro o app
+  e verifico o soft delete diretamente no banco, usando um arquivo SQLite
+  descartável no scratchpad.
+
+● Bash(taskkill //PID 14216 //F; sleep 1; netstat -ano | grep ":3000 .*LISTEN"
+      || echo "porta 3000 liberada")
+  ⎿  �XITO: o processo com PID 14216 foi finalizado.
+     porta 3000 liberada
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && S="C:/Users/VINICI~1.VEN/Ap
+      pData/Local/Temp/claude/C--Treinamentos-MBA-Desafios-…)
+  ⎿  DELETE 200 Usuário removido.
+     row { id: 1, name: 'Leonan', deleted: 1, has_ts: 1 }
+     enrollments/payments mantidos { enr: 1, pay: 1 }
+     … +8 lines (ctrl+o to expand)
+
+● Soft delete e rollback da transação confirmados. Agora rodo de novo os sinais
+  dos findings e o checklist da §7.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && find src -name "*.js" |
+      sort | xargs wc -l
+      echo "AP02 segredos:"; grep -rnE "((s…)
+  ⎿     49 src/app.js
+         7 src/config/index.js
+        59 src/controllers/checkoutController.js
+     … +42 lines (ctrl+o to expand)
+
+● Os dois loops restantes não fazem query por item — um é agregação em memória e
+  o outro roda 5 DDLs fixos no boot. Agora vou conferir se o npm start original
+  sobe corretamente e se nenhum processo ficou rodando.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/ecommerce-api-legacy" && S="C:/Users/VINICI~1.VEN/Ap
+      pData/Local/Temp/claude/C--Treinamentos-MBA-Desafios-…)
+  ⎿  report sem token: 401
+
+     > desafio-arquitetura-ia-boilerplate@1.0.0 start
+     … +23 lines (ctrl+o to expand)
+
+● Write(reports\refactor-summary.md)
+  ⎿  Wrote 107 lines to reports\refactor-summary.md
+       1 ================================
+       3 ================================
+       4 ## Strategy
+       5 A) Decomposição completa: a God Class `AppManager` e o `utils.js
+         s` virou composition root, e os dois arquivos antigos foram remo
+         vidos.
+       7 ## New Project Structure
+       8 ```
+       9 ecommerce-api-legacy/
+         s" (inalterado)
+     … +191 lines (ctrl+o to expand)
+
+● A Fase 3 está concluída e todas as verificações passaram. Só o F-12 ficou
+  parcial, porque a validação do formato do e-mail não estava entre as mudanças
+  aprovadas. O resumo completo está em reports/refactor-summary.md.
+
+  ================================
+  PHASE 3: REFACTORING COMPLETE
+
+  Strategy
+
+  A) Decomposição completa. O AppManager.js e o utils.js foram separados nas
+  camadas MVC padrão de Express. O src/app.js agora só monta as peças e sobe o
+  servidor, e os dois arquivos antigos foram removidos.
+
+  New Project Structure
+
+  src/
+  ├── app.js                       # Entry point: monta as peças e sobe o 
+  servidor
+  ├── config/index.js              # Config (process.env)
+  ├── database/connection.js       # Database: helpers Promise + transaction() 
+  serializada
+  ├── database/schema.js           # Database: DDL, migração idempotente 
+  (deleted/deleted_at), seed com hash
+  ├── models/                      # Model: user, course, enrollment, payment, 
+  auditLog, report (JOIN único)
+  ├── controllers/                 # Controller: checkout, report, user
+  ├── routes/index.js              # View: URL → controller (+ requireAdmin)
+  ├── services/paymentService.js   # Service: gateway simulado, cartão mascarado
+  ├── middlewares/errorHandler.js  # Middleware: AppError + asyncHandler + 
+  handler central
+  ├── middlewares/auth.js          # Middleware: Bearer ADMIN_TOKEN, comparação 
+  em tempo constante
+  └── utils/password.js            # Utils: scrypt + salt, senha aleatória
+
+  Findings Resolved
+
+  ┌──────┬──────────┬────────────────┬──────────┬───────────────────────────┐
+  │  ID  │ Severity │  Anti-pattern  │  Status  │        How (PT-xx)        │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-01 │ CRITICAL │ Credenciais    │ RESOLVED │ PT-02                     │
+  │      │          │ hardcoded      │          │                           │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │      │          │                │          │ PT-03 (scrypt; pwd        │
+  │ F-02 │ CRITICAL │ Senha insegura │ RESOLVED │ opcional → senha          │
+  │      │          │                │          │ aleatória, só o hash é    │
+  │      │          │                │          │ gravado)                  │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │      │          │ Dados          │          │ PT-04 (**** 4444, sem a   │
+  │ F-03 │ CRITICAL │ sensíveis em   │ RESOLVED │ chave)                    │
+  │      │          │ log            │          │                           │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-04 │ CRITICAL │ Rotas sem      │ RESOLVED │ PT-05                     │
+  │      │          │ autenticação   │          │                           │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-05 │ CRITICAL │ God Class      │ RESOLVED │ PT-06                     │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-06 │ HIGH     │ Regra na       │ RESOLVED │ PT-07                     │
+  │      │          │ camada errada  │          │                           │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-07 │ HIGH     │ Estado global  │ RESOLVED │ PT-08                     │
+  │      │          │ / sem DI       │          │                           │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-08 │ HIGH     │ Checkout sem   │ RESOLVED │ PT-09 (rollback testado   │
+  │      │          │ transação      │          │ com falha forçada)        │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-09 │ HIGH     │ Exclusão       │ RESOLVED │ PT-09 soft delete         │
+  │      │          │ física         │          │                           │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-10 │ MEDIUM   │ N+1            │ RESOLVED │ PT-10 (1 query)           │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-11 │ MEDIUM   │ Duplicação     │ RESOLVED │ PT-11                     │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │      │          │                │          │ PT-12. Formato do e-mail  │
+  │ F-12 │ MEDIUM   │ Erros /        │ PARTIAL  │ não validado (não estava  │
+  │      │          │ validação      │          │ entre as mudanças         │
+  │      │          │                │          │ aprovadas)                │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-13 │ LOW      │ Magic numbers  │ RESOLVED │ PT-14                     │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-14 │ LOW      │ Nomes ruins    │ RESOLVED │ PT-14                     │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-15 │ LOW      │ Código morto   │ RESOLVED │ PT-14                     │
+  ├──────┼──────────┼────────────────┼──────────┼───────────────────────────┤
+  │ F-16 │ LOW      │ Logging        │ RESOLVED │ PT-14                     │
+  └──────┴──────────┴────────────────┴──────────┴───────────────────────────┘
+
+  Contract Changes Applied
+
+  - Rotas protegidas: o relatório financeiro e o DELETE /api/users/:id exigem
+    Authorization: Bearer <ADMIN_TOKEN>. Sem credencial válida, respondem 401
+    "Não autorizado".
+  - Resposta do DELETE: passou a ser "Usuário removido." (o status 200 é o
+    mesmo). O relatório mostra o aluno removido pelo nome, em vez de "Unknown".
+  - Tipos inválidos no checkout: agora respondem 400 "Bad Request". Antes, o
+    processo caía.
+  - pwd continua opcional, como você pediu. Sem pwd, é gerada uma senha
+    aleatória e só o hash é gravado.
+
+  Validation
+
+    ✓ Application boots without errors
+    ✓ All endpoints respond as baseline (13/13 iguais ou com mudança aprovada)
+    ✓ Approved contract changes verified
+    ✓ No deprecation warnings from project code
+    ✓ No CRITICAL/HIGH anti-patterns remaining
+    ✓ MVC structure checklist complete
+
+  Endpoint Comparison
+
+  ┌───────┬────────────────────────┬──────────────┬──────────────┬────────┐
+  │ Métod │          Rota          │   Baseline   │    Depois    │   OK   │
+  │   o   │                        │              │              │        │
+  ├───────┼────────────────────────┼──────────────┼──────────────┼────────┤
+  │       │ /api/checkout (sucesso │              │              │        │
+  │ POST  │  / sem pwd / usuário   │ 200 {enrollm │ 200 {enrollm │ ✓      │
+  │       │ existente / e-mail     │ ent_id, msg} │ ent_id, msg} │        │
+  │       │ removido)              │              │              │        │
+  ├───────┼────────────────────────┼──────────────┼──────────────┼────────┤
+  │       │ /api/checkout          │              │              │        │
+  │ POST  │ (recusado / faltando   │ 400          │ 400          │ ✓      │
+  │       │ campos)                │              │              │        │
+  ├───────┼────────────────────────┼──────────────┼──────────────┼────────┤
+  │ POST  │ /api/checkout (curso   │ 404          │ 404          │ ✓      │
+  │       │ inexistente)           │              │              │        │
+  ├───────┼────────────────────────┼──────────────┼──────────────┼────────┤
+  │ POST  │ /api/checkout (card    │ processo     │ 400          │ ✓ apro │
+  │       │ numérico)              │ caiu         │              │ vada   │
+  ├───────┼────────────────────────┼──────────────┼──────────────┼────────┤
+  │       │                        │ 200          │              │        │
+  │ GET   │ /api/admin/financial-r │ [{course,    │ igual        │ ✓      │
+  │       │ eport (com token)      │ revenue,     │              │        │
+  │       │                        │ students}]   │              │        │
+  ├───────┼────────────────────────┼──────────────┼──────────────┼────────┤
+  │ GET   │ /api/admin/financial-r │ 200          │ 401          │ ✓ apro │
+  │       │ eport (sem token)      │              │              │ vada   │
+  ├───────┼────────────────────────┼──────────────┼──────────────┼────────┤
+  │ DELET │ /api/users/:id (com    │ 200 texto    │ 200 "Usuário │ ✓ apro │
+  │ E     │ token / id             │ antigo       │  removido."  │ vada   │
+  │       │ inexistente)           │              │              │        │
+  ├───────┼────────────────────────┼──────────────┼──────────────┼────────┤
+  │ DELET │ /api/users/:id (sem    │ 200          │ 401          │ ✓ apro │
+  │ E     │ token)                 │              │              │ vada   │
+  └───────┴────────────────────────┴──────────────┴──────────────┴────────┘
+
+  How to run
+
+  npm install
+  ADMIN_TOKEN=um-token-forte PAYMENT_GATEWAY_KEY=<chave> npm start   # porta 
+  3000
+  Variáveis de ambiente: veja .env.example. O api.http usa @adminToken no header
+  Authorization.
+
+  Notas:
+  - Comportamentos internos que mudaram, sem efeito nas respostas:
+    - Um pagamento recusado não cria mais o usuário.
+    - No relatório, os alunos agora seguem a ordem do id da matrícula. Antes, a
+      ordem dependia de qual callback terminava primeiro.
+  - Desvios do plano aprovado:
+    - O PAYMENT_STATUS ficou em paymentModel, não no service.
+    - Adicionei a variável opcional DATABASE_FILE (default :memory:). Ela
+      permitiu verificar o soft delete num banco em arquivo descartável.
+  - Encerramento: o app foi parado e a porta 3000 está livre.
+  - Git: não mexi no estado do git. As mudanças estão só na árvore de trabalho,
+    para você revisar e commitar.
+
+✻ Crunched for 5m 22s · done 9:30

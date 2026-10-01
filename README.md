@@ -86,7 +86,24 @@ Severidades conforme a escala do desafio: **CRITICAL** (segurança/quebra total 
 
 ## B) Construção da Skill
 
-_A preencher._
+_Seção em construção. Abaixo, o registro das iterações feito durante a execução._
+
+### Iterações e aprendizados
+
+| # | Execução | O que aconteceu | Ajuste na skill | Evidência |
+|---|---|---|---|---|
+| 1 | P1 v1 | O Refactoring Plan da Fase 2 propôs Blueprints dentro de `controllers/`, `config.py` e `errors.py`, fora da estrutura MVC definida. **Causa:** as guidelines MVC só eram lidas na Fase 3, mas o plano é montado na Fase 2 | A Fase 2 passa a ler `mvc-guidelines.md` §4/§6 antes do plano; views e controllers separados explicitamente | `reports/iteracoes/audit-project-1-v1.md` |
+| 2 | P1 v2 | Validação independente encontrou um falso positivo do grep de SQL Injection num `IN (?, ?, ?)` com marcadores gerados | Catálogo AP-01: `IN` com marcadores gerados não é finding | `reports/iteracoes/*-project-1-v2.md` |
+| 3 | P2 v1 | (a) A skill usou `git rm` (a regra só proibia commit/push). (b) Para eliminar dados órfãos, apagou em cascata matrículas e **pagamentos**, e o faturamento do relatório caiu. **Revisão humana:** nunca apagar histórico de negócio | Regra 6: nenhum comando git que altere estado. Regra 7 + PT-09: **soft delete** (coluna `removido`/`deleted`, leituras de negócio filtram, relatórios não, migração idempotente). AP-09: exclusão física de entidade com histórico vira finding | `reports/iteracoes/*-project-2-v1.md`, `reports/logs/session-project-2-v1.txt` |
+| 4 | P1 v3 | A skill ampliou a autenticação para 8 rotas (variação entre execuções em decisões de escopo). **Revisão humana na pausa:** proteger só rotas administrativas, destrutivas e financeiras | Nenhum: ajuste feito na resposta ao `[y/n]`, como previsto no template | `reports/logs/session-project-1.txt` |
+| 5 | P2 v2 | A skill tornou `pwd` obrigatório no checkout (quebra de contrato). **Revisão humana:** manter opcional, com senha aleatória e hash | Nenhum: ajuste na resposta ao `[y/n]` | `reports/logs/session-project-2.txt` |
+| 6 | Pós P2 v2 | Revisão humana: o soft delete grava **quando** removeu, mas não **quem** | PT-09 regra 8: gravar `removido_por`/`deleted_by` com usuário autenticado; sem identidade, registrar em `audit_logs` ou log | Esta seção |
+
+**Principal aprendizado:** a skill resolve bem os problemas técnicos (segurança, camadas, performance), mas **decisões de negócio e de escopo de contrato** (apagar ou preservar histórico, quais rotas exigir autenticação) variam entre execuções. A pausa obrigatória da Fase 2 é o ponto em que o humano calibra essas decisões, e cada calibração recorrente vira regra na skill.
+
+### Melhorias em aberto
+
+- **"Quem removeu" nos Projetos 1 e 2:** a regra 8 (registrar quem fez o soft delete) foi incluída na skill **depois** das execuções finais de P1 e P2. Esses dois projetos gravam apenas **quando** removeu (`removido_em`/`deleted_at`). Não foram reexecutados por limite de tempo e de tokens de execução. A regra vale a partir do Projeto 3; aplicar em P1/P2 exige só uma nova execução de `/refactor-arch`.
 
 ## C) Resultados
 

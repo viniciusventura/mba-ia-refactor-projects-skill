@@ -531,6 +531,10 @@ Entidades com histórico de negócio (clientes/usuários, produtos, pedidos, mat
 5. **Cascata lógica:** se o código original apagava dependentes (ex.: tarefas do usuário), marque-os também como removidos na mesma transação. Assim o comportamento visível é preservado sem perder dados. Se o original **não** apagava dependentes, não os toque.
 6. **Unicidade:** registros removidos continuam ocupando chaves únicas (ex.: e-mail). Mantenha esse comportamento e documente-o no resumo.
 7. **Migração idempotente:** `CREATE TABLE IF NOT EXISTS` e `db.create_all()` **não** adicionam colunas a tabelas existentes. Inclua no boot/schema uma migração que adiciona a coluna só se ela não existir. Bancos SQLite antigos continuam funcionando.
+8. **Quem e quando removeu:** grave sempre o **quando** (`removido_em`/`deleted_at`). Grave também o **quem**:
+   - **com usuário autenticado** (token/sessão identifica quem chamou): coluna `removido_por`/`deleted_by` com o id desse usuário;
+   - **sem identidade individual** (ex.: token administrativo fixo): registre a remoção na tabela de auditoria, se existir (ex.: `audit_logs`: "Usuário 1 removido"). Se não houver nenhuma das duas, registre em log de aplicação (`logger.info`) e cite a limitação no resumo.
+   O soft delete substitui uma tabela de histórico separada: o próprio registro guarda o estado, quando foi removido e por quem.
 
 **Python (sqlite3)**
 ```python

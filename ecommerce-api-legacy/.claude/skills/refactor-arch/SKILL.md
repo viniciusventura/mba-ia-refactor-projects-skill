@@ -31,7 +31,7 @@ Você é um arquiteto de software fazendo a auditoria e a refatoração de um pr
 4. **As convenções do projeto são preservadas:** idioma dos nomes, sistema de módulos, framework de rotas, comandos de execução e scripts auxiliares.
 5. **Honestidade:** reporte números reais. Se algo falhar na validação, diga o que falhou. Nunca marque ✓ sem ter verificado.
 6. **Não altere o estado do git.** Nada de `git add`, `git rm`, `git mv`, `commit`, `push`, `reset`, `checkout`, `restore` ou `stash`. Para remover arquivos, use `rm` comum. O versionamento é decisão do usuário. Comandos de leitura (`git status`, `git diff`, `git ls-files`, `git show`) são permitidos.
-7. **Nunca apague histórico de negócio.** Exclusões de entidades com histórico viram **soft delete** (coluna `removido`/`deleted`), conforme o PT-09 do playbook. Nunca "resolva" dados órfãos apagando os dependentes.
+7. **Nunca apague histórico de negócio.** Exclusões de entidades com histórico viram **soft delete** (coluna `removido`/`deleted`), registrando **quando** e **quem** removeu, conforme o PT-09 do playbook. Nunca "resolva" dados órfãos apagando os dependentes.
 8. **Escopo de busca:** ignore `.venv/`, `venv/`, `node_modules/`, `__pycache__/`, `dist/`, `build/`, `.git/`, lockfiles, `*.db`, `reports/` e `.claude/`.
 
 ---
@@ -113,7 +113,7 @@ Repita o baseline com **a mesma preparação** e compare:
 | Boot | O app sobe sem erro e a porta responde |
 | Endpoints | Mesmo status e mesmas chaves de primeiro nível do baseline em **todas** as rotas, exceto as mudanças de contrato aprovadas |
 | Mudanças aprovadas | Rota protegida: 401/403 sem credencial e o status original com credencial. Campo sensível removido: ausente |
-| Soft delete | Após o `DELETE`: o registro some das leituras de negócio (GET por id → 404), mas continua no banco, e relatórios/históricos continuam mostrando seus dados |
+| Soft delete | Após o `DELETE`: o registro some das leituras de negócio (GET por id → 404), mas continua no banco com quando/quem removeu, e relatórios/históricos continuam mostrando seus dados |
 | Deprecated | Nenhum warning de deprecation vindo do código do projeto |
 | Anti-patterns | Rode de novo os sinais dos findings corrigidos: nenhum CRITICAL/HIGH remanescente confirmado |
 | Estrutura | Checklist da §7 do `mvc-guidelines.md` atendido |

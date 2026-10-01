@@ -86,9 +86,68 @@ Severidades conforme a escala do desafio: **CRITICAL** (segurança/quebra total 
 
 ## B) Construção da Skill
 
-_Seção em construção. Abaixo, o registro das iterações feito durante a execução._
+### Estrutura
 
-### Iterações e aprendizados
+```
+.claude/skills/refactor-arch/
+├── SKILL.md                         # orquestra as 3 fases, regras invioláveis e portões
+└── references/
+    ├── project-analysis.md          # Fase 1: heurísticas de linguagem, framework, banco, endpoints e arquitetura
+    ├── anti-patterns-catalog.md     # Fase 2: 14 anti-patterns com sinais, "como confirmar" e severidade
+    ├── audit-report-template.md     # Fase 2: formato do relatório e pergunta de confirmação
+    ├── mvc-guidelines.md            # Fases 2/3: camadas, direção das dependências, estrutura alvo por stack
+    └── refactoring-playbook.md      # Fase 3: 14 transformações com código antes/depois (Python e Node)
+```
+
+| Área exigida | Arquivo |
+|---|---|
+| Análise de projeto | `project-analysis.md` |
+| Catálogo de anti-patterns | `anti-patterns-catalog.md` |
+| Template de relatório | `audit-report-template.md` |
+| Guidelines de arquitetura | `mvc-guidelines.md` |
+| Playbook de refatoração | `refactoring-playbook.md` |
+
+### Decisões de design
+
+1. **SKILL.md como orquestrador, conhecimento nas referências (progressive disclosure).** O `SKILL.md` (~160 linhas) define o fluxo e indica **qual referência ler em cada fase**. As ~1.900 linhas de conhecimento só entram no contexto quando a fase chega.
+2. **`disable-model-invocation: true`.** Uma skill que reescreve o projeto inteiro só pode rodar quando alguém digita `/refactor-arch`, nunca por gatilho automático. O `quick_validate.py` do skill-creator acusa esse campo porque segue o padrão genérico de Agent Skills; o campo é específico do Claude Code.
+3. **Regras invioláveis no topo:** nada é modificado antes do "y" (nem rodar o app, que criaria o `.db`); buscar → ler → reportar; contrato da API preservado; convenções do projeto preservadas; honestidade (nunca marcar ✓ sem verificar); não alterar o estado do git; nunca apagar histórico de negócio.
+4. **Baseline e validação automáticos.** A Fase 3 sobe a aplicação **antes** de alterar qualquer coisa, chama todos os endpoints do inventário e registra status e chaves. Depois da refatoração, repete a mesma preparação e compara. Há até 5 ciclos de correção; se não passar, a skill reporta a falha em vez de declarar sucesso.
+5. **Relatório salvo dentro do projeto** (`reports/audit-report.md`), para a skill continuar agnóstica. A cópia para `reports/audit-project-N.md` na raiz é um passo manual da entrega.
+6. **Exemplos do playbook testados antes de entrar na skill.** O teste pegou bugs que a skill copiaria para os 3 projetos: um `errorhandler(Exception)` do Flask que transformava 405 em 500; um handler do Express que transformava JSON malformado (400) em 500; e a troca direta de `utcnow()` por `now(timezone.utc)`, que gera `TypeError` ao comparar com datas *naive* do SQLite.
+
+### Anti-patterns do catálogo e por quê
+
+Os 14 itens saíram da análise manual (seção A): cada problema encontrado virou uma entrada, e cada entrada aparece em pelo menos um projeto.
+
+| ID | Anti-pattern | Severidade | Princípio | Onde aparece |
+|---|---|---|---|---|
+| AP-01 | SQL Injection | CRITICAL | OWASP A03 | P1 (19 queries) |
+| AP-02 | Credenciais hardcoded | CRITICAL | OWASP A07 / 12-Factor | P1, P2, P3 |
+| AP-03 | Armazenamento inseguro de senha | CRITICAL | OWASP A02 | P1, P2, P3 |
+| AP-04 | Exposição de dados sensíveis | CRITICAL | OWASP A01/A09 | P1, P2, P3 |
+| AP-05 | Endpoint sensível sem autenticação | CRITICAL | OWASP A01 | P1, P2, P3 |
+| AP-06 | God Class / God File | CRITICAL | SRP + MVC | P1, P2, P3 |
+| AP-07 | Regra de negócio na camada errada | HIGH | SRP + MVC | P1, P2, P3 |
+| AP-08 | Estado global mutável / sem DI | HIGH | DIP | P1, P2 |
+| AP-09 | Multi-etapa sem transação / exclusão física de histórico | HIGH | ACID | P1, P2, P3 |
+| AP-10 | Query N+1 | MEDIUM | Performance | P1, P2, P3 |
+| AP-11 | Código duplicado | MEDIUM | DRY | P1, P2, P3 |
+| AP-12 | Erro engolido / sem handler / validação ausente | MEDIUM | Robustez | P1, P2, P3 |
+| AP-13 | **API deprecated** (tabela com equivalente moderno) | MEDIUM | Manutenibilidade | P3 (`utcnow`, `Query.get`) |
+| AP-14 | Magic numbers, nomes, código morto, logging | LOW | Clean Code | P1, P2, P3 |
+
+Cada entrada tem: **sinais de detecção** (com regex testada nos 3 projetos), **"como confirmar"** (quando **não** é finding), exemplo e link para o padrão do playbook. O "como confirmar" nasceu dos falsos positivos da análise manual: SQL com placeholder não é injection, callback do `sqlite3` é estilo antigo mas não deprecated, `minipass` no lockfile não é senha, `IN` com marcadores gerados é parametrizado.
+
+### Como a skill é agnóstica de tecnologia
+
+- **Sinais em Python e JavaScript** em cada anti-pattern, mais uma tabela de API deprecated para cada ecossistema (Python/Flask/SQLAlchemy e Node/Express).
+- **Estrutura alvo por stack** (`mvc-guidelines.md` §4): pacotes na raiz no Flask (mantém `python app.py` e o `seed.py`) e tudo em `src/` no Express (mantém `npm start`, CommonJS).
+- **Estratégia por nível de organização** (§6): **A) monolito** → decomposição completa (P1, P2); **B) parcialmente em camadas** → evolução, mantendo o que está certo (P3 manteve `routes/` e os models e criou `controllers/`); **C) adequado** → só correções de código.
+- **Preservação de convenções:** idioma dos nomes (P1 em português, P2/P3 em inglês, incluindo a coluna de soft delete `removido` × `deleted`), formato de resposta (JSON no P1/P3, **texto puro** nos erros do P2) e comandos de execução.
+- **Prova:** a mesma skill, sem nenhuma alteração entre projetos, rodou nas duas stacks. Não reportou SQL Injection no P2 (que usa placeholders) e reportou APIs deprecated só no P3, onde elas existem.
+
+### Desafios encontrados: iterações
 
 | # | Execução | O que aconteceu | Ajuste na skill | Evidência |
 |---|---|---|---|---|
@@ -97,18 +156,244 @@ _Seção em construção. Abaixo, o registro das iterações feito durante a exe
 | 3 | P2 v1 | (a) A skill usou `git rm` (a regra só proibia commit/push). (b) Para eliminar dados órfãos, apagou em cascata matrículas e **pagamentos**, e o faturamento do relatório caiu. **Revisão humana:** nunca apagar histórico de negócio | Regra 6: nenhum comando git que altere estado. Regra 7 + PT-09: **soft delete** (coluna `removido`/`deleted`, leituras de negócio filtram, relatórios não, migração idempotente). AP-09: exclusão física de entidade com histórico vira finding | `reports/iteracoes/*-project-2-v1.md`, `reports/logs/session-project-2-v1.txt` |
 | 4 | P1 v3 | A skill ampliou a autenticação para 8 rotas (variação entre execuções em decisões de escopo). **Revisão humana na pausa:** proteger só rotas administrativas, destrutivas e financeiras | Nenhum: ajuste feito na resposta ao `[y/n]`, como previsto no template | `reports/logs/session-project-1.txt` |
 | 5 | P2 v2 | A skill tornou `pwd` obrigatório no checkout (quebra de contrato). **Revisão humana:** manter opcional, com senha aleatória e hash | Nenhum: ajuste na resposta ao `[y/n]` | `reports/logs/session-project-2.txt` |
-| 6 | Pós P2 v2 | Revisão humana: o soft delete grava **quando** removeu, mas não **quem** | PT-09 regra 8: gravar `removido_por`/`deleted_by` com usuário autenticado; sem identidade, registrar em `audit_logs` ou log | Esta seção |
+| 6 | Pós P2 v2 | Revisão humana: o soft delete grava **quando** removeu, mas não **quem** | PT-09 regra 8: gravar `removido_por`/`deleted_by` com usuário autenticado; sem identidade, registrar em `audit_logs` ou log | Aplicada no P3 (`deleted_by`) |
+| 7 | P3 | Nenhum ajuste necessário: plano, soft delete com `deleted_by`, estratégia B e escopo de autenticação corretos de primeira | n/a | `reports/logs/session-project-3.txt` |
 
-**Principal aprendizado:** a skill resolve bem os problemas técnicos (segurança, camadas, performance), mas **decisões de negócio e de escopo de contrato** (apagar ou preservar histórico, quais rotas exigir autenticação) variam entre execuções. A pausa obrigatória da Fase 2 é o ponto em que o humano calibra essas decisões, e cada calibração recorrente vira regra na skill.
+**Principal aprendizado:** a skill resolve bem os problemas técnicos (segurança, camadas, performance), mas **decisões de negócio e de escopo de contrato** (apagar ou preservar histórico, quais rotas exigir autenticação) variam entre execuções. A pausa obrigatória da Fase 2 é o ponto em que o humano calibra essas decisões, e cada calibração recorrente vira regra na skill. A quantidade de ajustes caiu a cada projeto (P1: 3 execuções; P2: 2; P3: 1, sem ajuste).
 
 ### Melhorias em aberto
 
 - **"Quem removeu" nos Projetos 1 e 2:** a regra 8 (registrar quem fez o soft delete) foi incluída na skill **depois** das execuções finais de P1 e P2. Esses dois projetos gravam apenas **quando** removeu (`removido_em`/`deleted_at`). Não foram reexecutados por limite de tempo e de tokens de execução. A regra vale a partir do Projeto 3; aplicar em P1/P2 exige só uma nova execução de `/refactor-arch`.
+- **Autenticação das rotas de leitura:** por decisão de escopo (não quebrar clientes atuais), listagens que expõem nome/e-mail (`GET /usuarios`, `/users`, `/reports/*`) continuam públicas. Está registrado como recomendação no "Out of scope" de cada relatório.
+- **Formato de 404/405 no P3:** respostas de rota inexistente/método não permitido passaram de HTML para JSON `{"error": ...}` (mesmo status). A mudança é inofensiva, mas não foi listada no relatório; no P1 a skill preservou o HTML.
+
+---
 
 ## C) Resultados
 
-_A preencher._
+### Resumo das auditorias (Fase 2)
+
+| Projeto | Stack | CRITICAL | HIGH | MEDIUM | LOW | Total | Resolvidos na Fase 3 |
+|---|---|---|---|---|---|---|---|
+| P1: `code-smells-project` | Python + Flask 3.1.1 | 6 | 3 | 3 | 3 | **15** | 13 + 2 parciais¹ |
+| P2: `ecommerce-api-legacy` | Node 22 + Express 4.22 | 5 | 4 | 3 | 4 | **16** | 15 + 1 parcial² |
+| P3: `task-manager-api` | Python + Flask 3.0.0 + SQLAlchemy 2.1 | 5 | 2 | 4 | 3 | **14** | 14 |
+
+¹ F-05: autenticação restrita às rotas administrativas, destrutivas e financeiras por decisão humana. F-11: divergência de validação entre POST e PUT `/produtos` mantida para não mudar o contrato.
+² F-12: validação de formato de e-mail/cartão não incluída (mudaria quais payloads o checkout aceita).
+
+Relatórios completos: [`reports/audit-project-1.md`](reports/audit-project-1.md), [`reports/audit-project-2.md`](reports/audit-project-2.md), [`reports/audit-project-3.md`](reports/audit-project-3.md). Resumos da Fase 3 (com tabela de endpoints antes/depois): `<projeto>/reports/refactor-summary.md`.
+
+**Cobertura da análise manual:** os relatórios da skill contêm 10/10 problemas do P1, 12/12 do P2 e 11/11 do P3, além de achados novos (ex.: transação ausente no pedido do P1, usuário "fantasma" criado antes do pagamento no P2, ordem não determinística do relatório no P2).
+
+### Antes × depois
+
+**P1: `code-smells-project` (estratégia A: decomposição completa)**
+```
+ANTES: 4 arquivos, 780 linhas            DEPOIS: 30 arquivos, 938 linhas
+app.py          config + rotas + SQL     app.py         create_app() (composition root)
+controllers.py  HTTP + SQL + notificação config/        settings do ambiente
+models.py       SQL de 4 domínios        models/        produto, usuario, pedido, relatorio
+database.py     conexão global           views/         6 Blueprints (só delegam)
+                                         controllers/   6 controllers
+                                         services/      notificação
+                                         middlewares/   error_handler, auth
+                                         utils/         constantes
+                                         database.py    conexão por requisição, migração, seed
+```
+
+**P2: `ecommerce-api-legacy` (estratégia A: decomposição completa)**
+```
+ANTES: 3 arquivos, 180 linhas            DEPOIS: 18 arquivos, 417 linhas
+src/app.js         entry                 src/app.js        composition root
+src/AppManager.js  God Class             src/config/       ambiente
+src/utils.js       config + cache + hash src/database/     conexão promisificada + transaction(), schema
+                                         src/models/       user, course, enrollment, payment, auditLog, report
+                                         src/controllers/  checkout, report, user
+                                         src/routes/       Router (View)
+                                         src/services/     paymentService
+                                         src/middlewares/  errorHandler, auth
+                                         src/utils/        password (scrypt)
+```
+
+**P3: `task-manager-api` (estratégia B: evolução incremental)**
+```
+ANTES: 15 arquivos, 1.158 linhas         DEPOIS: 30 arquivos, 1.164 linhas
+app.py        config + rotas + boot      app.py        create_app() (seed.py continua importando app, db)
+models/       ORM (mantidos)             models/       mantidos + is_overdue reutilizado + soft_delete
+routes/       rotas "gordas"             routes/       Blueprints só delegam (+ category_routes, health_routes)
+services/     código morto               controllers/  NOVO: task, user, category, report, health, validators
+utils/        quase tudo sem uso         config/       NOVO · middlewares/ NOVO (error_handler, auth)
+                                         utils/        constants, time (utc_now), helpers enxuto
+                                         services/     removido (código morto com senha SMTP hardcoded)
+```
+
+### Checklist de validação
+
+| Item | P1 | P2 | P3 |
+|---|---|---|---|
+| **Fase 1: Análise** | | | |
+| Linguagem detectada corretamente | ✅ Python 3.14 | ✅ JavaScript / Node 22 | ✅ Python 3.14 |
+| Framework detectado corretamente | ✅ Flask 3.1.1 | ✅ Express ^4.18.2 (4.22.1 instalado) | ✅ Flask 3.0.0 + SQLAlchemy |
+| Domínio descrito corretamente | ✅ E-commerce | ✅ LMS com checkout | ✅ Task Manager |
+| Nº de arquivos condiz com a realidade | ✅ 4 | ✅ 3 | ✅ 15 (inclui seed) |
+| **Fase 2: Auditoria** | | | |
+| Relatório segue o template | ✅ | ✅ | ✅ |
+| Cada finding com arquivo e linhas exatos | ✅ | ✅ | ✅ |
+| Ordenado CRITICAL → LOW | ✅ | ✅ | ✅ |
+| Mínimo de 5 findings | ✅ 15 | ✅ 16 | ✅ 14 |
+| APIs deprecated (se aplicável) | ✅ nenhuma (busca documentada) | ✅ nenhuma (callbacks ≠ deprecated) | ✅ 23× `utcnow`, 16× `Query.get` |
+| Pausa e pede confirmação | ✅ | ✅ | ✅ |
+| **Fase 3: Refatoração** | | | |
+| Estrutura segue MVC | ✅ | ✅ | ✅ (`routes/` = views) |
+| Config extraída (sem hardcoded) | ✅ `config/settings.py` | ✅ `src/config/` | ✅ `config/settings.py` |
+| Models abstraem dados | ✅ | ✅ | ✅ |
+| Views/Routes separadas | ✅ `views/` | ✅ `src/routes/` | ✅ `routes/` |
+| Controllers concentram o fluxo | ✅ | ✅ | ✅ |
+| Error handling centralizado | ✅ | ✅ | ✅ |
+| Entry point claro | ✅ `create_app()` | ✅ composition root | ✅ `create_app()` |
+| Aplicação inicia sem erros | ✅ | ✅ | ✅ |
+| Endpoints originais respondem | ✅ | ✅ | ✅ |
+
+### Validação independente (além da validação da própria skill)
+
+Para não depender só do resumo gerado pela skill, cada projeto foi validado por um script independente que roda os mesmos cenários contra o **código original** (extraído do commit inicial) e contra o **refatorado**, comparando status HTTP e estrutura das respostas campo a campo.
+
+| | P1 | P2 | P3 |
+|---|---|---|---|
+| Cenários comparados | 28 | 16 | 36 |
+| Divergências **não aprovadas** | **0** | **0** | **0** |
+| SQL Injection no login (`' --`) | 200 → **401** | n/a (sem SQLi) | n/a |
+| Cartão no log do servidor | n/a | 1× → **0×** | n/a |
+| Senha no banco | texto puro → scrypt | base64 caseiro → scrypt | MD5 → scrypt |
+| Warnings de deprecation do projeto | 0 → 0 | 0 → 0 | **22 → 0** |
+| Soft delete: registro continua no banco | ✅ (produto) | ✅ (usuário) | ✅ (task, user + tasks, category) |
+| Histórico preservado após exclusão | pedido antigo mostra o nome do produto (antes: `"Desconhecido"`) | relatório mantém aluno e faturamento (antes: `"Unknown"`) | relatório mantém o usuário; `deleted_by` gravado |
+
+### Screenshots: aplicações rodando após a refatoração
+
+Cada print mostra o boot da aplicação refatorada e chamadas reais com `curl`: endpoint preservado, erro tratado, rota protegida sem/com token e a prova do soft delete no banco.
+
+**Projeto 1: code-smells-project (Python/Flask)**: SQL Injection barrada (401), `DELETE` protegido e produto removido que some da API mas continua no banco.
+
+![Projeto 1 rodando](reports/screenshots/projeto-1.png)
+
+**Projeto 2: ecommerce-api-legacy (Node.js/Express)**: checkout preservado, cartão mascarado no log, relatório protegido e faturamento mantido após remover o aluno.
+
+![Projeto 2 rodando](reports/screenshots/projeto-2.png)
+
+**Projeto 3: task-manager-api (Python/Flask + SQLAlchemy)**: seed + boot, validação 400 (antes 500), escalada de privilégio bloqueada e soft delete com `deleted_by`.
+
+![Projeto 3 rodando](reports/screenshots/projeto-3.png)
+
+### Logs da aplicação rodando após a refatoração
+
+Os logs completos das sessões (Fases 1-3, incluindo as chamadas de validação) estão em [`reports/logs/`](reports/logs/). Trechos das validações:
+
+```
+# P1: python app.py
+INFO __main__: Servidor iniciado em http://0.0.0.0:5000
+ * Debug mode: off
+GET    /produtos/999                     → {"erro":"Produto não encontrado","sucesso":false}  [404]
+POST   /login (admin@loja.com' --)       → {"erro":"Email ou senha inválidos","sucesso":false}  [401]   (antes: 200)
+DELETE /produtos/1 (sem token)           → [401]
+DELETE /produtos/1 (Bearer token admin)  → {"mensagem":"Produto deletado","sucesso":true}  [200]   (soft delete)
+
+# P2: node src/app.js
+POST /api/checkout         → {"msg":"Sucesso","enrollment_id":2}  [200]
+GET  /api/admin/financial-report (sem token)  → Não autorizado  [401]
+GET  /api/admin/financial-report (Bearer)     → [{"course":"Clean Architecture","revenue":997,...}]  [200]
+
+# P3: python seed.py && python app.py
+ * Debug mode: off
+GET /health → {"status":"ok","timestamp":"2026-10-01 09:57:07"}  [200]
+DELETE /users/3 (admin) → 200; tarefas do usuário somem da API; users.deleted_by = 1
+```
+
+### Observações sobre stacks diferentes
+
+- **Python monolito (P1) × Node monolito (P2):** a mesma estratégia A gerou estruturas equivalentes, respeitando o idioma de cada uma: Blueprints × Router, `flask.g` × conexão injetada, `werkzeug.security` × `crypto.scrypt`, `with db:` × `transaction()` com `BEGIN/COMMIT`.
+- **Projeto já organizado (P3):** a skill não "reescreveu por reescrever". Manteve `routes/` e os models, criou só a camada que faltava (`controllers/`) e justificou o único desvio de nomenclatura (`models/task.py` mantido porque o `seed.py` importa esse caminho).
+- **Contrato preservado mesmo em detalhes:** o P2 continua respondendo erros em texto puro; o P1 manteve os 404/405 em HTML do Flask.
+- **Variação entre execuções:** severidade (ex.: `report_routes.py` como God File CRITICAL no P3) e escopo de autenticação variaram de uma rodada para outra. A pausa da Fase 2 foi decisiva para calibrar isso (ver iterações 4 e 5).
+
+---
 
 ## D) Como Executar
 
-_A preencher._
+### Pré-requisitos
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) instalado e autenticado (`claude --version`)
+- Python 3.10+ (testado com 3.14) e Node.js 18+ (testado com 22)
+- Git
+
+### Preparar os projetos
+
+```bash
+git clone https://github.com/viniciusventura/mba-ia-refactor-projects-skill.git
+cd mba-ia-refactor-projects-skill
+
+# Projeto 1 e 3 (Python)
+cd code-smells-project && python -m venv .venv && .venv/Scripts/pip install -r requirements.txt && cd ..   # Linux/macOS: .venv/bin/pip
+cd task-manager-api   && python -m venv .venv && .venv/Scripts/pip install -r requirements.txt && cd ..
+
+# Projeto 2 (Node)
+cd ecommerce-api-legacy && npm install && cd ..
+```
+
+### Executar a skill
+
+A skill fica em `.claude/skills/refactor-arch/` dentro de cada projeto (as 3 cópias são idênticas). Rode **dentro** da pasta do projeto, numa sessão nova do Claude Code:
+
+```bash
+cd code-smells-project   && claude "/refactor-arch"
+cd ../ecommerce-api-legacy && claude "/refactor-arch"
+cd ../task-manager-api   && claude "/refactor-arch"
+```
+
+Fluxo:
+1. **Fase 1** imprime `PHASE 1: PROJECT ANALYSIS` e o inventário de endpoints.
+2. **Fase 2** salva `reports/audit-report.md` e pergunta `Proceed with refactoring (Phase 3)? [y/n]`. Revise principalmente o **Refactoring Plan** e as **mudanças de contrato**. Responda `y`, `n`, ou `y, mas ...` com ajustes.
+3. **Fase 3** captura o baseline, refatora, valida e salva `reports/refactor-summary.md`.
+4. Opcional: `/export` salva o log da sessão.
+
+> Os projetos deste repositório **já estão refatorados**. Para reproduzir do zero, use uma cópia do código original (commit `6d1ce62`, por exemplo com `git worktree add ../original 6d1ce62`) e copie para dentro dela a pasta `.claude/` de qualquer projeto deste repositório.
+
+### Validar a refatoração
+
+**P1: code-smells-project**
+```bash
+cd code-smells-project
+python app.py                                         # http://localhost:5000 (variáveis opcionais em .env.example)
+curl http://localhost:5000/produtos                   # 200
+curl -X POST localhost:5000/login -H "Content-Type: application/json" -d '{"email":"admin@loja.com","senha":"admin123"}'   # 200 + token
+curl -X DELETE localhost:5000/produtos/1              # 401 sem token
+curl -X DELETE localhost:5000/produtos/1 -H "Authorization: Bearer <token>"   # 200 (soft delete)
+```
+
+**P2: ecommerce-api-legacy**
+```bash
+cd ecommerce-api-legacy
+ADMIN_TOKEN=meu-token npm start                       # http://localhost:3000
+# api.http: defina @adminToken = meu-token e execute as requisições (VS Code + REST Client)
+```
+
+**P3: task-manager-api**
+```bash
+cd task-manager-api
+python seed.py && python app.py                       # http://localhost:5000
+curl http://localhost:5000/tasks                      # 200
+curl -X POST localhost:5000/login -H "Content-Type: application/json" -d '{"email":"joao@email.com","password":"1234"}'   # 200 + token
+```
+
+O que conferir: a aplicação sobe sem erro; os endpoints originais respondem com o mesmo status do original (exceto as mudanças de contrato listadas em cada `refactor-summary.md`); a tabela **Endpoint Comparison** de cada `refactor-summary.md` mostra baseline × depois.
+
+### Estrutura de entrega
+
+```
+reports/
+├── audit-project-{1,2,3}.md      # saída da Fase 2 (versão final de cada projeto)
+├── iteracoes/                    # relatórios de execuções anteriores (evidência das iterações)
+├── logs/                         # /export das sessões do Claude Code
+└── screenshots/                  # aplicações rodando após a refatoração
+```

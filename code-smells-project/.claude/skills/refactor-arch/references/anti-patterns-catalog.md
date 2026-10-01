@@ -59,6 +59,7 @@ Referência da **Fase 2 (Auditoria)**. Cada entrada define **o que procurar**, *
 **Como confirmar**
 - O valor concatenado vem de fora (request, argumento de função pública)? Se for constante interna, é LOW (estilo), não injection.
 - **Não é finding** se a query usa placeholders: `?`, `%s` passado como 2º argumento, `:nome`, `$1`, ou ORM (`filter_by`, `Model.query.filter(...)`). O `like(f'%{x}%')` do SQLAlchemy é parametrizado.
+- **Não é finding** quando o que se concatena são apenas **marcadores gerados** e os valores vão separados: `"... WHERE id IN (" + ", ".join("?" for _ in ids) + ")", ids`. Esse é o jeito correto de parametrizar um `IN` de tamanho variável.
 - Conte todas as queries afetadas.
 
 **Exemplo**

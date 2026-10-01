@@ -1,0 +1,1904 @@
+ ▐▛███▛█   Claude Code v2.1.286
+▝▜██████▀  Opus 5.5 · Claude Pro
+ ▝▝   ▝▝   C:\Treinamentos\MBA\Desafios Praticos\skill_review\code-smells-p…
+
+▎ Your voice can help guide AI
+▎ Take 15 min to share your experiences with Anthropic Interviewer. Start now
+
+❯ /refactor-arch                                                                
+
+● Vou começar pela Fase 1, lendo a referência de análise.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && cat
+      .claude/skills/refactor-arch/references/project-analysis.md && echo ----
+      && g…)
+  ⎿  # Análise de Projeto: heurísticas da Fase 1
+
+     Referência da **Fase 1 (Análise)**. Objetivo: entender o projeto **sem
+     … +203 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && cat README.md
+      requirements.txt && wc -l *.py && cat -n app.py && cat -n database.…)
+  ⎿  # code-smells-project
+
+     API de E-commerce em Python/Flask usada como entrada do desafio `refac
+     … +190 lines (ctrl+o to expand)
+
+  Read 2 files (ctrl+o to expand)
+
+● Fase 1 concluída na leitura. Agora as referências da Fase 2.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/code-smells-projec
+      t/.claude/skills/refactor-arch/references" && cat anti-patterns-catalog.md
+      audit-report…)
+  ⎿  # Catálogo de Anti-patterns
+
+     Referência da **Fase 2 (Auditoria)**. Cada entrada define **o que proc
+     … +571 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Agora a §4 e a §6 do mvc-guidelines.md, para o Refactoring Plan.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/code-smells-projec
+      t/.claude/skills/refactor-arch/references" && grep -n "^## "
+      mvc-guidelines.md)
+  ⎿  7:## 1. MVC aplicado a uma API
+     30:## 2. Responsabilidades: pode × não pode
+     71:## 3. Direção das dependências
+     … +4 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Referências lidas. Vou rodar os sinais de detecção do catálogo para confirmar
+  as contagens (somente leitura).
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && cat .venv/pyvenv.cfg;
+      .venv/Scripts/python -m pip show flask flask-cors 2>/dev/nu…)
+  ⎿  home = C:\Users\vinicius.ventura\AppData\Local\Programs\Python\Python3
+     14
+     include-system-site-packages = false
+     … +79 lines (ctrl+o to expand)
+
+● Detecções confirmadas (o regex ERE do grep perdeu algumas linhas por causa do
+  \n dentro de [...], mas a leitura manual confirma 19 queries concatenadas).
+  Imprimindo a Fase 1 e montando o relatório.
+
+  ================================
+  PHASE 1: PROJECT ANALYSIS
+  ================================
+  Language:      Python 3.14.4 (versão da .venv; nenhum runtime declarado no 
+  projeto)
+  Framework:     Flask 3.1.1
+  Dependencies:  flask==3.1.1, flask-cors==5.0.1 (web); sqlite3 da stdlib 
+  (dados); nenhuma dependência declarada sem uso
+  Database:      SQLite via driver cru sqlite3 (SQL manual), arquivo loja.db 
+  (não versionado), schema + seed criados no boot por database.get_db()
+  Domain:        API de e-commerce (produtos, usuários, pedidos com itens, 
+  relatório de vendas)
+  Architecture:  A) Monolítica: 4 arquivos com "camadas" só no nome; app.py 
+  mistura config, rotas e SQL; models.py concentra SQL de 4 domínios mais a 
+  regra de desconto; controllers.py acessa o banco direto (health)
+  Entry point:   app.py → `python app.py` → 0.0.0.0:5000 (debug=True)
+  Source files:  4 files analyzed | ~780 lines (sem script auxiliar; o seed fica
+  dentro de database.py)
+  DB tables:     produtos, usuarios, pedidos, itens_pedido
+  Endpoints:     19 endpoints (lista abaixo)
+  ================================
+
+  ┌──────┬──────────────────────────┬─────────────────────────────┬─────────┐
+  │ Méto │           Rota           │           Handler           │  Local  │
+  │  do  │                          │                             │         │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /                        │ app.index                   │ app.py: │
+  │      │                          │                             │ 32      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /produtos                │ controllers.listar_produtos │ app.py: │
+  │      │                          │                             │ 11      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /produtos/busca          │ controllers.buscar_produtos │ app.py: │
+  │      │                          │                             │ 12      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /produtos/int:id         │ controllers.buscar_produto  │ app.py: │
+  │      │                          │                             │ 13      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ POST │ /produtos                │ controllers.criar_produto   │ app.py: │
+  │      │                          │                             │ 14      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ PUT  │ /produtos/int:id         │ controllers.atualizar_produ │ app.py: │
+  │      │                          │ to                          │ 15      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ DELE │ /produtos/int:id         │ controllers.deletar_produto │ app.py: │
+  │ TE   │                          │                             │ 16      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /usuarios                │ controllers.listar_usuarios │ app.py: │
+  │      │                          │                             │ 18      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /usuarios/int:id         │ controllers.buscar_usuario  │ app.py: │
+  │      │                          │                             │ 19      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ POST │ /usuarios                │ controllers.criar_usuario   │ app.py: │
+  │      │                          │                             │ 20      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ POST │ /login                   │ controllers.login           │ app.py: │
+  │      │                          │                             │ 21      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ POST │ /pedidos                 │ controllers.criar_pedido    │ app.py: │
+  │      │                          │                             │ 23      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /pedidos                 │ controllers.listar_todos_pe │ app.py: │
+  │      │                          │ didos                       │ 24      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /pedidos/usuario/int:usu │ controllers.listar_pedidos_ │ app.py: │
+  │      │ ario_id                  │ usuario                     │ 25      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ PUT  │ /pedidos/int:pedido_id/s │ controllers.atualizar_statu │ app.py: │
+  │      │ tatus                    │ s_pedido                    │ 26      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /relatorios/vendas       │ controllers.relatorio_venda │ app.py: │
+  │      │                          │ s                           │ 28      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /health                  │ controllers.health_check    │ app.py: │
+  │      │                          │                             │ 30      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ POST │ /admin/reset-db ⚠️       │ app.reset_database          │ app.py: │
+  │      │ destrutiva               │                             │ 47      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │      │ /admin/query ⚠️          │                             │ app.py: │
+  │ POST │ destrutiva (SQL          │ app.executar_query          │ 59      │
+  │      │ arbitrário)              │                             │         │
+  └──────┴──────────────────────────┴─────────────────────────────┴─────────┘
+
+● Write(reports\audit-report.md)
+  ⎿  Wrote 272 lines to reports\audit-report.md
+       1 ================================
+       2 ARCHITECTURE AUDIT REPORT
+       4 Project:  code-smells-project
+       5 Stack:    Python 3.14.4 + Flask 3.1.1 (flask-cors 5.0.1, sqlite3
+         )
+       7 Date:     2026-09-30
+       8 Architecture: A) Monolítica: 4 arquivos com "camadas" só no nome
+         ; SQL em app.py, controllers.py e models.py; regra de negócio em
+       9 
+      10 ## Summary
+     … +448 lines (ctrl+o to expand)
+
+● ================================
+  ARCHITECTURE AUDIT REPORT
+
+  Project:  code-smells-project
+  Stack:    Python 3.14.4 + Flask 3.1.1 (flask-cors 5.0.1, sqlite3)
+  Files:    4 analyzed | ~780 lines of code
+  Date:     2026-09-30
+  Architecture: A) Monolítica: 4 arquivos com "camadas" só no nome; SQL em
+  app.py, controllers.py e models.py; regra de negócio em models.py
+
+  Summary
+
+  CRITICAL: 6 | HIGH: 3 | MEDIUM: 3 | LOW: 3
+
+  ID: F-01
+  Severity: CRITICAL
+  Anti-pattern: SQL Injection (AP-01)
+  Location: models.py:28, 48, 58, 68, 92, 110, 127, 140, 149, 155, 158, 164,
+  174,
+  188, 192, 220, 224, 280, 291-297
+  ────────────────────────────────────────
+  ID: F-02
+  Severity: CRITICAL
+  Anti-pattern: Credenciais hardcoded (AP-02)
+  Location: app.py:7, controllers.py:289
+  ────────────────────────────────────────
+  ID: F-03
+  Severity: CRITICAL
+  Anti-pattern: Armazenamento inseguro de senha (AP-03)
+  Location: models.py:109-111, 126-129; database.py:75-83
+  ────────────────────────────────────────
+  ID: F-04
+  Severity: CRITICAL
+  Anti-pattern: Exposição de dados sensíveis (AP-04)
+  Location: models.py:83, 99; controllers.py:285-289
+  ────────────────────────────────────────
+  ID: F-05
+  Severity: CRITICAL
+  Anti-pattern: Endpoint sensível sem autenticação (AP-05)
+  Location: app.py:47-57, 59-78
+  ────────────────────────────────────────
+  ID: F-06
+  Severity: CRITICAL
+  Anti-pattern: God File (AP-06)
+  Location: app.py:1-88, controllers.py:1-292, models.py:1-314
+  ────────────────────────────────────────
+  ID: F-07
+  Severity: HIGH
+  Anti-pattern: Regra de negócio na camada errada (AP-07)
+  Location: models.py:137-146, 256-262; controllers.py:208-210, 247-250,
+  266-274;
+  app.py:49-55
+  ────────────────────────────────────────
+  ID: F-08
+  Severity: HIGH
+  Anti-pattern: Estado global mutável / acoplamento sem DI (AP-08)
+  Location: database.py:4-11
+  ────────────────────────────────────────
+  ID: F-09
+  Severity: HIGH
+  Anti-pattern: Operação multi-etapa sem transação (AP-09)
+  Location: models.py:133-169, 65-70
+  ────────────────────────────────────────
+  ID: F-10
+  Severity: MEDIUM
+  Anti-pattern: Query N+1 / queries repetidas (AP-10)
+  Location: models.py:187-193, 219-225, 139-141, 154-156, 239-254;
+  controllers.py:268-274
+  ────────────────────────────────────────
+  ID: F-11
+  Severity: MEDIUM
+  Anti-pattern: Código duplicado (AP-11)
+  Location: controllers.py:28-46 × 72-90; models.py:12-21, 31-40, 304-313;
+  79-86,
+  94-102; 171-201 × 203-233
+  ────────────────────────────────────────
+  ID: F-12
+  Severity: MEDIUM
+  Anti-pattern: Erro engolido / sem handler central / validação ausente (AP-12)
+  Location: controllers.py (16 blocos except) + app.py:77; controllers.py:43-46,
+
+  87-90, 118-121, 169-170, 195-201, 239-245
+  ────────────────────────────────────────
+  ID: F-13
+  Severity: LOW
+  Anti-pattern: Magic numbers / listas de domínio inline (AP-14)
+  Location: models.py:257-262; controllers.py:47-50, 52, 242
+  ────────────────────────────────────────
+  ID: F-14
+  Severity: LOW
+  Anti-pattern: Logging inadequado e debug fixo (AP-14)
+  Location: app.py:8, 56, 83-86, 88; controllers.py (14 prints)
+  ────────────────────────────────────────
+  ID: F-15
+  Severity: LOW
+  Anti-pattern: Código morto: imports sem uso (AP-14)
+  Location: models.py:2; database.py:2
+
+  Findings
+
+  F-01 [CRITICAL] SQL Injection (AP-01)
+
+  File: models.py:28, 48, 58, 68, 92, 110, 127, 140, 149, 155, 158, 164, 174,
+  188, 192, 220, 224, 280, 291-297
+  Principle: OWASP A03 Injection
+  Description: 19 queries montadas por concatenação de strings. As rotas com
+  <int:id> limitam parte dos casos, mas email/senha (login),
+  nome/descricao/categoria (produtos), nome/email/senha (usuários),
+  termo/categoria (busca) e produto_id/quantidade (JSON do pedido) chegam sem
+  filtro ao SQL.
+  Evidence:
+  cursor.execute(
+      "SELECT * FROM usuarios WHERE email = '" + email + "' AND senha = '" +
+  senha + "'"
+  )
+  Impact: email = "admin@loja.com' --" faz login como admin sem senha. GET 
+  /produtos/busca?q=' UNION SELECT ... lê qualquer tabela, inclusive as senhas.
+  É explorável sem autenticação.
+  Recommendation: parametrizar todas as queries com ? (PT-01).
+  Contract change: NO
+
+  F-02 [CRITICAL] Credenciais hardcoded (AP-02)
+
+  File: app.py:7, controllers.py:289
+  Principle: OWASP A07 / 12-Factor (Config)
+  Description: SECRET_KEY é um literal no código, sem leitura de ambiente, e o
+  mesmo valor é copiado na resposta do /health (ver F-04).
+  Evidence:
+  app.config["SECRET_KEY"] = "minha-chave-super-secreta-123"
+  Impact: o segredo fica no controle de versão e é público via API. Qualquer
+  assinatura feita com ele (sessões, tokens) pode ser forjada.
+  Recommendation: config/settings.py lendo SECRET_KEY, DEBUG, DB_PATH, HOST,
+  PORT e ADMIN_TOKEN do ambiente, com .env.example (PT-02).
+  Contract change: NO (o vazamento no /health é tratado em F-04)
+
+  F-03 [CRITICAL] Armazenamento inseguro de senha (AP-03)
+
+  File: models.py:109-111, 126-129; database.py:75-83
+  Principle: OWASP A02 Cryptographic Failures
+  Description: a senha é gravada em texto puro no INSERT de usuário e no seed, e
+  comparada dentro do SQL. Não há nenhuma biblioteca de hash no projeto
+  (bcrypt, argon2, scrypt, pbkdf2 ou werkzeug.security).
+  Evidence:
+  "INSERT INTO usuarios (nome, email, senha, tipo) VALUES ('" +
+  nome + "', '" + email + "', '" + senha + "', '" + tipo + "')"
+  Impact: qualquer leitura do banco (backup, F-01, F-05, F-04) expõe as senhas
+  de todos os usuários.
+  Recommendation: werkzeug.security.generate_password_hash ao criar/seedar e
+  check_password_hash no login, buscando o usuário só pelo e-mail (PT-03). O
+  loja.db existente, com senhas em texto puro, precisa ser recriado.
+  Contract change: NO (login continua com o mesmo payload e as mesmas respostas)
+
+  F-04 [CRITICAL] Exposição de dados sensíveis (AP-04)
+
+  File: models.py:83, 99; controllers.py:285-289
+  Principle: OWASP A01/A09
+  Description: 2 serializadores de usuário incluem senha e chegam ao jsonify de
+  GET /usuarios e GET /usuarios/<id>. O GET /health devolve secret_key, db_path
+  e debug.
+  Evidence:
+  "senha": row["senha"],                           # models.py:83 e :99
+  "secret_key": "minha-chave-super-secreta-123"    # controllers.py:289
+  Impact: qualquer cliente anônimo obtém as senhas de todos os usuários e a
+  chave da aplicação.
+  Recommendation: serializador de saída de usuário sem senha; /health só com
+  status, contagens, versão e ambiente (PT-04, PT-02).
+  Contract change: YES: senha sai dos itens de GET /usuarios e GET 
+  /usuarios/<id>; secret_key, db_path e debug saem do GET /health.
+
+  F-05 [CRITICAL] Endpoint sensível sem autenticação (AP-05)
+
+  File: app.py:47-57, 59-78
+  Principle: OWASP A01 Broken Access Control
+  Description: POST /admin/reset-db apaga as 4 tabelas e POST /admin/query
+  executa SQL arbitrário vindo do body (cursor.execute(query), app.py:69). Não
+  há nenhum mecanismo de autenticação no projeto (grep por
+  auth|jwt|login_required|session|before_request sem resultado).
+  Evidence:
+  query = dados.get("sql", "")
+  cursor.execute(query)
+  Impact: qualquer cliente lê as senhas, altera preços ou destrói todos os
+  dados.
+  Recommendation: remover /admin/query; proteger /admin/reset-db com
+  middlewares/auth.py → require_admin_token, que compara Authorization: Bearer 
+  <token> com ADMIN_TOKEN do ambiente em tempo constante (PT-05). Sem
+  ADMIN_TOKEN configurado, a rota fica sempre bloqueada.
+  Contract change: YES: /admin/query deixa de existir (404); /admin/reset-db
+  passa a exigir Authorization: Bearer <ADMIN_TOKEN> (401 sem credencial ou com
+  credencial inválida).
+
+  F-06 [CRITICAL] God File (AP-06)
+
+  File: app.py:1-88, controllers.py:1-292, models.py:1-314
+  Principle: SRP (SOLID) + MVC
+  Description: 3 arquivos acumulam responsabilidades de camadas diferentes:
+  - app.py: config (7-8), registro de rotas (11-47), SQL (49-55, 66-76),
+    execução (80-88).
+  - controllers.py: HTTP/validação de 5 domínios (produtos, usuários, pedidos,
+    relatórios, health), acesso a dados (266-274), notificações (208-210,
+    248-250) e config (285-289).
+  - models.py: SQL de 4 domínios, regra de estoque/total (137-146) e regra de
+    desconto (256-262).
+    Evidence:
+  def health_check():          # controllers.py:264: "controller" com SQL e 
+  config
+      db = get_db()
+      cursor.execute("SELECT COUNT(*) FROM produtos")
+  Impact: toda mudança toca arquivos centrais; não há como testar regra de
+  negócio sem banco e HTTP.
+  Recommendation: decomposição completa por domínio em config/, models/,
+  controllers/, views/, services/, middlewares/, utils/ (PT-06).
+  Contract change: NO
+
+  F-07 [HIGH] Regra de negócio na camada errada (AP-07)
+
+  File: models.py:137-146, 256-262; controllers.py:208-210, 247-250, 266-274;
+  app.py:49-55
+  Principle: SRP (SOLID) + MVC
+  Description: 6 pontos: regra de desconto por faixa de faturamento e validação
+  de estoque/cálculo do total dentro de funções de acesso a dados; notificações
+  (e-mail, SMS, push) no meio do handler HTTP; SQL direto no controller do
+  health e na rota de reset.
+  Evidence:
+  if faturamento > 10000:
+      desconto = faturamento * 0.1
+  Impact: a regra fica presa ao SQL; as notificações ficam presas ao HTTP;
+  nenhuma das duas pode ser reutilizada ou testada sozinha.
+  Recommendation: regras de domínio (desconto, total, estoque) como funções do
+  model; notificações em services/notificacao_service.py chamadas pelo
+  controller (PT-07).
+  Contract change: NO
+
+  F-08 [HIGH] Estado global mutável / acoplamento sem DI (AP-08)
+
+  File: database.py:4-11
+  Principle: DIP (SOLID)
+  Description: uma única conexão global, criada sob demanda com global e
+  compartilhada entre as threads do servidor com check_same_thread=False.
+  Evidence:
+  global db_connection
+  if db_connection is None:
+      db_connection = sqlite3.connect(db_path, check_same_thread=False)
+  Impact: requisições concorrentes compartilham o mesmo estado transacional, e
+  um commit de uma requisição grava escritas pendentes de outra (ver F-09). O
+  caminho do banco não é configurável.
+  Recommendation: conexão por requisição em flask.g, fechada no
+  teardown_appcontext, com caminho vindo de Settings (PT-08).
+  Contract change: NO
+
+  F-09 [HIGH] Operação multi-etapa sem transação (AP-09)
+
+  File: models.py:133-169, 65-70
+  Principle: Integridade (ACID)
+  Description: criar_pedido faz 1 INSERT em pedidos e, por item, 1 INSERT em
+  itens_pedido e 1 UPDATE de estoque, sem rollback. Se um passo falhar (ex.:
+  KeyError em item["quantidade"]), as escritas anteriores ficam pendentes na
+  conexão global e são gravadas pelo próximo commit de qualquer requisição. O
+  estoque é checado e decrementado em passos separados (corrida).
+  deletar_produto apaga o produto e deixa itens_pedido órfãos, que passam a
+  aparecer como "Desconhecido".
+  Evidence:
+  cursor.execute("INSERT INTO pedidos ...")          # 149
+  ...
+  cursor.execute("UPDATE produtos SET estoque = estoque - ...")   # 164
+  db.commit()                                         # 168: único ponto; sem 
+  rollback
+  Impact: pedidos sem itens, estoque decrementado sem pedido e estoque negativo
+  sob concorrência.
+  Recommendation: with database.transaction(): (commit/rollback) envolvendo todo
+  o pedido; UPDATE ... SET estoque = estoque - ? WHERE id = ? AND estoque >= ?
+  checando rowcount (PT-09). Os órfãos da exclusão: manter produto_nome = 
+  "Desconhecido" (comportamento atual) e não apagar histórico de pedidos.
+  Contract change: NO
+
+  F-10 [MEDIUM] Query N+1 / queries repetidas (AP-10)
+
+  File: models.py:187-193, 219-225, 139-141, 154-156, 239-254;
+  controllers.py:268-274
+  Principle: Performance
+  Description: get_pedidos_usuario e get_todos_pedidos fazem 1 + P + I queries
+  (1 por pedido e 1 por item). criar_pedido busca cada produto 2 vezes (140 e
+  155). O relatório faz 5 queries separadas onde 1 agregação basta; o health faz
+  4.
+  Evidence:
+  for row in rows:
+      cursor2.execute("SELECT * FROM itens_pedido WHERE pedido_id = " +
+  str(row["id"]))
+      for item in itens:
+          cursor3.execute("SELECT nome FROM produtos WHERE id = " +
+  str(item["produto_id"]))
+  Impact: o custo de GET /pedidos cresce com o número de itens do banco inteiro.
+  Recommendation: 1 query de itens com LEFT JOIN produtos para todos os pedidos
+  da lista; relatório com COUNT/SUM(CASE ...) numa query; reutilizar a busca de
+  produto no pedido (PT-10).
+  Contract change: NO
+
+  F-11 [MEDIUM] Código duplicado (AP-11)
+
+  File: controllers.py:28-46 × 72-90; models.py:12-21, 31-40, 304-313;
+  models.py:79-86, 94-102; models.py:171-201 × 203-233
+  Principle: DRY
+  Description: 5 duplicações: validação de produto copiada entre criar e
+  atualizar; serialização de produto 3 vezes; de usuário 2 vezes; montagem de
+  pedido+itens em 2 funções quase idênticas. A cópia da validação é divergente:
+  atualizar_produto não valida tamanho do nome nem categoria, então um produto
+  pode ser atualizado para uma categoria que o POST recusaria.
+  Evidence:
+  if "nome" not in dados:                      # controllers.py:30 e :74
+      return jsonify({"erro": "Nome é obrigatório"}), 400
+  Impact: regra de negócio inconsistente entre criação e atualização; mudança de
+  schema exige editar 3 serializadores.
+  Recommendation: uma função validar_produto(dados) usada por create e update;
+  um serializador por entidade; uma função de montagem de pedidos (PT-11). Nota:
+  aplicar a validação completa no update faz o PUT passar a recusar nome
+  curto/longo e categoria inválida (400), que hoje são aceitos.
+  Contract change: YES: PUT /produtos/<id> passa a devolver 400 para nome < 2 ou
+  > 200 caracteres e categoria fora da lista, como o POST já faz.
+
+  F-12 [MEDIUM] Erro engolido / sem handler central / validação ausente (AP-12)
+
+  File: controllers.py:10, 21, 60, 95, 108, 125, 133, 143, 164, 185, 218, 226,
+  234, 254, 261, 291; app.py:77; controllers.py:43-46, 87-90, 118-121, 169-170,
+  195-201, 239-245
+  Principle: Robustez / Fail-fast
+  Description: 17 blocos except Exception as e devolvem str(e) ao cliente; não
+  há @app.errorhandler. Entradas inválidas viram 500: body ausente/não-JSON em
+  /login e /pedidos/<id>/status (None.get), preco/estoque não numéricos
+  (TypeError em < 0), preco_min=abc (float), itens de pedido sem
+  produto_id/quantidade (KeyError). quantidade ≤ 0 é aceita: um pedido com
+  quantidade negativa aumenta o estoque e gera total negativo. PUT 
+  /pedidos/<id>/status devolve 200 para pedido inexistente.
+  Evidence:
+  except Exception as e:
+      return jsonify({"erro": str(e)}), 500
+  Impact: mensagens internas (SQL, tipos) vazam ao cliente; erro do cliente
+  aparece como erro do servidor; manipulação de estoque via quantidade negativa.
+  Recommendation: middlewares/error_handler.py com AppError e handlers para
+  AppError, HTTPException e Exception (500 genérico, logado); validação de tipo
+  e de faixa na borda (PT-12).
+  Contract change: YES: respostas 500 passam a trazer mensagem genérica (mesma
+  chave erro); entrada malformada (body ausente/não-JSON, tipos inválidos,
+  preco_min/preco_max não numéricos, itens sem produto_id/quantidade, quantidade
+  ≤ 0) passa de 500 (ou 201) para 400; PUT /pedidos/<id>/status com pedido
+  inexistente passa de 200 para 404.
+
+  F-13 [LOW] Magic numbers / listas de domínio inline (AP-14)
+
+  File: models.py:257-262; controllers.py:47-50, 52, 242
+  Principle: Clean Code
+  Description: 6 literais de regra de desconto (10000/0.1, 5000/0.05,
+  1000/0.02), limites de nome (2, 200) e 2 listas de domínio inline (categorias,
+  status).
+  Evidence:
+  elif faturamento > 5000:
+      desconto = faturamento * 0.05
+  Impact: regra escondida no código; alterar uma faixa exige caçar literais.
+  Recommendation: utils/constants.py com CATEGORIAS_VALIDAS, STATUS_PEDIDO,
+  FAIXAS_DESCONTO, NOME_MIN/MAX (PT-14).
+  Contract change: NO
+
+  F-14 [LOW] Logging inadequado e debug fixo (AP-14)
+
+  File: app.py:8, 56, 83-86, 88; controllers.py:8, 11, 57, 61, 106, 161, 179,
+  182, 208, 209, 210, 219, 248, 250
+  Principle: Clean Code
+  Description: 19 print como log de aplicação (3 deles com e-mail do usuário) e
+  debug=True fixo em 2 lugares (config e app.run), além de host/porta fixos.
+  Evidence:
+  app.run(host="0.0.0.0", port=5000, debug=True)
+  Impact: o debugger interativo do Werkzeug exposto em 0.0.0.0 permite execução
+  de código remoto; logs sem nível nem destino configurável.
+  Recommendation: logging com logger por módulo; DEBUG, HOST, PORT vindos de
+  Settings, com DEBUG=false por padrão (PT-14, PT-02).
+  Contract change: NO
+
+  F-15 [LOW] Código morto: imports sem uso (AP-14)
+
+  File: models.py:2; database.py:2
+  Principle: Clean Code
+  Description: 2 imports nunca usados: import sqlite3 em models.py e import os
+  em database.py.
+  Evidence:
+  import sqlite3   # models.py:2, nenhuma referência a sqlite3. no arquivo
+  Impact: ruído; sugere dependências que não existem.
+  Recommendation: remover na decomposição (PT-14).
+  Contract change: NO
+
+  Deprecated APIs
+
+  Nenhuma API deprecated identificada para as versões em uso (Python 3.14.4,
+  Flask 3.1.1, flask-cors 5.0.1). Detecção estática; a confirmação com python -W
+  default será feita no baseline da Fase 3.
+
+  Positive Points
+
+  - O seed em database.py:70-83 já usa placeholders ? com executemany.
+  - As rotas com id usam o conversor <int:...>, o que já barra injeção pelos
+    parâmetros de URL.
+  - O envelope de resposta é consistente (dados, sucesso, mensagem, erro) e deve
+    ser mantido.
+  - criar_produto já valida campos obrigatórios, faixas e categoria.
+
+  Refactoring Plan (Phase 3 preview)
+
+  Strategy: A) decomposição completa. A Fase 1 classificou o projeto como
+  monolítico; controllers.py e models.py da raiz são removidos após a migração.
+  Target structure (mvc-guidelines §4, Python/Flask):
+  - app.py: create_app() + app = create_app() + if __name__ == "__main__";
+    python app.py continua funcionando.
+  - config/settings.py: Settings lida do ambiente (SECRET_KEY, DEBUG, HOST,
+    PORT, DB_PATH, ADMIN_TOKEN, AMBIENTE).
+  - database.py: conexão por requisição (flask.g + teardown), init_app,
+    transaction(), schema e seed (senhas com hash).
+  - models/: produto_model.py, usuario_model.py, pedido_model.py (pedidos +
+    agregação do relatório + regras de total/desconto), sistema_model.py
+    (contagens do health, limpeza do reset).
+  - controllers/: produto_controller.py, usuario_controller.py,
+    pedido_controller.py, relatorio_controller.py, sistema_controller.py (index,
+    health, reset).
+  - views/: um Blueprint por domínio (produto_routes.py, usuario_routes.py com
+    /login, pedido_routes.py, relatorio_routes.py, sistema_routes.py) e
+    register_blueprints(app) em views/__init__.py. As views só delegam aos
+    controllers; URLs e nomes de endpoint preservados.
+  - services/notificacao_service.py: notificações de pedido (e-mail/SMS/push
+    simulados via log).
+  - middlewares/error_handler.py (AppError + register_error_handlers) e
+    middlewares/auth.py (require_admin_token).
+  - utils/constants.py: categorias, status, faixas de desconto, limites.
+  - .env.example + README atualizado.
+    Sem desvios da §4.
+    Contract changes requiring approval:
+  - F-05: POST /admin/query removido (404).
+  - F-05: POST /admin/reset-db exige Authorization: Bearer <ADMIN_TOKEN> (401
+    sem credencial ou com credencial inválida).
+  - F-04: senha removido das respostas de GET /usuarios e GET /usuarios/<id>.
+  - F-04: secret_key, db_path e debug removidos de GET /health.
+  - F-11: PUT /produtos/<id> passa a aplicar a mesma validação do POST (400 para
+    nome fora de 2-200 caracteres e categoria inválida).
+  - F-12: respostas 500 com mensagem genérica (sem str(e)); entrada malformada →
+    400 em vez de 500; quantidade ≤ 0 → 400; PUT /pedidos/<id>/status
+    inexistente → 404 em vez de 200.
+    Out of scope:
+  - Autenticação nas demais rotas que expõem ou alteram dados de outros usuários
+    (GET /usuarios, GET /pedidos, GET /relatorios/vendas, escrita de produtos e
+    status de pedido). Exigiria que /login emitisse um token, uma mudança de
+    contrato maior que deve ser decidida à parte.
+  - Devolver estoque ao cancelar pedido: hoje só há um log ("Devolver estoque");
+    implementar mudaria o comportamento do negócio. O log será mantido via
+    serviço de notificação.
+  - O loja.db existente tem senhas em texto puro e não é migrado; deve ser
+    apagado para o seed recriar com hash.
+
+  ================================
+  Total: 15 findings
+
+  Phase 2 complete. Report saved to reports/audit-report.md.
+  Proceed with refactoring (Phase 3)? [y/n]
+
+✻ Baked for 4m 12s · done quarta-feira, 18:18
+
+❯ y                                                                             
+
+● Fase 3. Lendo as referências.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/code-smells-projec
+      t/.claude/skills/refactor-arch/references" && sed -n 1,92p
+      mvc-guidelines.md && sed -n…)
+  ⎿  # Guidelines de Arquitetura: MVC alvo
+
+     Referência da **Fase 3**. Define **para onde** o código vai: as camada
+     … +721 lines (ctrl+o to expand)
+
+  Read 1 file (ctrl+o to expand)
+
+● Referências lidas. 3.0 Baseline: confiro o estado do banco e preparo um script
+  de chamadas (no scratchpad, fora do projeto) que será reaproveitado na
+  validação.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && git ls-files | grep -i
+      "\.db" ; ls loja.db 2>&1; cat .gitignore 2>&1; ls __pycach…)
+  ⎿  ls: cannot access 'loja.db': No such file or directory
+     cat: .gitignore: No such file or directory
+     controllers.cpython-314.pyc
+     … +2 lines (ctrl+o to expand)
+
+● Banco não versionado e porta livre. Escrevo o script de baseline/validação.
+
+  Made 1 scratchpad edit +127 (ctrl+o to expand)
+
+● Subo o app original (banco limpo, warnings visíveis) em background.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && rm -f loja.db &&
+      SP="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamen…)
+  ⎿  Running in the background (↓ to manage)
+
+● Bash(cd "C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
+      esafios-Praticos-skill-review-code-smells-project/7bec4a41-d2fd-4b6f-9d22-
+      7d76e1a6f90e/…)
+  ⎿  200  GET    /
+        ['endpoints', 'mensagem', 'versao']    index
+     200  GET    /health
+     … +81 lines (ctrl+o to expand)
+  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
+     Praticos\skill_review\code-smells-project
+● Baseline registrado: 44 chamadas. A sonda login SQLi retornou 200 (o F-01 é
+  explorável na prática). Agora confiro os warnings e paro o processo.
+
+● PowerShell($sp = "C:\Users\VINICI~1.VEN\AppData\Local\Temp\claude\C--Treinamen
+            tos-MBA-Desafios-Praticos-skill-review-code-smells-project\7bec4a41-
+            d2fd-4b6f-9d22-7d76e1a6f9…)
+  ⎿  WARNING: This is a development server. Do not use it in a production d
+     eployment. Use a production WSGI server instead.
+     --- processos
+     … +11 lines (ctrl+o to expand)
+
+● Nenhum warning de deprecation, só o aviso padrão do servidor de
+  desenvolvimento do Werkzeug. Isso confirma o AP-13 vazio. Encerrando os
+  processos (o reloader do debug=True cria filhos).
+
+● PowerShell(Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+            Where-Object { $_.CommandLine -like '*-W default app.py*' } |
+            ForEach-Object { try { Stop-Process -I…)
+  ⎿  restantes: 0
+     porta:
+
+● Background command "Start original app in background with warnings" failed
+with exit code 127
+
+● Baseline concluído, porta liberada — o exit code 127 foi só do encerramento
+  forçado. Defini o plano de decomposição (Estratégia A) mapeando cada origem
+  para seus novos módulos (config, views, controllers, models, services,
+  middlewares) e findings para padrões; agora começo o Bloco 1: config e
+  constantes.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && mkdir -p config utils models
+      controllers views services middlewares && touch conf…)
+  ⎿  .env
+     node_modules/
+     … +10 lines (ctrl+o to expand)
+  ⎿  Created config\__init__.py (+0 -0)
+  ⎿  Created middlewares\__init__.py (+0 -0)
+  ⎿  Created services\__init__.py (+0 -0)
+  ⎿  Created utils\__init__.py (+0 -0)
+
+● O .gitignore da raiz do repositório já cobre .env, *.db e __pycache__/, então
+  não preciso criar outro.
+
+● Write(config\settings.py)
+  ⎿  Wrote 18 lines to config\settings.py
+       1 import os
+       2 import secrets
+       3 
+       4 
+       5 def _bool(valor):
+       7 
+       8 
+       9 class Settings:
+      10     # Sem SECRET_KEY no ambiente, uma chave aleatória é gerada a
+          cada boot.
+     … +11 lines (ctrl+o to expand)
+
+● Write(utils\constants.py)
+  ⎿  Wrote 14 lines to utils\constants.py
+      1 VERSAO_API = "1.0.0"
+      2 
+      3 CATEGORIAS_VALIDAS = ["informatica", "moveis", "vestuario", "gera
+        l", "eletronicos", "livros"]
+      4 CATEGORIA_PADRAO = "geral"
+      6 NOME_PRODUTO_MAX = 200
+      7 
+      8 STATUS_PEDIDO = ["pendente", "aprovado", "enviado", "entregue", "
+        cancelado"]
+      9 STATUS_INICIAL_PEDIDO = "pendente"
+     … +7 lines (ctrl+o to expand)
+
+● Bloco 2: camadas (database, models, service, middlewares, controllers, views,
+  entry point).
+
+● Write(database.py)
+  ⎿  Added 87 lines, removed 75 lines
+       1  import sqlite3
+       2 -import os                                                      
+       2  
+       4 -db_connection = None                                           
+       5 -db_path = "loja.db"                                            
+       3 +from flask import current_app, g                               
+       4 +from werkzeug.security import generate_password_hash           
+       5  
+       6 +PRODUTOS_INICIAIS = [                                          
+       7 +    ("Notebook Gamer", "Notebook potente para jogos", 5999.99, 
+         +10, "informatica"),                                            
+       8 +    ("Mouse Wireless", "Mouse sem fio ergonômico", 89.90, 50, "
+         +informatica"),                                                 
+       9 +    ("Teclado Mecânico", "Teclado mecânico RGB", 299.90, 30, "i
+         +nformatica"),                                                  
+      10 +    ("Monitor 27''", "Monitor 27 polegadas 144hz", 1899.90, 15,
+         + "informatica"),                                               
+      11 +    ("Headset Gamer", "Headset com microfone", 199.90, 25, "inf
+         +ormatica"),                                                    
+      12 +    ("Cadeira Gamer", "Cadeira ergonômica", 1299.90, 8, "moveis
+         +"),                                                            
+      13 +    ("Webcam HD", "Webcam 1080p", 249.90, 20, "informatica"),  
+      14 +    ("Hub USB", "Hub USB 3.0 7 portas", 79.90, 40, "informatica
+         +"),                                                            
+      15 +    ("SSD 1TB", "SSD NVMe 1TB", 449.90, 35, "informatica"),    
+      16 +    ("Camiseta Dev", "Camiseta estampa código", 59.90, 100, "ve
+         +stuario"),                                                     
+      17 +]                                                              
+      18 +                                                               
+      19 +# Usuários de exemplo (dados fictícios de desenvolvimento); a s
+         +enha é gravada com hash.                                       
+      20 +USUARIOS_INICIAIS = [                                          
+      21 +    ("Admin", "admin@loja.com", "admin123", "admin"),          
+      22 +    ("João Silva", "joao@email.com", "123456", "cliente"),     
+      23 +    ("Maria Santos", "maria@email.com", "senha123", "cliente"),
+      24 +]                                                              
+      25 +                                                               
+      26 +SCHEMA = """                                                   
+      27 +CREATE TABLE IF NOT EXISTS produtos (                          
+      28 +    id INTEGER PRIMARY KEY AUTOINCREMENT,                      
+      29 +    nome TEXT,                                                 
+      30 +    descricao TEXT,                                            
+      31 +    preco REAL,                                                
+      32 +    estoque INTEGER,                                           
+      33 +    categoria TEXT,                                            
+      34 +    ativo INTEGER DEFAULT 1,                                   
+      35 +    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP              
+      36 +);                                                             
+      37 +CREATE TABLE IF NOT EXISTS usuarios (                          
+      38 +    id INTEGER PRIMARY KEY AUTOINCREMENT,                      
+      39 +    nome TEXT,                                                 
+      40 +    email TEXT,                                                
+      41 +    senha TEXT,                                                
+      42 +    tipo TEXT DEFAULT 'cliente',                               
+      43 +    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP              
+      44 +);                                                             
+      45 +CREATE TABLE IF NOT EXISTS pedidos (                           
+      46 +    id INTEGER PRIMARY KEY AUTOINCREMENT,                      
+      47 +    usuario_id INTEGER,                                        
+      48 +    status TEXT DEFAULT 'pendente',                            
+      49 +    total REAL,                                                
+      50 +    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP              
+      51 +);                                                             
+      52 +CREATE TABLE IF NOT EXISTS itens_pedido (                      
+      53 +    id INTEGER PRIMARY KEY AUTOINCREMENT,                      
+      54 +    pedido_id INTEGER,                                         
+      55 +    produto_id INTEGER,                                        
+      56 +    quantidade INTEGER,                                        
+      57 +    preco_unitario REAL                                        
+      58 +);                                                             
+      59 +"""                                                            
+      60 +                                                               
+      61 +                                                               
+      62 +def conectar(caminho):                                         
+      63 +    conexao = sqlite3.connect(caminho)                         
+      64 +    conexao.row_factory = sqlite3.Row                          
+      65 +    return conexao                                             
+      66 +                                                               
+      67 +                                                               
+      68  def get_db():
+       8 -    global db_connection                                       
+       9 -    if db_connection is None:                                  
+      10 -        db_connection = sqlite3.connect(db_path, check_same_thr
+         -ead=False)                                                     
+      11 -        db_connection.row_factory = sqlite3.Row                
+      12 -        cursor = db_connection.cursor()                        
+      69 +    """Conexão da requisição atual, criada sob demanda e fechad
+         +a no teardown."""                                              
+      70 +    if "db" not in g:                                          
+      71 +        g.db = conectar(current_app.config["DATABASE_PATH"])   
+      72 +    return g.db                                                
+      73  
+      14 -        cursor.execute("""                                     
+      15 -            CREATE TABLE IF NOT EXISTS produtos (              
+      16 -                id INTEGER PRIMARY KEY AUTOINCREMENT,          
+      17 -                nome TEXT,                                     
+      18 -                descricao TEXT,                                
+      19 -                preco REAL,                                    
+      20 -                estoque INTEGER,                               
+      21 -                categoria TEXT,                                
+      22 -                ativo INTEGER DEFAULT 1,                       
+      23 -                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
+      24 -            )                                                  
+      25 -        """)                                                   
+      26 -        cursor.execute("""                                     
+      27 -            CREATE TABLE IF NOT EXISTS usuarios (              
+      28 -                id INTEGER PRIMARY KEY AUTOINCREMENT,          
+      29 -                nome TEXT,                                     
+      30 -                email TEXT,                                    
+      31 -                senha TEXT,                                    
+      32 -                tipo TEXT DEFAULT 'cliente',                   
+      33 -                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
+      34 -            )                                                  
+      35 -        """)                                                   
+      36 -        cursor.execute("""                                     
+      37 -            CREATE TABLE IF NOT EXISTS pedidos (               
+      38 -                id INTEGER PRIMARY KEY AUTOINCREMENT,          
+      39 -                usuario_id INTEGER,                            
+      40 -                status TEXT DEFAULT 'pendente',                
+      41 -                total REAL,                                    
+      42 -                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
+      43 -            )                                                  
+      44 -        """)                                                   
+      45 -        cursor.execute("""                                     
+      46 -            CREATE TABLE IF NOT EXISTS itens_pedido (          
+      47 -                id INTEGER PRIMARY KEY AUTOINCREMENT,          
+      48 -                pedido_id INTEGER,                             
+      49 -                produto_id INTEGER,                            
+      50 -                quantidade INTEGER,                            
+      51 -                preco_unitario REAL                            
+      52 -            )                                                  
+      53 -        """)                                                   
+      54 -        db_connection.commit()                                 
+      74  
+      56 -        cursor.execute("SELECT COUNT(*) FROM produtos")        
+      57 -        if cursor.fetchone()[0] == 0:                          
+      58 -            produtos = [                                       
+      59 -                ("Notebook Gamer", "Notebook potente para jogos
+         -", 5999.99, 10, "informatica"),                                
+      60 -                ("Mouse Wireless", "Mouse sem fio ergonômico", 
+         -89.90, 50, "informatica"),                                     
+      61 -                ("Teclado Mecânico", "Teclado mecânico RGB", 29
+         -9.90, 30, "informatica"),                                      
+      62 -                ("Monitor 27''", "Monitor 27 polegadas 144hz", 
+         -1899.90, 15, "informatica"),                                   
+      63 -                ("Headset Gamer", "Headset com microfone", 199.
+         -90, 25, "informatica"),                                        
+      64 -                ("Cadeira Gamer", "Cadeira ergonômica", 1299.90
+         -, 8, "moveis"),                                                
+      65 -                ("Webcam HD", "Webcam 1080p", 249.90, 20, "info
+         -rmatica"),                                                     
+      66 -                ("Hub USB", "Hub USB 3.0 7 portas", 79.90, 40, 
+         -"informatica"),                                                
+      67 -                ("SSD 1TB", "SSD NVMe 1TB", 449.90, 35, "inform
+         -atica"),                                                       
+      68 -                ("Camiseta Dev", "Camiseta estampa código", 59.
+         -90, 100, "vestuario"),                                         
+      69 -            ]                                                  
+      70 -            cursor.executemany(                                
+      75 +def close_db(exc=None):                                        
+      76 +    db = g.pop("db", None)                                     
+      77 +    if db is not None:                                         
+      78 +        db.close()                                             
+      79 +                                                               
+      80 +                                                               
+      81 +def init_schema(db):                                           
+      82 +    db.executescript(SCHEMA)                                   
+      83 +    if db.execute("SELECT COUNT(*) FROM produtos").fetchone()[0
+         +] == 0:                                                        
+      84 +        with db:                                               
+      85 +            db.executemany(                                    
+      86                  "INSERT INTO produtos (nome, descricao, preco, 
+          estoque, categoria) VALUES (?, ?, ?, ?, ?)",
+      72 -                produtos                                       
+      87 +                PRODUTOS_INICIAIS,                             
+      88              )
+      74 -                                                               
+      75 -            usuarios = [                                       
+      76 -                ("Admin", "admin@loja.com", "admin123", "admin"
+         -),                                                             
+      77 -                ("João Silva", "joao@email.com", "123456", "cli
+         -ente"),                                                        
+      78 -                ("Maria Santos", "maria@email.com", "senha123",
+         - "cliente"),                                                   
+      79 -            ]                                                  
+      80 -            cursor.executemany(                                
+      89 +            db.executemany(                                    
+      90                  "INSERT INTO usuarios (nome, email, senha, tipo
+          ) VALUES (?, ?, ?, ?)",
+      82 -                usuarios                                       
+      91 +                [(nome, email, generate_password_hash(senha), t
+         +ipo) for nome, email, senha, tipo in USUARIOS_INICIAIS],       
+      92              )
+      84 -            db_connection.commit()                             
+      93  
+      86 -    return db_connection                                       
+      94 +                                                               
+      95 +def init_app(app):                                             
+      96 +    app.teardown_appcontext(close_db)                          
+      97 +    with app.app_context():                                    
+      98 +        init_schema(get_db())                                  
+
+● Write(models\produto_model.py)
+  ⎿  Wrote 57 lines to models\produto_model.py
+       1 CAMPOS = ("id", "nome", "descricao", "preco", "estoque", "catego
+         ria", "ativo", "criado_em")
+       2 
+       3 
+       4 def to_dict(row):
+       6 
+       7 
+       8 def listar(db):
+       9     rows = db.execute("SELECT * FROM produtos").fetchall()
+      10     return [to_dict(row) for row in rows]
+     … +53 lines (ctrl+o to expand)
+
+● Write(models\usuario_model.py)
+  ⎿  Wrote 39 lines to models\usuario_model.py
+       1 from werkzeug.security import check_password_hash, generate_pass
+         word_hash
+       2 
+       3 from utils.constants import TIPO_USUARIO_PADRAO
+       4 
+       6 CAMPOS_PUBLICOS = ("id", "nome", "email", "tipo", "criado_em")
+       7 CAMPOS_LOGIN = ("id", "nome", "email", "tipo")
+       8 
+       9 
+      10 def to_dict(row, campos=CAMPOS_PUBLICOS):
+     … +35 lines (ctrl+o to expand)
+
+● Write(models\pedido_model.py)
+  ⎿  Wrote 105 lines to models\pedido_model.py
+       1 from utils.constants import FAIXAS_DESCONTO, STATUS_INICIAL_PEDI
+         DO
+       3 
+       4 class RegraPedidoError(Exception):
+       5     """Violação de regra de negócio do pedido (produto inexisten
+       6 
+       7 
+       8 def criar(db, usuario_id, itens):
+          transação."""
+      10     with db:
+     … +115 lines (ctrl+o to expand)
+
+● Write(models\sistema_model.py)
+  ⎿  Wrote 13 lines to models\sistema_model.py
+       1 def contar_registros(db):
+       2     row = db.execute("""
+       3         SELECT (SELECT COUNT(*) FROM produtos) AS produtos,
+       4                (SELECT COUNT(*) FROM usuarios) AS usuarios,
+       5                (SELECT COUNT(*) FROM pedidos) AS pedidos
+       6     """).fetchone()
+       7     return dict(row)
+       8 
+       9 
+      10 def limpar_tabelas(db):
+     … +5 lines (ctrl+o to expand)
+
+● Write(models\__init__.py)
+  ⎿  Wrote 1 line to models\__init__.py
+      1 (No content)
+
+● Write(services\notificacao_service.py)
+  ⎿  Wrote 17 lines to services\notificacao_service.py
+       1 """Notificações de pedido. Hoje são simuladas via log; aqui entr
+         aria a integração real (e-mail, SMS, push)."""
+       3 
+       4 logger = logging.getLogger(__name__)
+       5 
+       7 def notificar_pedido_criado(pedido_id, usuario_id):
+       8     logger.info("ENVIANDO EMAIL: Pedido %s criado para usuario %
+         s", pedido_id, usuario_id)
+      10     logger.info("ENVIANDO PUSH: Novo pedido recebido pelo sistem
+         a")
+     … +11 lines (ctrl+o to expand)
+
+● Write(middlewares\error_handler.py)
+  ⎿  Wrote 44 lines to middlewares\error_handler.py
+       1 import logging
+       2 
+       3 from flask import jsonify
+       4 from werkzeug.exceptions import HTTPException
+       5 
+       6 logger = logging.getLogger(__name__)
+       7 
+       8 
+       9 class AppError(Exception):
+      10     status_code = 400
+     … +37 lines (ctrl+o to expand)
+
+● Write(middlewares\auth.py)
+  ⎿  Wrote 19 lines to middlewares\auth.py
+       1 import hmac
+       2 from functools import wraps
+       3 
+       4 from flask import current_app, request
+       5 
+       7 
+       8 
+       9 def require_admin_token(fn):
+      10     """Exige 'Authorization: Bearer <ADMIN_TOKEN>'. Sem ADMIN_TO
+         KEN configurado, nega sempre."""
+     … +12 lines (ctrl+o to expand)
+
+● Agora os controllers (com a validação centralizada) e as views.
+
+● Write(controllers\validacao.py)
+  ⎿  Wrote 84 lines to controllers\validacao.py
+       1 """Validação de entrada compartilhada pelos controllers."""
+       2 from flask import request
+       3 
+       5 from utils.constants import CATEGORIA_PADRAO, CATEGORIAS_VALIDAS
+         , NOME_PRODUTO_MAX, NOME_PRODUTO_MIN
+       6 
+       7 
+       9     """Body JSON como dict; body ausente, malformado ou não-obje
+         to vira 400."""
+      10     dados = request.get_json(silent=True)
+     … +80 lines (ctrl+o to expand)
+
+● Write(controllers\produto_controller.py)
+  ⎿  Wrote 58 lines to controllers\produto_controller.py
+       1 import logging
+       2 
+       3 from flask import jsonify, request
+       4 
+       5 from controllers.validacao import ler_float_query, obter_json, v
+       6 from database import get_db
+       7 from middlewares.error_handler import NotFoundError
+       8 from models import produto_model
+       9 
+      10 logger = logging.getLogger(__name__)
+     … +59 lines (ctrl+o to expand)
+
+● Write(controllers\usuario_controller.py)  ⎿  Wrote 54 lines to controllers\usuario_controller.py
+       1 import logging
+       2 
+       3 from flask import jsonify
+       4 
+       5 from controllers.validacao import obter_json
+       7 from middlewares.error_handler import NotFoundError, Unauthorize
+         dError, ValidationError
+       8 from models import usuario_model
+       9 
+      10 logger = logging.getLogger(__name__)
+     … +50 lines (ctrl+o to expand)
+
+● Write(controllers\pedido_controller.py)
+  ⎿  Wrote 57 lines to controllers\pedido_controller.py
+      1 from flask import jsonify
+      2 
+      3 from controllers.validacao import eh_inteiro, obter_json, validar
+        _itens_pedido
+      4 from database import get_db
+        ror
+      6 from models import pedido_model
+      7 from services import notificacao_service
+      8 from utils.constants import STATUS_PEDIDO
+      9 
+     … +52 lines (ctrl+o to expand)
+
+● Write(controllers\relatorio_controller.py)
+  ⎿  Wrote 23 lines to controllers\relatorio_controller.py
+       1 from flask import jsonify
+       2 
+       3 from database import get_db
+       4 from models import pedido_model
+       5 
+       6 
+       7 def relatorio_vendas():
+       8     totais = pedido_model.totais_vendas(get_db())
+       9     faturamento = totais["faturamento"]
+      10     total_pedidos = totais["total_pedidos"]
+     … +14 lines (ctrl+o to expand)
+
+● Write(controllers\sistema_controller.py)
+  ⎿  Wrote 48 lines to controllers\sistema_controller.py
+       1 import logging
+       2 import sqlite3
+       3 
+       4 from flask import current_app, jsonify
+       5 
+       6 from database import get_db
+       7 from models import sistema_model
+       8 from utils.constants import VERSAO_API
+       9 
+      10 logger = logging.getLogger(__name__)
+     … +40 lines (ctrl+o to expand)
+
+● Write(controllers\__init__.py)
+  ⎿  Wrote 1 line to controllers\__init__.py
+      1 (No content)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project/views" 2>/dev/null || cd
+      "C:/Treinamentos/MBA/Desafios Praticos/skill_review/code-sme…)
+  ⎿  __init__.py
+     pedido_routes.py
+     produto_routes.py
+     … +3 lines (ctrl+o to expand)
+  ⎿  Created views\__init__.py (+10 -0)
+       1 +from views.pedido_routes import pedido_bp                      
+       2 +from views.produto_routes import produto_bp                    
+       3 +from views.relatorio_routes import relatorio_bp                
+       4 +from views.sistema_routes import sistema_bp                    
+       5 +from views.usuario_routes import usuario_bp                    
+       6 +                                                               
+       7 +                                                               
+       8 +def register_blueprints(app):                                  
+       9 +    for bp in (sistema_bp, produto_bp, usuario_bp, pedido_bp, r
+         +elatorio_bp):                                                  
+      10 +        app.register_blueprint(bp)                             
+  ⎿  Created views\pedido_routes.py (+10 -0)
+       1 +from flask import Blueprint                                    
+       2 +                                                               
+       3 +from controllers import pedido_controller                      
+       4 +                                                               
+       5 +pedido_bp = Blueprint("pedidos", __name__)                     
+       6 +                                                               
+       7 +pedido_bp.add_url_rule("/pedidos", "criar_pedido", pedido_contr
+         +oller.criar_pedido, methods=["POST"])                          
+       8 +pedido_bp.add_url_rule("/pedidos", "listar_todos_pedidos", pedi
+         +do_controller.listar_todos_pedidos, methods=["GET"])           
+       9 +pedido_bp.add_url_rule("/pedidos/usuario/<int:usuario_id>", "li
+         +star_pedidos_usuario", pedido_controller.listar_pedidos_usuario
+         +, methods=["GET"])                                             
+      10 +pedido_bp.add_url_rule("/pedidos/<int:pedido_id>/status", "atua
+         +lizar_status_pedido", pedido_controller.atualizar_status_pedido
+         +, methods=["PUT"])                                             
+  ⎿  Created views\produto_routes.py (+12 -0)
+       1 +from flask import Blueprint                                    
+       2 +                                                               
+       3 +from controllers import produto_controller                     
+       4 +                                                               
+       5 +produto_bp = Blueprint("produtos", __name__)                   
+       6 +                                                               
+       7 +produto_bp.add_url_rule("/produtos", "listar_produtos", produto
+         +_controller.listar_produtos, methods=["GET"])                  
+       8 +produto_bp.add_url_rule("/produtos/busca", "buscar_produtos", p
+         +roduto_controller.buscar_produtos, methods=["GET"])            
+       9 +produto_bp.add_url_rule("/produtos/<int:id>", "buscar_produto",
+         + produto_controller.buscar_produto, methods=["GET"])           
+      10 +produto_bp.add_url_rule("/produtos", "criar_produto", produto_c
+         +ontroller.criar_produto, methods=["POST"])                     
+      11 +produto_bp.add_url_rule("/produtos/<int:id>", "atualizar_produt
+         +o", produto_controller.atualizar_produto, methods=["PUT"])     
+      12 +produto_bp.add_url_rule("/produtos/<int:id>", "deletar_produto"
+         +, produto_controller.deletar_produto, methods=["DELETE"])      
+  ⎿  Created views\relatorio_routes.py (+7 -0)
+      1 +from flask import Blueprint                                     
+      2 +                                                                
+      3 +from controllers import relatorio_controller                    
+      4 +                                                                
+      5 +relatorio_bp = Blueprint("relatorios", __name__)                
+      6 +                                                                
+      7 +relatorio_bp.add_url_rule("/relatorios/vendas", "relatorio_venda
+        +s", relatorio_controller.relatorio_vendas, methods=["GET"])     
+  ⎿  Created views\sistema_routes.py (+10 -0)
+       1 +from flask import Blueprint                                    
+       2 +                                                               
+       3 +from controllers import sistema_controller                     
+       4 +from middlewares.auth import require_admin_token               
+       5 +                                                               
+       6 +sistema_bp = Blueprint("sistema", __name__)                    
+       7 +                                                               
+       8 +sistema_bp.add_url_rule("/", "index", sistema_controller.index,
+         + methods=["GET"])                                              
+       9 +sistema_bp.add_url_rule("/health", "health_check", sistema_cont
+         +roller.health_check, methods=["GET"])                          
+      10 +sistema_bp.add_url_rule("/admin/reset-db", "reset_database", re
+         +quire_admin_token(sistema_controller.reset_database), methods=[
+         +"POST"])                                                       
+  ⎿  … 1 more file changed
+
+● Entry point; depois removo controllers.py/models.py da raiz, que foram
+  migrados por completo.
+
+● Write(app.py)
+  ⎿  Added 20 lines, removed 79 lines
+       1 -from flask import Flask, jsonify, request                      
+       1 +import logging                                                 
+       2 +                                                               
+       3 +from flask import Flask                                        
+       4  from flask_cors import CORS
+       3 -import controllers                                             
+       4 -from database import get_db                                    
+       5  
+       6 -app = Flask(__name__)                                          
+       7 -app.config["SECRET_KEY"] = "minha-chave-super-secreta-123"     
+       8 -app.config["DEBUG"] = True                                     
+       9 -CORS(app)                                                      
+       6 +import database                                                
+       7 +from config.settings import Settings                           
+       8 +from middlewares.error_handler import register_error_handlers  
+       9 +from views import register_blueprints                          
+      10  
+      11 -app.add_url_rule("/produtos", "listar_produtos", controllers.li
+         -star_produtos, methods=["GET"])                                
+      12 -app.add_url_rule("/produtos/busca", "buscar_produtos", controll
+         -ers.buscar_produtos, methods=["GET"])                          
+      13 -app.add_url_rule("/produtos/<int:id>", "buscar_produto", contro
+         -llers.buscar_produto, methods=["GET"])                         
+      14 -app.add_url_rule("/produtos", "criar_produto", controllers.cria
+         -r_produto, methods=["POST"])                                   
+      15 -app.add_url_rule("/produtos/<int:id>", "atualizar_produto", con
+         -trollers.atualizar_produto, methods=["PUT"])                   
+      16 -app.add_url_rule("/produtos/<int:id>", "deletar_produto", contr
+         -ollers.deletar_produto, methods=["DELETE"])                    
+      11 +logger = logging.getLogger(__name__)                           
+      12  
+      18 -app.add_url_rule("/usuarios", "listar_usuarios", controllers.li
+         -star_usuarios, methods=["GET"])                                
+      19 -app.add_url_rule("/usuarios/<int:id>", "buscar_usuario", contro
+         -llers.buscar_usuario, methods=["GET"])                         
+      20 -app.add_url_rule("/usuarios", "criar_usuario", controllers.cria
+         -r_usuario, methods=["POST"])                                   
+      21 -app.add_url_rule("/login", "login", controllers.login, methods=
+         -["POST"])                                                      
+      13  
+      23 -app.add_url_rule("/pedidos", "criar_pedido", controllers.criar_
+         -pedido, methods=["POST"])                                      
+      24 -app.add_url_rule("/pedidos", "listar_todos_pedidos", controller
+         -s.listar_todos_pedidos, methods=["GET"])                       
+      25 -app.add_url_rule("/pedidos/usuario/<int:usuario_id>", "listar_p
+         -edidos_usuario", controllers.listar_pedidos_usuario, methods=["
+         -GET"])                                                         
+      26 -app.add_url_rule("/pedidos/<int:pedido_id>/status", "atualizar_
+         -status_pedido", controllers.atualizar_status_pedido, methods=["
+         -PUT"])                                                         
+      14 +def create_app(settings=Settings):                             
+      15 +    app = Flask(__name__)                                      
+      16 +    app.config.from_object(settings)                           
+      17 +    CORS(app)                                                  
+      18 +    database.init_app(app)                                     
+      19 +    register_blueprints(app)                                   
+      20 +    register_error_handlers(app)                               
+      21 +    return app                                                 
+      22  
+      28 -app.add_url_rule("/relatorios/vendas", "relatorio_vendas", cont
+         -rollers.relatorio_vendas, methods=["GET"])                     
+      23  
+      30 -app.add_url_rule("/health", "health_check", controllers.health_
+         -check, methods=["GET"])                                        
+      24 +app = create_app()                                             
+      25  
+      32 -@app.route("/")                                                
+      33 -def index():                                                   
+      34 -    return jsonify({                                           
+      35 -        "mensagem": "Bem-vindo à API da Loja",                 
+      36 -        "versao": "1.0.0",                                     
+      37 -        "endpoints": {                                         
+      38 -            "produtos": "/produtos",                           
+      39 -            "usuarios": "/usuarios",                           
+      40 -            "pedidos": "/pedidos",                             
+      41 -            "login": "/login",                                 
+      42 -            "relatorios": "/relatorios/vendas",                
+      43 -            "health": "/health"                                
+      44 -        }                                                      
+      45 -    })                                                         
+      46 -                                                               
+      47 -@app.route("/admin/reset-db", methods=["POST"])                
+      48 -def reset_database():                                          
+      49 -    db = get_db()                                              
+      50 -    cursor = db.cursor()                                       
+      51 -    cursor.execute("DELETE FROM itens_pedido")                 
+      52 -    cursor.execute("DELETE FROM pedidos")                      
+      53 -    cursor.execute("DELETE FROM produtos")                     
+      54 -    cursor.execute("DELETE FROM usuarios")                     
+      55 -    db.commit()                                                
+      56 -    print("!!! BANCO DE DADOS RESETADO !!!")                   
+      57 -    return jsonify({"mensagem": "Banco de dados resetado", "suc
+         -esso": True}), 200                                             
+      58 -                                                               
+      59 -@app.route("/admin/query", methods=["POST"])                   
+      60 -def executar_query():                                          
+      61 -    dados = request.get_json()                                 
+      62 -    query = dados.get("sql", "")                               
+      63 -    if not query:                                              
+      64 -        return jsonify({"erro": "Query não informada"}), 400   
+      65 -                                                               
+      66 -    db = get_db()                                              
+      67 -    cursor = db.cursor()                                       
+      68 -    try:                                                       
+      69 -        cursor.execute(query)                                  
+      70 -        if query.strip().upper().startswith("SELECT"):         
+      71 -            rows = cursor.fetchall()                           
+      72 -            result = [dict(row) for row in rows]               
+      73 -            return jsonify({"dados": result, "sucesso": True}),
+         - 200                                                           
+      74 -        else:                                                  
+      75 -            db.commit()                                        
+      76 -            return jsonify({"mensagem": "Query executada", "suc
+         -esso": True}), 200                                             
+      77 -    except Exception as e:                                     
+      78 -        return jsonify({"erro": str(e)}), 500                  
+      79 -                                                               
+      26  if __name__ == "__main__":
+      81 -                                                               
+      82 -    get_db()                                                   
+      83 -    print("=" * 50)                                            
+      84 -    print("SERVIDOR INICIADO")                                 
+      85 -    print("Rodando em http://localhost:5000")                  
+      86 -    print("=" * 50)                                            
+      87 -                                                               
+      88 -    app.run(host="0.0.0.0", port=5000, debug=True)             
+      27 +    logging.basicConfig(level=logging.INFO, format="%(asctime)s
+         + %(levelname)s %(name)s: %(message)s")                         
+      28 +    logger.info("Servidor iniciado em http://%s:%s", Settings.H
+         +OST, Settings.PORT)                                            
+      29 +    app.run(host=Settings.HOST, port=Settings.PORT, debug=Setti
+         +ngs.DEBUG)                                                     
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && rm -f controllers.py
+      models.py && rm -rf __pycache__ && rm -f loja.db && .venv/Sc…)
+  ⎿  ['/ GET', '/admin/reset-db POST', '/health GET', '/login POST', '/pedi
+     dos GET', '/pedidos POST', '/pedidos/<int:pedido_id>/status PUT', '/pe
+     didos/usuario/<int:usuario_id> GET', '/produtos GET', '/produtos POST'
+     … +4 lines (ctrl+o to expand)
+  ⎿  Deleted controllers.py (+0 -292)
+        1 -from flask import request, jsonify                            
+        2 -import models                                                 
+        3 -from database import get_db                                   
+        4 -                                                              
+        5 -def listar_produtos():                                        
+        6 -    try:                                                      
+        7 -        produtos = models.get_todos_produtos()                
+        8 -        print("Listando " + str(len(produtos)) + " produtos") 
+        9 -        return jsonify({"dados": produtos, "sucesso": True}), 
+          -200                                                           
+       10 -    except Exception as e:                                    
+       11 -        print("ERRO: " + str(e))                              
+       12 -        return jsonify({"erro": str(e)}), 500                 
+       13 -                                                              
+       14 -def buscar_produto(id):                                       
+       15 -    try:                                                      
+       16 -        produto = models.get_produto_por_id(id)               
+       17 -        if produto:                                           
+       18 -            return jsonify({"dados": produto, "sucesso": True}
+          -), 200                                                        
+       19 -        else:                                                 
+       20 -            return jsonify({"erro": "Produto não encontrado", 
+          -"sucesso": False}), 404                                       
+       21 -    except Exception as e:                                    
+       22 -        return jsonify({"erro": str(e)}), 500                 
+       23 -                                                              
+       24 -def criar_produto():                                          
+       25 -    try:                                                      
+       26 -        dados = request.get_json()                            
+       27 -                                                              
+       28 -        if not dados:                                         
+       29 -            return jsonify({"erro": "Dados inválidos"}), 400  
+       30 -        if "nome" not in dados:                               
+       31 -            return jsonify({"erro": "Nome é obrigatório"}), 40
+          -0                                                             
+       32 -        if "preco" not in dados:                              
+       33 -            return jsonify({"erro": "Preço é obrigatório"}), 4
+          -00                                                            
+       34 -        if "estoque" not in dados:                            
+       35 -            return jsonify({"erro": "Estoque é obrigatório"}),
+          - 400                                                          
+       36 -                                                              
+       37 -        nome = dados["nome"]                                  
+       38 -        descricao = dados.get("descricao", "")                
+       39 -        preco = dados["preco"]                                
+       40 -        estoque = dados["estoque"]                            
+     … 252 more lines (ctrl+o to expand)
+  ⎿  Deleted models.py (+0 -314)
+        1 -from database import get_db                                   
+        2 -import sqlite3                                                
+        3 -                                                              
+        4 -def get_todos_produtos():                                     
+        5 -    db = get_db()                                             
+        6 -    cursor = db.cursor()                                      
+        7 -    cursor.execute("SELECT * FROM produtos")                  
+        8 -    rows = cursor.fetchall()                                  
+        9 -    result = []                                               
+       10 -    for row in rows:                                          
+       11 -                                                              
+       12 -        result.append({                                       
+       13 -            "id": row["id"],                                  
+       14 -            "nome": row["nome"],                              
+       15 -            "descricao": row["descricao"],                    
+       16 -            "preco": row["preco"],                            
+       17 -            "estoque": row["estoque"],                        
+       18 -            "categoria": row["categoria"],                    
+       19 -            "ativo": row["ativo"],                            
+       20 -            "criado_em": row["criado_em"]                     
+       21 -        })                                                    
+       22 -    return result                                             
+       23 -                                                              
+       24 -def get_produto_por_id(id):                                   
+       25 -    db = get_db()                                             
+       26 -    cursor = db.cursor()                                      
+       27 -                                                              
+       28 -    cursor.execute("SELECT * FROM produtos WHERE id = " + str(
+          -id))                                                          
+       29 -    row = cursor.fetchone()                                   
+       30 -    if row:                                                   
+       31 -        return {                                              
+       32 -            "id": row["id"],                                  
+       33 -            "nome": row["nome"],                              
+       34 -            "descricao": row["descricao"],                    
+       35 -            "preco": row["preco"],                            
+       36 -            "estoque": row["estoque"],                        
+       37 -            "categoria": row["categoria"],                    
+       38 -            "ativo": row["ativo"],                            
+       39 -            "criado_em": row["criado_em"]                     
+       40 -        }                                                     
+     … 274 more lines (ctrl+o to expand)
+
+● O app importa sem erro: 18 rotas, ou seja, as 19 originais menos /admin/query.
+  A rota /static é padrão do Flask e já existia antes. Agora .env.example e
+  README.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && cat > .env.example <<'EOF'
+      # Copie para .env (ou exporte no shell) e preencha. Ne…)
+  ⎿  OK
+  ⎿  Created .env.example (+12 -0)
+       1 +# Copie para .env (ou exporte no shell) e preencha. Nenhuma var
+         +iável é obrigatória para subir em desenvolvimento.             
+       2 +                                                               
+       3 +# Chave da aplicação. Sem ela, uma chave aleatória é gerada a c
+         +ada boot.                                                      
+       4 +SECRET_KEY=                                                    
+       5 +# Token exigido em "Authorization: Bearer <token>" pelo POST /a
+         +dmin/reset-db. Vazio = rota sempre bloqueada (401).            
+       6 +ADMIN_TOKEN=                                                   
+       7 +# true habilita o modo debug do Flask (nunca em produção).     
+       8 +FLASK_DEBUG=false                                              
+       9 +HOST=0.0.0.0                                                   
+      10 +PORT=5000                                                      
+      11 +DATABASE_PATH=loja.db                                          
+      12 +AMBIENTE=producao                                              
+  ⎿  Updated README.md (+30 -1)
+       9  python app.py
+      10  ```
+      11  
+      12 -A aplicação sobe em `http://localhost:5000`. O banco SQLite (`l
+         -oja.db`) é criado automaticamente no primeiro boot, já com prod
+         -utos e usuários de exemplo.                                    
+      12 +A aplicação sobe em `http://localhost:5000`. O banco SQLite (`l
+         +oja.db`) é criado automaticamente no primeiro boot, já com prod
+         +utos e usuários de exemplo (senhas gravadas com hash).         
+      13 +                                                               
+      14 +> Se você tem um `loja.db` criado por uma versão anterior (senh
+         +as em texto puro), apague-o para que o seed seja refeito.      
+      15 +                                                               
+      16 +## Configuração                                                
+      17 +                                                               
+      18 +Toda a configuração vem de variáveis de ambiente (veja `.env.ex
+         +ample`). As variáveis não são carregadas de um arquivo `.env` a
+         +utomaticamente; exporte-as no shell:                           
+      19 +                                                               
+      20 +| Variável | Padrão | Uso |                                    
+      21 +|---|---|---|                                                  
+      22 +| `SECRET_KEY` | aleatória a cada boot | chave da aplicação |  
+      23 +| `ADMIN_TOKEN` | vazio (rota bloqueada) | `POST /admin/reset-d
+         +b` exige `Authorization: Bearer <ADMIN_TOKEN>` |               
+      24 +| `FLASK_DEBUG` | `false` | modo debug |                       
+      25 +| `HOST` / `PORT` | `0.0.0.0` / `5000` | endereço do servidor |
+      26 +| `DATABASE_PATH` | `loja.db` | arquivo SQLite |               
+      27 +| `AMBIENTE` | `producao` | valor exibido no `/health` |       
+      28 +                                                               
+      29 +## Estrutura                                                   
+      30 +                                                               
+      31 +```                                                            
+      32 +app.py              entry point: create_app()                  
+      33 +config/settings.py  configuração lida do ambiente              
+      34 +database.py         conexão por requisição, schema e seed      
+      35 +models/             acesso a dados e regras de domínio (produto
+         +, usuario, pedido, sistema)                                    
+      36 +controllers/        fluxo de cada caso de uso e validação de en
+         +trada                                                          
+      37 +views/              Blueprints: URL + método → controller      
+      38 +services/           notificações de pedido                     
+      39 +middlewares/        tratamento de erros e autenticação de admin
+      40 +utils/constants.py  constantes de domínio                      
+      41 +```                                                            
+
+● 3.3 Validação. Mesma preparação do baseline (banco apagado, -W default), com
+  ADMIN_TOKEN definido para testar a rota protegida.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && rm -f loja.db &&
+      SP="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamen…)
+  ⎿  Running in the background (↓ to manage)
+
+● Bash(cd "C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
+      esafios-Praticos-skill-review-code-smells-project/7bec4a41-d2fd-4b6f-9d22-
+      7d76e1a6f90e/…)
+  ⎿  200  GET    /
+        ['endpoints', 'mensagem', 'versao']    index
+     200  GET    /health
+     … +82 lines (ctrl+o to expand)
+  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
+     Praticos\skill_review\code-smells-project
+
+● Comparo baseline × depois automaticamente e verifico o log e o conteúdo de
+  alguns dados com o app ainda no ar.
+
+● Bash(cd "C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
+      esafios-Praticos-skill-review-code-smells-project/7bec4a41-d2fd-4b6f-9d22-
+      7d76e1a6f90e/…)
+  ⎿  iguais: 30/43  (depois tem 45 chamadas)
+     DIF ('health', 200, 200, ['ambiente', 'counts', 'database', 'db_path',
+      'debug', 'secret_key', 'status', 'versao'], ['ambiente', 'counts', 'd
+     … +31 lines (ctrl+o to expand)
+  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
+     Praticos\skill_review\code-smells-project
+
+● As 13 diferenças encontradas correspondem às mudanças de contrato aprovadas,
+  mas como status e chaves só verificam a forma das respostas, vou fazer uma
+  checagem de conteúdo: rodar o mesmo cenário no código original (extraído via
+  git) e no refatorado usando o test client, comparando os corpos JSON
+  completos.
+
+● Bash(SP="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
+      esafios-Praticos-skill-review-code-smells-project/7bec4a41-d2fd-4b6f-9d22-
+      7d76e1a6f90e/…)
+  ⎿  ENVIANDO EMAIL: Pedido 1 criado para usuario 2
+     ENVIANDO SMS: Seu pedido foi recebido!
+     ENVIANDO PUSH: Novo pedido recebido pelo sistema
+     … +12 lines (ctrl+o to expand)
+  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
+     Praticos\skill_review\code-smells-project
+
+● Confirmei que os 20 testes continuam idênticos ao original, cobrindo totais,
+  relatório com desconto, itens via JOIN, buscas, login e validações. Agora vou
+  parar o app e confirmar que a porta foi liberada.
+
+● PowerShell(Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+            Where-Object { $_.CommandLine -like '*-W default app.py*' } |
+            ForEach-Object { try { Stop-Process -I…)
+  ⎿  restantes: 0
+     porta: []
+
+● Background command "Start refactored app in background with warnings" failed
+with exit code 127
+
+● Agora rodo de novo os sinais dos findings e o checklist da §7.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && F=$(find . -name "*.py" -not
+      -path "./.venv/*" -not -path "./.claude/*" -not -pat…)
+  ⎿    836 total
+     --AP01 concatenação em SQL
+     ./models/pedido_model.py:58:        query += " WHERE p.usuario_id = ?"
+     … +42 lines (ctrl+o to expand)
+
+● Confirmei que os resíduos encontrados são falsos positivos e que o str(e)
+  restante só expõe mensagens controladas do domínio. Ainda assim, vou ajustar o
+  reset de tabelas para statements literais e trocar a validação de pedido para
+  buscar todos os produtos numa única query com IN, eliminando qualquer
+  ambiguidade.
+
+● Update(models\sistema_model.py)
+  ⎿  Added 4 lines, removed 2 lines
+       9  
+      10  def limpar_tabelas(db):
+      11      with db:
+      12 -        for tabela in ("itens_pedido", "pedidos", "produtos", "
+         -usuarios"):                                                    
+      13 -            db.execute("DELETE FROM " + tabela)  # nomes fixos,
+         - sem entrada externa                                           
+      12 +        db.execute("DELETE FROM itens_pedido")                 
+      13 +        db.execute("DELETE FROM pedidos")                      
+      14 +        db.execute("DELETE FROM produtos")                     
+      15 +        db.execute("DELETE FROM usuarios")                     
+● Update(models\pedido_model.py)
+  ⎿  Added 10 lines, removed 3 lines
+       8  def criar(db, usuario_id, itens):
+       9      """Cria o pedido, seus itens e a baixa de estoque numa únic
+          a transação."""
+      10      with db:
+      11 +        ids = sorted({item["produto_id"] for item in itens})   
+      12 +        marcadores = ", ".join("?" for _ in ids)               
+      13 +        produtos = {                                           
+      14 +            row["id"]: row                                     
+      15 +            for row in db.execute(                             
+      16 +                "SELECT id, nome, preco, estoque FROM produtos 
+         +WHERE id IN (" + marcadores + ")", ids                         
+      17 +            ).fetchall()                                       
+      18 +        }                                                      
+      19 +                                                               
+      20          total = 0
+      21          precos = {}
+      22          for item in itens:
+      14 -            produto = db.execute(                              
+      15 -                "SELECT nome, preco, estoque FROM produtos WHER
+         -E id = ?", (item["produto_id"],)                               
+      16 -            ).fetchone()                                       
+      23 +            produto = produtos.get(item["produto_id"])         
+      24              if produto is None:
+      25                  raise RegraPedidoError("Produto " + str(item["p
+          roduto_id"]) + " não encontrado")
+      26              if produto["estoque"] < item["quantidade"]:
+
+● Como o código mudou, repito a validação completa (ciclo 2): sondas HTTP com o
+  servidor no ar e o cenário de conteúdo.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && rm -f loja.db &&
+      SP="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamen…)
+  ⎿  Running in the background (↓ to manage)
+
+● Bash(SP="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
+      esafios-Praticos-skill-review-code-smells-project/7bec4a41-d2fd-4b6f-9d22-
+      7d76e1a6f90e/…)
+  ⎿  iguais: 30/43  (depois tem 45 chamadas)
+     DIF ('health', 200, 200, ['ambiente', 'counts', 'database', 'db_path',
+      'debug', 'secret_key', 'status', 'versao'], ['ambiente', 'counts', 'd
+     … +22 lines (ctrl+o to expand)
+  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
+     Praticos\skill_review\code-smells-project
+
+● Ciclo 2 aprovado, confirmando as 13 diferenças e os 20 corpos idênticos: a
+  transação se mostrou atômica, já que um pedido que falha no meio não grava
+  nada nem baixa estoque (o ResourceWarning é só do meu script de teste, não do
+  projeto). Agora vou parar o app e limpar o banco gerado pelos testes.
+
+● PowerShell(Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+            Where-Object { $_.CommandLine -like '*-W default app.py*' } |
+            ForEach-Object { try { Stop-Process -I…)
+  ⎿  restantes: 0
+     porta: []
+     loja.db removido
+
+● Background command "Start refactored app again for validation cycle 2" failed
+with exit code 127
+
+● O exit 127 é de novo o efeito do encerramento forçado. Confirmei que não há
+  processo nem porta presos. Levanto a estrutura final para o resumo.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && find . -name "*.py" -not
+      -path "./.venv/*" -not -path "./.claude/*" -not -path "*…)
+  ⎿     29 ./app.py
+         0 ./config/__init__.py
+        18 ./config/settings.py
+     … +41 lines (ctrl+o to expand)
+
+● Write(reports\refactor-summary.md)
+  ⎿  Wrote 145 lines to reports\refactor-summary.md
+       1 ================================
+       3 ================================
+       4 ## Strategy
+       5 A) Decomposição completa: o monolito de 4 arquivos (app.py, cont
+          camadas da §4 do mvc-guidelines; `controllers.py` e `models.py`
+          da raiz foram removidos.
+       7 ## New Project Structure
+       8 ```
+       9 code-smells-project/
+         pp = create_app() + __main__
+     … +223 lines (ctrl+o to expand)
+
+● ================================
+  PHASE 3: REFACTORING COMPLETE
+
+  Strategy
+
+  A) Decomposição completa: o monolito de 4 arquivos foi dividido por domínio
+  nas camadas da §4 do mvc-guidelines. controllers.py e models.py da raiz foram
+  removidos.
+
+  New Project Structure
+
+  code-smells-project/
+  ├── app.py                       # Entry point: create_app() + app = 
+  create_app() + __main__
+  ├── config/settings.py           # Config: Settings lidas do ambiente
+  ├── database.py                  # Database: conexão por requisição (flask.g),
+  schema, seed com hash
+  ├── models/                      # Model: SQL parametrizado + regras de 
+  domínio
+  │   ├── produto_model.py, usuario_model.py, pedido_model.py, sistema_model.py
+  ├── controllers/                 # Controller: fluxo do caso de uso + 
+  validação de entrada
+  │   ├── validacao.py, produto_, usuario_, pedido_, relatorio_, 
+  sistema_controller.py
+  ├── views/                       # View: Blueprints por domínio, só delegam 
+  (URLs inalteradas)
+  │   ├── __init__.py (register_blueprints), produto_, usuario_, pedido_, 
+  relatorio_, sistema_routes.py
+  ├── services/notificacao_service.py   # Service: notificações de pedido (via 
+  logging)
+  ├── middlewares/error_handler.py      # Middleware: AppError + handlers 
+  centralizados
+  ├── middlewares/auth.py               # Middleware: require_admin_token
+  ├── utils/constants.py                # Utils: categorias, status, faixas de 
+  desconto
+  ├── .env.example, README.md, requirements.txt (inalterado)
+
+  Findings Resolved
+
+  ID: F-01
+  Severity: CRITICAL
+  Anti-pattern: SQL Injection
+  Status: RESOLVED
+  How (PT-xx): PT-01: 19 queries com ?; o login com SQLi passou de 200 para 401
+  ────────────────────────────────────────
+  ID: F-02
+  Severity: CRITICAL
+  Anti-pattern: Credenciais hardcoded
+  Status: RESOLVED
+  How (PT-xx): PT-02: config/settings.py + .env.example
+  ────────────────────────────────────────
+  ID: F-03
+  Severity: CRITICAL
+  Anti-pattern: Senha em texto puro
+  Status: RESOLVED
+  How (PT-xx): PT-03: werkzeug.security no cadastro, no seed e no login
+  ────────────────────────────────────────
+  ID: F-04
+  Severity: CRITICAL
+  Anti-pattern: Exposição de dados
+  Status: RESOLVED
+  How (PT-xx): PT-04: sem senha nas respostas; /health sem segredos; e-mail fora
+
+  dos logs
+  ────────────────────────────────────────
+  ID: F-05
+  Severity: CRITICAL
+  Anti-pattern: Endpoint sem auth
+  Status: RESOLVED
+  How (PT-xx): PT-05: /admin/query removido; /admin/reset-db com Bearer
+  ADMIN_TOKEN
+  ────────────────────────────────────────
+  ID: F-06
+  Severity: CRITICAL
+  Anti-pattern: God File
+  Status: RESOLVED
+  How (PT-xx): PT-06
+  ────────────────────────────────────────
+  ID: F-07
+  Severity: HIGH
+  Anti-pattern: Regra na camada errada
+  Status: RESOLVED
+  How (PT-xx): PT-07: desconto no model, notificações em service
+  ────────────────────────────────────────
+  ID: F-08
+  Severity: HIGH
+  Anti-pattern: Estado global
+  Status: RESOLVED
+  How (PT-xx): PT-08: conexão por requisição + teardown
+  ────────────────────────────────────────
+  ID: F-09
+  Severity: HIGH
+  Anti-pattern: Sem transação
+  Status: PARTIAL
+  How (PT-xx): PT-09: pedido atômico (rollback provado) + baixa condicional de
+  estoque. Não corrigido de propósito: a exclusão de produto mantém os itens de
+   pedido como histórico, conforme o plano
+  ────────────────────────────────────────
+  ID: F-10
+  Severity: MEDIUM
+  Anti-pattern: N+1
+  Status: RESOLVED
+  How (PT-xx): PT-10: JOIN, 1 agregação no relatório, IN no pedido
+  ────────────────────────────────────────
+  ID: F-11
+  Severity: MEDIUM
+  Anti-pattern: Duplicação
+  Status: RESOLVED
+  How (PT-xx): PT-11: validar_produto único, um to_dict por entidade
+  ────────────────────────────────────────
+  ID: F-12
+  Severity: MEDIUM
+  Anti-pattern: Erro engolido
+  Status: RESOLVED
+  How (PT-xx): PT-12: handler central, 0 str(e) vazando
+  ────────────────────────────────────────
+  ID: F-13–15
+  Severity: LOW
+  Anti-pattern: Magic numbers, logging, imports mortos
+  Status: RESOLVED
+  How (PT-xx): PT-14
+
+  Contract Changes Applied
+
+  - POST /admin/query removido (404).
+  - POST /admin/reset-db exige Authorization: Bearer <ADMIN_TOKEN> (401 sem
+    token ou com token inválido).
+  - senha removido de GET /usuarios e GET /usuarios/<id>; secret_key, db_path e
+    debug removidos de GET /health.
+  - PUT /produtos/<id> aplica a validação do POST.
+  - Entrada malformada → 400 (antes 500); quantidade ≤ 0 → 400 (antes 201);
+    status de pedido inexistente → 404 (antes 200); erros 500 sem detalhe
+    interno.
+  - debug agora é false por padrão; o loja.db antigo precisa ser recriado.
+
+  Validation
+
+    ✓ Application boots without errors
+    ✓ All endpoints respond as baseline (43/43: 30 idênticas + 13 mudanças
+  aprovadas)
+    ✓ Approved contract changes verified (reset-db: 401 sem token / 401 com
+  token errado / 200 com token)
+    ✓ No deprecation warnings from project code
+    ✓ No CRITICAL/HIGH anti-patterns remaining (F-09 parcial só na retenção
+  intencional de histórico)
+    ✓ MVC structure checklist complete
+
+  Além de status e chaves, rodei o mesmo cenário no código original (extraído do
+  git) e no refatorado: 20/20 corpos JSON idênticos (ignorando criado_em e
+  senha). Foram 2 ciclos de validação.
+
+  Endpoint Comparison
+
+  A tabela completa, com as 45 chamadas, está em reports/refactor-summary.md.
+  Resumo das diferenças, todas aprovadas:
+
+  ┌──────────────┬────────────────────┬─────────────┬───────────┬──────────┐
+  │    Método    │        Rota        │  Baseline   │  Depois   │    OK    │
+  ├──────────────┼────────────────────┼─────────────┼───────────┼──────────┤
+  │ GET          │ /health            │ 200 c/      │ 200 sem   │ ✓        │
+  │              │                    │ segredos    │ segredos  │ aprovado │
+  ├──────────────┼────────────────────┼─────────────┼───────────┼──────────┤
+  │ GET          │ /usuarios,         │ 200 c/      │ 200 sem   │ ✓        │
+  │              │ /usuarios/1        │ senha       │ senha     │ aprovado │
+  ├──────────────┼────────────────────┼─────────────┼───────────┼──────────┤
+  │ POST         │ /login (SQLi)      │ 200         │ 401       │ ✓ F-01   │
+  ├──────────────┼────────────────────┼─────────────┼───────────┼──────────┤
+  │ GET/POST/PUT │ 7 sondas de        │ 500/201/200 │ 400/404   │ ✓        │
+  │              │ entrada inválida   │             │           │ aprovado │
+  ├──────────────┼────────────────────┼─────────────┼───────────┼──────────┤
+  │ POST         │ /admin/query       │ 200         │ 404       │ ✓        │
+  │              │                    │             │           │ aprovado │
+  ├──────────────┼────────────────────┼─────────────┼───────────┼──────────┤
+  │              │ /admin/reset-db    │             │           │ ✓        │
+  │ POST         │ sem token / com    │ 200 / n/a   │ 401 / 200 │ aprovado │
+  │              │ token              │             │           │          │
+  └──────────────┴────────────────────┴─────────────┴───────────┴──────────┘
+
+  As outras 30 chamadas mantiveram status e chaves iguais.
+
+  How to run
+
+  pip install -r requirements.txt
+  python app.py        # http://localhost:5000
+  Variáveis opcionais: SECRET_KEY, ADMIN_TOKEN (necessário para o reset), 
+  FLASK_DEBUG, HOST, PORT, DATABASE_PATH, AMBIENTE. Veja .env.example.
+
+  O resumo foi salvo em reports/refactor-summary.md. Não fiz commit. O app está
+  parado, a porta 5000 está livre e o loja.db gerado nos testes foi apagado.
+
+  Fica uma decisão para você: as rotas GET /usuarios, GET /pedidos, GET 
+  /relatorios/vendas e as de escrita continuam públicas. Protegê-las exige que o
+  /login passe a emitir um token, o que muda o contrato e ficou fora deste
+  escopo.
+
+✻ Sautéed for 7m 59s · done 8:36

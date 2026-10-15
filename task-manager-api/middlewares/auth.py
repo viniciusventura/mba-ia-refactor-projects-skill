@@ -6,41 +6,55 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from middlewares.error_handler import ForbiddenError, UnauthorizedError
 from models.user import User
 
+_SALT = 'auth-token'
+
 
 def _serializer():
-    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'], salt='auth')
+    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'], salt=_SALT)
 
 
 def issue_token(user):
     return _serializer().dumps({'id': user.id})
 
 
-def authenticate(roles=None):
-    """Valida o Bearer token e devolve o usuário ativo; 401 sem token válido, 403 sem o papel exigido."""
+def _bearer_token():
     header = request.headers.get('Authorization', '')
-    token = header.removeprefix('Bearer ').strip()
-    if not token:
-        raise UnauthorizedError('Token ausente')
+    if not header.startswith('Bearer '):
+        return None
+    return header.removeprefix('Bearer ').strip() or None
+
+
+def authenticate_optional():
+    """Usuário do token, ou None sem header. Token presente e inválido → 401."""
+    token = _bearer_token()
+    if token is None:
+        return None
     try:
         payload = _serializer().loads(token, max_age=current_app.config['TOKEN_MAX_AGE'])
     except (BadSignature, SignatureExpired):
-        raise UnauthorizedError('Token inválido ou expirado')
+        raise UnauthorizedError('Token inválido ou ausente')
+    user = User.get_active(payload.get('id'))
+    if user is None:
+        raise UnauthorizedError('Token inválido ou ausente')
+    if not user.active:
+        raise ForbiddenError('Usuário inativo')
+    return user
 
-    # o papel vem do banco, não do token: rebaixamento/remoção vale na hora
-    user = User.get_not_deleted(payload.get('id'))
-    if user is None or not user.active:
-        raise UnauthorizedError('Token inválido ou expirado')
-    if roles and user.role not in roles:
-        raise ForbiddenError('Acesso negado')
-    g.current_user = user
+
+def authenticate():
+    user = authenticate_optional()
+    if user is None:
+        raise UnauthorizedError('Token inválido ou ausente')
     return user
 
 
 def require_auth(roles=None):
-    def decorator(fn):
-        @wraps(fn)
+    def decorator(handler):
+        @wraps(handler)
         def wrapper(*args, **kwargs):
-            authenticate(roles)
-            return fn(*args, **kwargs)
+            g.current_user = authenticate()
+            if roles and g.current_user.role not in roles:
+                raise ForbiddenError('Acesso negado')
+            return handler(*args, **kwargs)
         return wrapper
     return decorator

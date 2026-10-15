@@ -6,8 +6,5 @@ from routes.user_routes import user_bp
 
 
 def register_blueprints(app):
-    app.register_blueprint(health_bp)
-    app.register_blueprint(task_bp)
-    app.register_blueprint(user_bp)
-    app.register_blueprint(report_bp)
-    app.register_blueprint(category_bp)
+    for blueprint in (health_bp, task_bp, user_bp, report_bp, category_bp):
+        app.register_blueprint(blueprint)

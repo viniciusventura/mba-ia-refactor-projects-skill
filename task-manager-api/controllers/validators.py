@@ -1,33 +1,63 @@
-"""Validação de entrada compartilhada pelos controllers (borda HTTP → tipos do domínio)."""
+import re
 from datetime import datetime
+from numbers import Number
 
 from flask import request
 
 from middlewares.error_handler import ValidationError
-from utils.constants import DUE_DATE_FORMAT
+from utils.constants import (DUE_DATE_FORMAT, EMAIL_PATTERN, MAX_PRIORITY, MAX_TITLE_LENGTH, MIN_PRIORITY,
+                             MIN_TITLE_LENGTH, TASK_STATUSES)
+
+INVALID_DATA = 'Dados inválidos'
 
 
-def get_json_body():
-    data = request.get_json()          # sem silent: JSON malformado/content-type errado mantêm 400/415 do Flask
-    if not data or not isinstance(data, dict):
-        raise ValidationError('Dados inválidos')
+def json_body(allow_empty=False):
+    """Body JSON como dict. allow_empty preserva endpoints que aceitavam {}."""
+    data = request.get_json()
+    if not isinstance(data, dict) or (not data and not allow_empty):
+        raise ValidationError(INVALID_DATA)
     return data
 
 
-def parse_due_date(value, message):
-    if not isinstance(value, str):
-        raise ValidationError(message)
+def validate_title(title):
+    if not isinstance(title, str):
+        raise ValidationError('Título inválido')
+    if len(title) < MIN_TITLE_LENGTH:
+        raise ValidationError('Título muito curto')
+    if len(title) > MAX_TITLE_LENGTH:
+        raise ValidationError('Título muito longo')
+    return title
+
+
+def validate_status(status):
+    if status not in TASK_STATUSES:
+        raise ValidationError('Status inválido')
+    return status
+
+
+def validate_priority(priority):
+    is_number = isinstance(priority, Number) and not isinstance(priority, bool)
+    if not is_number or priority < MIN_PRIORITY or priority > MAX_PRIORITY:
+        raise ValidationError(f'Prioridade deve ser entre {MIN_PRIORITY} e {MAX_PRIORITY}')
+    return priority
+
+
+def parse_due_date(value, error_message):
     try:
         return datetime.strptime(value, DUE_DATE_FORMAT)
-    except ValueError:
-        raise ValidationError(message)
+    except (TypeError, ValueError):
+        raise ValidationError(error_message)
 
 
-def parse_int_arg(name, message):
-    value = request.args.get(name, '')
-    if not value:
+def is_valid_email(email):
+    return isinstance(email, str) and re.match(EMAIL_PATTERN, email) is not None
+
+
+def optional_int_arg(name, error_message):
+    raw = request.args.get(name, '')
+    if not raw:
         return None
     try:
-        return int(value)
+        return int(raw)
     except ValueError:
-        raise ValidationError(message)
+        raise ValidationError(error_message)

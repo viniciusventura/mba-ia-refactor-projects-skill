@@ -111,7 +111,7 @@ Severidades conforme a escala do desafio: **CRITICAL** (segurança/quebra total 
 
 1. **SKILL.md como orquestrador, conhecimento nas referências (progressive disclosure).** O `SKILL.md` (~160 linhas) define o fluxo e indica **qual referência ler em cada fase**. As ~1.900 linhas de conhecimento só entram no contexto quando a fase chega.
 2. **`disable-model-invocation: true`.** Uma skill que reescreve o projeto inteiro só pode rodar quando alguém digita `/refactor-arch`, nunca por gatilho automático. O `quick_validate.py` do skill-creator acusa esse campo porque segue o padrão genérico de Agent Skills; o campo é específico do Claude Code.
-3. **Regras invioláveis no topo:** nada é modificado antes do "y" (nem rodar o app, que criaria o `.db`); buscar → ler → reportar; contrato da API preservado; convenções do projeto preservadas; honestidade (nunca marcar ✓ sem verificar); não alterar o estado do git; nunca apagar histórico de negócio.
+3. **Regras invioláveis no topo:** nada é modificado antes do "y" (nem rodar o app, que criaria o `.db`); buscar → ler → reportar; contrato da API preservado; convenções do projeto preservadas; honestidade (nunca marcar ✓ sem verificar); não alterar o estado do git; nunca apagar histórico de negócio; todo finding CRITICAL aplicado por inteiro, com o relatório reescrito se o escopo mudar na pausa.
 4. **Baseline e validação automáticos.** A Fase 3 sobe a aplicação **antes** de alterar qualquer coisa, chama todos os endpoints do inventário e registra status e chaves. Depois da refatoração, repete a mesma preparação e compara. Há até 5 ciclos de correção; se não passar, a skill reporta a falha em vez de declarar sucesso.
 5. **Relatório salvo dentro do projeto** (`reports/audit-report.md`), para a skill continuar agnóstica. A cópia para `reports/audit-project-N.md` na raiz é um passo manual da entrega.
 6. **Exemplos do playbook testados antes de entrar na skill.** O teste pegou bugs que a skill copiaria para os 3 projetos: um `errorhandler(Exception)` do Flask que transformava 405 em 500; um handler do Express que transformava JSON malformado (400) em 500; e a troca direta de `utcnow()` por `now(timezone.utc)`, que gera `TypeError` ao comparar com datas *naive* do SQLite.
@@ -154,18 +154,25 @@ Cada entrada tem: **sinais de detecção** (com regex testada nos 3 projetos), *
 | 1 | P1 v1 | O Refactoring Plan da Fase 2 propôs Blueprints dentro de `controllers/`, `config.py` e `errors.py`, fora da estrutura MVC definida. **Causa:** as guidelines MVC só eram lidas na Fase 3, mas o plano é montado na Fase 2 | A Fase 2 passa a ler `mvc-guidelines.md` §4/§6 antes do plano; views e controllers separados explicitamente | `reports/iteracoes/audit-project-1-v1.md` |
 | 2 | P1 v2 | Validação independente encontrou um falso positivo do grep de SQL Injection num `IN (?, ?, ?)` com marcadores gerados | Catálogo AP-01: `IN` com marcadores gerados não é finding | `reports/iteracoes/*-project-1-v2.md` |
 | 3 | P2 v1 | (a) A skill usou `git rm` (a regra só proibia commit/push). (b) Para eliminar dados órfãos, apagou em cascata matrículas e **pagamentos**, e o faturamento do relatório caiu. **Revisão humana:** nunca apagar histórico de negócio | Regra 6: nenhum comando git que altere estado. Regra 7 + PT-09: **soft delete** (coluna `removido`/`deleted`, leituras de negócio filtram, relatórios não, migração idempotente). AP-09: exclusão física de entidade com histórico vira finding | `reports/iteracoes/*-project-2-v1.md`, `reports/logs/session-project-2-v1.txt` |
-| 4 | P1 v3 | A skill ampliou a autenticação para 8 rotas (variação entre execuções em decisões de escopo). **Revisão humana na pausa:** proteger só rotas administrativas, destrutivas e financeiras | Nenhum: ajuste feito na resposta ao `[y/n]`, como previsto no template | `reports/logs/session-project-1.txt` |
+| 4 | P1 v3 | A skill ampliou a autenticação para 8 rotas (variação entre execuções em decisões de escopo). **Revisão humana na pausa:** proteger só rotas administrativas, destrutivas e financeiras. *Essa calibração estava errada: ver iteração 8* | Nenhum na época: ajuste feito na resposta ao `[y/n]` | `reports/iteracoes/*-project-1-v3.md`, `reports/logs/session-project-1-v3.txt` |
 | 5 | P2 v2 | A skill tornou `pwd` obrigatório no checkout (quebra de contrato). **Revisão humana:** manter opcional, com senha aleatória e hash | Nenhum: ajuste na resposta ao `[y/n]` | `reports/logs/session-project-2.txt` |
 | 6 | Pós P2 v2 | Revisão humana: o soft delete grava **quando** removeu, mas não **quem** | PT-09 regra 8: gravar `removido_por`/`deleted_by` com usuário autenticado; sem identidade, registrar em `audit_logs` ou log | Aplicada no P3 (`deleted_by`) |
-| 7 | P3 | Nenhum ajuste necessário: plano, soft delete com `deleted_by`, estratégia B e escopo de autenticação corretos de primeira | n/a | `reports/logs/session-project-3.txt` |
+| 7 | P3 v1 | Plano, soft delete com `deleted_by` e estratégia B corretos de primeira. O escopo de autenticação seguiu o mesmo critério da iteração 4 | n/a na época | `reports/iteracoes/*-project-3-v1.md`, `reports/logs/session-project-3-v1.txt` |
+| 8 | **Devolutiva do revisor** (P1 v4, P3 v2) | O F-05 (CRITICAL) do P1 listava `POST /produtos`, `PUT /produtos/<id>` e `PUT /pedidos/<id>/status`, e a Recommendation dizia "proteger as rotas listadas". Depois da redução de escopo na pausa, essas rotas ficaram sem `require_auth`, e um anônimo ainda alterava preço e status, como dizia o próprio Impact. O relatório não foi reescrito, e o resumo marcou PARTIAL. **Revisão no mesmo estilo nos outros projetos:** o P3 tinha o mesmo problema, e pior: `PUT /users/<id>` anônimo trocava a senha do admin (tomada de conta). O P2 estava correto. **Causas:** (a) o ajuste na pausa mudava o plano, mas não o finding; (b) o AP-05 detectava rotas sensíveis pelo **nome** (`admin`, `delete`, `report`), e escritas comuns ficavam de fora | SKILL regra 8: **todo CRITICAL é aplicado por inteiro**, e nenhum CRITICAL termina PARTIAL. Fase 2 passo 9: um ajuste de escopo **reescreve o finding** (Recommendation e Contract change passam a listar só o que será aplicado; o resíduo vira finding próprio com severidade reavaliada), e reduzir o escopo de uma rota de escrita exige um aviso explícito do risco. AP-05: **todas** as rotas do inventário são classificadas em 5 classes (admin, destrutiva, escrita em dado de terceiro, credencial/privilégio, leitura de dados de outros), e cada escrita que fica pública precisa de motivo escrito. PT-05: exemplo "dono do recurso ou admin". Fase 3: verificação `Every CRITICAL recommendation fully applied (x/y)` | `reports/logs/session-project-1.txt`, `reports/logs/session-project-3.txt` |
+| 9 | P1 v4, P3 v2 | Nas duas execuções, a Fase 3 corrigiu o plano **depois** do `y` (coluna `removido` no P1, cascata lógica usuário → tasks no P3), reescreveu o relatório e só avisou no resumo final. **Causa:** a Fase 2 montava o plano de soft delete sem ler o PT-09, cuja regra 5 pede cascata lógica | Tabela fase → referência: a Fase 2 lê PT-05 e PT-09 antes do plano. Fase 3: se o plano contradisser o playbook, a skill **para e pergunta** `Ajustar o plano? [y/n]` antes de alterar arquivos. Não houve nova execução: relatório e código ficaram consistentes e foram validados | `reports/logs/session-project-1.txt`, `reports/logs/session-project-3.txt` |
 
-**Principal aprendizado:** a skill resolve bem os problemas técnicos (segurança, camadas, performance), mas **decisões de negócio e de escopo de contrato** (apagar ou preservar histórico, quais rotas exigir autenticação) variam entre execuções. A pausa obrigatória da Fase 2 é o ponto em que o humano calibra essas decisões, e cada calibração recorrente vira regra na skill. A quantidade de ajustes caiu a cada projeto (P1: 3 execuções; P2: 2; P3: 1, sem ajuste).
+**Principal aprendizado:** a skill resolve bem os problemas técnicos (segurança, camadas, performance), mas **decisões de negócio e de escopo de contrato** (apagar ou preservar histórico, quais rotas exigir autenticação) variam entre execuções. A pausa obrigatória da Fase 2 é o ponto em que o humano calibra essas decisões, e cada calibração recorrente vira regra na skill.
+
+**Aprendizado da devolutiva:** a calibração humana também erra. Restringir a autenticação a "rotas administrativas, destrutivas e financeiras" parecia razoável para não quebrar clientes, mas deixou escritas anônimas que, em produção, seriam uma falha de controle de acesso. A skill não pode aceitar esse ajuste em silêncio: ela precisa (1) mostrar o risco que continua aberto e (2) manter o relatório fiel ao que foi executado. Antes de qualquer entrega, a revisão final confronta **o que o relatório promete** (Recommendation e Contract change de cada CRITICAL) com **o que o código entrega**, chamando cada rota de escrita sem token, com token de outro usuário e com token de admin.
+
+### Decisões de escopo justificadas
+
+- **`PUT /pedidos/<id>/status` só para admin (P1):** o código original aceitava qualquer status, de qualquer pessoa, em qualquer momento, sem nenhuma regra de transição. Liberar o cancelamento pelo cliente exigiria definir quais transições ele pode fazer (ex.: `pendente → cancelado`, nunca depois de `enviado`). Isso é regra de negócio nova, não refatoração, e fica como evolução futura.
+- **Leituras públicas que continuam abertas:** catálogo de produtos (P1) e quadro de tarefas e categorias (P3). Não expõem senha, e-mail nem token, e cada relatório registra o motivo no teste "não esqueci nada" do AP-05.
 
 ### Melhorias em aberto
 
-- **"Quem removeu" nos Projetos 1 e 2:** a regra 8 (registrar quem fez o soft delete) foi incluída na skill **depois** das execuções finais de P1 e P2. Esses dois projetos gravam apenas **quando** removeu (`removido_em`/`deleted_at`). Não foram reexecutados por limite de tempo e de tokens de execução. A regra vale a partir do Projeto 3; aplicar em P1/P2 exige só uma nova execução de `/refactor-arch`.
-- **Autenticação das rotas de leitura:** por decisão de escopo (não quebrar clientes atuais), listagens que expõem nome/e-mail (`GET /usuarios`, `/users`, `/reports/*`) continuam públicas. Está registrado como recomendação no "Out of scope" de cada relatório.
-- **Formato de 404/405 no P3:** respostas de rota inexistente/método não permitido passaram de HTML para JSON `{"error": ...}` (mesmo status). A mudança é inofensiva, mas não foi listada no relatório; no P1 a skill preservou o HTML.
+- **"Quem removeu" no Projeto 2:** a regra 8 do PT-09 (registrar quem fez o soft delete) entrou na skill depois da execução final do P2, que grava só **quando** removeu (`deleted_at`). P1 (`removido_por`) e P3 (`deleted_by`) já aplicam a regra. Aplicar no P2 exige só uma nova execução de `/refactor-arch`.
 
 ---
 
@@ -175,12 +182,11 @@ Cada entrada tem: **sinais de detecção** (com regex testada nos 3 projetos), *
 
 | Projeto | Stack | CRITICAL | HIGH | MEDIUM | LOW | Total | Resolvidos na Fase 3 |
 |---|---|---|---|---|---|---|---|
-| P1: `code-smells-project` | Python + Flask 3.1.1 | 6 | 3 | 3 | 3 | **15** | 13 + 2 parciais¹ |
-| P2: `ecommerce-api-legacy` | Node 22 + Express 4.22 | 5 | 4 | 3 | 4 | **16** | 15 + 1 parcial² |
-| P3: `task-manager-api` | Python + Flask 3.0.0 + SQLAlchemy 2.1 | 5 | 2 | 4 | 3 | **14** | 14 |
+| P1: `code-smells-project` | Python + Flask 3.1.1 | 6 | 4 | 3 | 3 | **16** | 16 |
+| P2: `ecommerce-api-legacy` | Node 22 + Express 4.22 | 5 | 4 | 3 | 4 | **16** | 15 + 1 parcial¹ |
+| P3: `task-manager-api` | Python + Flask 3.0.0 + SQLAlchemy 2.1 | 5 | 3 | 4 | 4 | **16** | 16 |
 
-¹ F-05: autenticação restrita às rotas administrativas, destrutivas e financeiras por decisão humana. F-11: divergência de validação entre POST e PUT `/produtos` mantida para não mudar o contrato.
-² F-12: validação de formato de e-mail/cartão não incluída (mudaria quais payloads o checkout aceita).
+¹ F-12 (MEDIUM): validação de formato de e-mail/cartão não incluída, porque mudaria quais payloads o checkout aceita. Nenhum CRITICAL ou HIGH ficou parcial.
 
 Relatórios completos: [`reports/audit-project-1.md`](reports/audit-project-1.md), [`reports/audit-project-2.md`](reports/audit-project-2.md), [`reports/audit-project-3.md`](reports/audit-project-3.md). Resumos da Fase 3 (com tabela de endpoints antes/depois): `<projeto>/reports/refactor-summary.md`.
 
@@ -190,14 +196,14 @@ Relatórios completos: [`reports/audit-project-1.md`](reports/audit-project-1.md
 
 **P1: `code-smells-project` (estratégia A: decomposição completa)**
 ```
-ANTES: 4 arquivos, 780 linhas            DEPOIS: 30 arquivos, 938 linhas
+ANTES: 4 arquivos, 780 linhas            DEPOIS: 32 arquivos, 997 linhas
 app.py          config + rotas + SQL     app.py         create_app() (composition root)
 controllers.py  HTTP + SQL + notificação config/        settings do ambiente
-models.py       SQL de 4 domínios        models/        produto, usuario, pedido, relatorio
-database.py     conexão global           views/         6 Blueprints (só delegam)
-                                         controllers/   6 controllers
+models.py       SQL de 4 domínios        models/        produto, usuario, pedido, relatorio, admin
+database.py     conexão global           views/         6 Blueprints (só delegam; declaram require_auth)
+                                         controllers/   6 controllers + comum (leitura de JSON/validação)
                                          services/      notificação
-                                         middlewares/   error_handler, auth
+                                         middlewares/   error_handler, auth (token + dono ou admin)
                                          utils/         constantes
                                          database.py    conexão por requisição, migração, seed
 ```
@@ -218,7 +224,7 @@ src/utils.js       config + cache + hash src/database/     conexão promisificad
 
 **P3: `task-manager-api` (estratégia B: evolução incremental)**
 ```
-ANTES: 15 arquivos, 1.158 linhas         DEPOIS: 30 arquivos, 1.164 linhas
+ANTES: 15 arquivos, 1.158 linhas         DEPOIS: 29 arquivos, 1.189 linhas
 app.py        config + rotas + boot      app.py        create_app() (seed.py continua importando app, db)
 models/       ORM (mantidos)             models/       mantidos + is_overdue reutilizado + soft_delete
 routes/       rotas "gordas"             routes/       Blueprints só delegam (+ category_routes, health_routes)
@@ -241,7 +247,7 @@ utils/        quase tudo sem uso         config/       NOVO · middlewares/ NOVO
 | Relatório segue o template | ✅ | ✅ | ✅ |
 | Cada finding com arquivo e linhas exatos | ✅ | ✅ | ✅ |
 | Ordenado CRITICAL → LOW | ✅ | ✅ | ✅ |
-| Mínimo de 5 findings | ✅ 15 | ✅ 16 | ✅ 14 |
+| Mínimo de 5 findings | ✅ 16 | ✅ 16 | ✅ 16 |
 | APIs deprecated (se aplicável) | ✅ nenhuma (busca documentada) | ✅ nenhuma (callbacks ≠ deprecated) | ✅ 23× `utcnow`, 16× `Query.get` |
 | Pausa e pede confirmação | ✅ | ✅ | ✅ |
 | **Fase 3: Refatoração** | | | |
@@ -261,8 +267,10 @@ Para não depender só do resumo gerado pela skill, cada projeto foi validado po
 
 | | P1 | P2 | P3 |
 |---|---|---|---|
-| Cenários comparados | 28 | 16 | 36 |
+| Cenários comparados com o original | 29 | 16 | 38 |
 | Divergências **não aprovadas** | **0** | **0** | **0** |
+| Controle de acesso: cada rota protegida chamada sem token, com token inválido, com outro usuário, com o dono e com admin | **48/48** (11 rotas) | ✅ (2 rotas) | **53/53** (15 rotas) |
+| Ataque da devolutiva | `PUT /produtos`, `PUT /pedidos/<id>/status` anônimos: 200 → **401** | n/a | `PUT /users/1` anônimo trocando a senha do admin: 200 → **401** (403 para outro usuário) |
 | SQL Injection no login (`' --`) | 200 → **401** | n/a (sem SQLi) | n/a |
 | Cartão no log do servidor | n/a | 1× → **0×** | n/a |
 | Senha no banco | texto puro → scrypt | base64 caseiro → scrypt | MD5 → scrypt |
@@ -296,6 +304,8 @@ INFO __main__: Servidor iniciado em http://0.0.0.0:5000
  * Debug mode: off
 GET    /produtos/999                     → {"erro":"Produto não encontrado","sucesso":false}  [404]
 POST   /login (admin@loja.com' --)       → {"erro":"Email ou senha inválidos","sucesso":false}  [401]   (antes: 200)
+PUT    /produtos/1 (anônimo, preço)      → {"erro":"Token ausente"}  [401]   (antes: 200; devolutiva)
+PUT    /pedidos/1/status (anônimo)       → {"erro":"Token ausente"}  [401]   (antes: 200; devolutiva)
 DELETE /produtos/1 (sem token)           → [401]
 DELETE /produtos/1 (Bearer token admin)  → {"mensagem":"Produto deletado","sucesso":true}  [200]   (soft delete)
 
@@ -306,8 +316,10 @@ GET  /api/admin/financial-report (Bearer)     → [{"course":"Clean Architecture
 
 # P3: python seed.py && python app.py
  * Debug mode: off
-GET /health → {"status":"ok","timestamp":"2026-10-01 09:57:07"}  [200]
-DELETE /users/3 (admin) → 200; tarefas do usuário somem da API; users.deleted_by = 1
+GET /health → {"status":"ok","timestamp":"2026-10-15 20:23:07"}  [200]
+PUT /users/1 {"password":...} (anônimo)      → {"error":"Token inválido ou ausente"}  [401]   (antes: 200; devolutiva)
+PUT /users/1 {"password":...} (token Maria)  → {"error":"Acesso negado"}  [403]
+DELETE /users/3 (admin) → 200; tarefas do usuário somem da API (cascata lógica) e continuam no banco; users.deleted_by = 1
 ```
 
 ### Observações sobre stacks diferentes
@@ -315,7 +327,7 @@ DELETE /users/3 (admin) → 200; tarefas do usuário somem da API; users.deleted
 - **Python monolito (P1) × Node monolito (P2):** a mesma estratégia A gerou estruturas equivalentes, respeitando o idioma de cada uma: Blueprints × Router, `flask.g` × conexão injetada, `werkzeug.security` × `crypto.scrypt`, `with db:` × `transaction()` com `BEGIN/COMMIT`.
 - **Projeto já organizado (P3):** a skill não "reescreveu por reescrever". Manteve `routes/` e os models, criou só a camada que faltava (`controllers/`) e justificou o único desvio de nomenclatura (`models/task.py` mantido porque o `seed.py` importa esse caminho).
 - **Contrato preservado mesmo em detalhes:** o P2 continua respondendo erros em texto puro; o P1 manteve os 404/405 em HTML do Flask.
-- **Variação entre execuções:** severidade (ex.: `report_routes.py` como God File CRITICAL no P3) e escopo de autenticação variaram de uma rodada para outra. A pausa da Fase 2 foi decisiva para calibrar isso (ver iterações 4 e 5).
+- **Variação entre execuções:** severidade (ex.: `report_routes.py` como God File CRITICAL no P3) e escopo de autenticação variaram de uma rodada para outra. A pausa da Fase 2 foi decisiva para calibrar isso (ver iterações 4 e 5), mas a calibração também precisa ser revisada (iteração 8).
 
 ---
 

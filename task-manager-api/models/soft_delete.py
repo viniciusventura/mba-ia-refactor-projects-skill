@@ -1,5 +1,3 @@
-from sqlalchemy.orm import declared_attr
-
 from database import db
 from utils.time import utc_now
 
@@ -9,29 +7,29 @@ class SoftDeleteMixin:
 
     deleted = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
     deleted_at = db.Column(db.DateTime, nullable=True)
+    deleted_by = db.Column(db.Integer, nullable=True)
 
-    @declared_attr
-    def deleted_by(cls):
-        return db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    def mark_deleted(self, deleted_by):
+        self.deleted = True
+        self.deleted_at = utc_now()
+        self.deleted_by = deleted_by
 
     @classmethod
     def not_deleted(cls):
-        return cls.query.filter_by(deleted=False)
+        return cls.query.filter(cls.deleted.is_(False))
 
     @classmethod
-    def get_not_deleted(cls, record_id):
-        return cls.not_deleted().filter_by(id=record_id).first()
+    def find_by_id(cls, entity_id):
+        """Inclui removidos (leituras históricas)."""
+        return db.session.get(cls, entity_id)
 
     @classmethod
-    def get_including_deleted(cls, record_id):
-        """Leitura histórica (relatórios): também devolve registros removidos."""
-        return cls.query.filter_by(id=record_id).first()
+    def count(cls, include_deleted=False):
+        return (cls.query if include_deleted else cls.not_deleted()).count()
 
     @classmethod
-    def count_all(cls):
-        return cls.query.count()
-
-    def mark_deleted(self, deleted_by, when=None):
-        self.deleted = True
-        self.deleted_at = when or utc_now()
-        self.deleted_by = deleted_by
+    def get_active(cls, entity_id):
+        entity = db.session.get(cls, entity_id)
+        if entity is None or entity.deleted:
+            return None
+        return entity

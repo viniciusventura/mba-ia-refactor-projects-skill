@@ -44,11 +44,10 @@ def register_error_handlers(app):
 
     @app.errorhandler(HTTPException)
     def handle_http_error(err):
-        # 404/405/415 do próprio Flask mantêm o status original
         return jsonify({'error': err.description}), err.code
 
     @app.errorhandler(Exception)
-    def handle_unexpected(err):
+    def handle_unexpected_error(err):
         db.session.rollback()
         logger.exception('Erro inesperado')
-        return jsonify({'error': 'Erro interno'}), 500
+        return jsonify({'error': 'Erro interno do servidor'}), 500

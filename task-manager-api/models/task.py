@@ -1,9 +1,9 @@
-from sqlalchemy import func
+from sqlalchemy import case, func
 from sqlalchemy.orm import joinedload
 
 from database import db
 from models.soft_delete import SoftDeleteMixin
-from utils.constants import CLOSED_TASK_STATUSES, DEFAULT_PRIORITY, DEFAULT_TASK_STATUS
+from utils.constants import CLOSED_TASK_STATUSES, DEFAULT_PRIORITY, DEFAULT_TASK_STATUS, DONE_STATUS
 from utils.time import utc_now
 
 
@@ -22,8 +22,7 @@ class Task(SoftDeleteMixin, db.Model):
     due_date = db.Column(db.DateTime, nullable=True)
     tags = db.Column(db.String(500), nullable=True)
 
-    # foreign_keys explícito: tasks também referencia users via deleted_by
-    user = db.relationship('User', foreign_keys=[user_id], backref='tasks')
+    user = db.relationship('User', backref='tasks')
     category = db.relationship('Category', backref='tasks')
 
     def to_dict(self):
@@ -41,17 +40,6 @@ class Task(SoftDeleteMixin, db.Model):
             'tags': self.tags.split(',') if self.tags else [],
         }
 
-    def to_detail_dict(self):
-        data = self.to_dict()
-        data['overdue'] = self.is_overdue()
-        return data
-
-    def to_list_dict(self):
-        data = self.to_detail_dict()
-        data['user_name'] = self.user.name if self.user else None
-        data['category_name'] = self.category.name if self.category else None
-        return data
-
     def to_summary_dict(self):
         return {
             'id': self.id,
@@ -68,78 +56,81 @@ class Task(SoftDeleteMixin, db.Model):
         now = now or utc_now()
         return bool(self.due_date and self.due_date < now and self.status not in CLOSED_TASK_STATUSES)
 
-    def days_overdue(self, now=None):
-        return ((now or utc_now()) - self.due_date).days
-
     def set_tags(self, tags):
         self.tags = ','.join(tags) if isinstance(tags, list) else tags
 
-    # --- consultas -------------------------------------------------------
+    # --- leituras de negócio (ignoram tasks removidas) ---
 
     @classmethod
     def list_active_with_relations(cls):
-        return cls.not_deleted().options(joinedload(cls.user), joinedload(cls.category)).all()
+        return (cls.not_deleted()
+                .options(joinedload(cls.user), joinedload(cls.category))
+                .order_by(cls.id)
+                .all())
 
     @classmethod
-    def search(cls, query=None, status=None, priority=None, user_id=None):
-        tasks = cls.not_deleted()
-        if query:
-            tasks = tasks.filter(db.or_(cls.title.like(f'%{query}%'), cls.description.like(f'%{query}%')))
+    def list_by_user(cls, user_id, include_deleted=False):
+        return cls._scope(include_deleted).filter_by(user_id=user_id).order_by(cls.id).all()
+
+    @classmethod
+    def search(cls, text=None, status=None, priority=None, user_id=None):
+        query = cls.not_deleted()
+        if text:
+            query = query.filter(db.or_(cls.title.like(f'%{text}%'), cls.description.like(f'%{text}%')))
         if status:
-            tasks = tasks.filter(cls.status == status)
+            query = query.filter(cls.status == status)
         if priority is not None:
-            tasks = tasks.filter(cls.priority == priority)
+            query = query.filter(cls.priority == priority)
         if user_id is not None:
-            tasks = tasks.filter(cls.user_id == user_id)
-        return tasks.all()
+            query = query.filter(cls.user_id == user_id)
+        return query.order_by(cls.id).all()
 
     @classmethod
-    def _base(cls, include_deleted):
+    def active_count_by_user(cls):
+        rows = db.session.query(cls.user_id, func.count(cls.id)).filter(cls.deleted.is_(False)).group_by(cls.user_id)
+        return dict(rows.all())
+
+    @classmethod
+    def active_count_by_category(cls):
+        rows = (db.session.query(cls.category_id, func.count(cls.id))
+                .filter(cls.deleted.is_(False))
+                .group_by(cls.category_id))
+        return dict(rows.all())
+
+    # --- agregações (include_deleted=True nas leituras históricas dos relatórios) ---
+
+    @classmethod
+    def _scope(cls, include_deleted):
         return cls.query if include_deleted else cls.not_deleted()
 
     @classmethod
-    def all_tasks(cls, include_deleted=False, user_id=None):
-        tasks = cls._base(include_deleted)
-        if user_id is not None:
-            tasks = tasks.filter_by(user_id=user_id)
-        return tasks.order_by(cls.id).all()
+    def count_by(cls, column, include_deleted=False):
+        query = db.session.query(column, func.count(cls.id))
+        if not include_deleted:
+            query = query.filter(cls.deleted.is_(False))
+        return dict(query.group_by(column).all())
 
     @classmethod
-    def count_by_status(cls, include_deleted=False):
-        rows = cls._base(include_deleted).with_entities(cls.status, func.count(cls.id)).group_by(cls.status).all()
-        return dict(rows)
-
-    @classmethod
-    def count_by_priority(cls, include_deleted=False):
-        rows = cls._base(include_deleted).with_entities(cls.priority, func.count(cls.id)).group_by(cls.priority).all()
-        return dict(rows)
-
-    @classmethod
-    def count_by_user(cls, include_deleted=False):
-        rows = cls._base(include_deleted).with_entities(cls.user_id, func.count(cls.id)).group_by(cls.user_id).all()
-        return dict(rows)
-
-    @classmethod
-    def count_done_by_user(cls, include_deleted=False):
-        rows = (cls._base(include_deleted).filter(cls.status == 'done')
-                .with_entities(cls.user_id, func.count(cls.id)).group_by(cls.user_id).all())
-        return dict(rows)
-
-    @classmethod
-    def count_by_category(cls):
-        rows = cls.not_deleted().with_entities(cls.category_id, func.count(cls.id)).group_by(cls.category_id).all()
-        return dict(rows)
+    def list_all(cls, include_deleted=False):
+        return cls._scope(include_deleted).order_by(cls.id).all()
 
     @classmethod
     def count_created_since(cls, since, include_deleted=False):
-        return cls._base(include_deleted).filter(cls.created_at >= since).count()
+        return cls._scope(include_deleted).filter(cls.created_at >= since).count()
 
     @classmethod
-    def count_completed_since(cls, since, include_deleted=False):
-        return cls._base(include_deleted).filter(cls.status == 'done', cls.updated_at >= since).count()
+    def count_done_since(cls, since, include_deleted=False):
+        return cls._scope(include_deleted).filter(cls.status == DONE_STATUS, cls.updated_at >= since).count()
 
     @classmethod
-    def soft_delete_by_user(cls, user_id, deleted_by, when):
-        """Cascata lógica: marca as tasks ativas do usuário removido (nada é apagado)."""
-        for task in cls.not_deleted().filter_by(user_id=user_id).all():
-            task.mark_deleted(deleted_by, when)
+    def totals_by_user(cls, include_deleted=False):
+        """{user_id: (total, concluídas)} numa única query."""
+        query = db.session.query(cls.user_id, func.count(cls.id),
+                                 func.sum(case((cls.status == DONE_STATUS, 1), else_=0)))
+        if not include_deleted:
+            query = query.filter(cls.deleted.is_(False))
+        return {user_id: (total, int(done or 0)) for user_id, total, done in query.group_by(cls.user_id).all()}
+
+    @staticmethod
+    def completion_rate(done, total):
+        return round((done / total) * 100, 2) if total > 0 else 0

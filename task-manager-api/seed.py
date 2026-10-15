@@ -4,6 +4,7 @@ from models.task import Task
 from models.user import User
 from models.category import Category
 from datetime import timedelta
+
 from utils.time import utc_now
 
 def seed_data():

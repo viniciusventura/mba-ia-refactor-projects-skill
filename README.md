@@ -282,7 +282,7 @@ Para não depender só do resumo gerado pela skill, cada projeto foi validado po
 
 Cada print mostra o boot da aplicação refatorada e chamadas reais com `curl`: endpoint preservado, erro tratado, rota protegida sem/com token e a prova do soft delete no banco.
 
-**Projeto 1: code-smells-project (Python/Flask)**: SQL Injection barrada (401), `DELETE` protegido e produto removido que some da API mas continua no banco.
+**Projeto 1: code-smells-project (Python/Flask)**: SQL Injection barrada (401), alteração de preço e de status de pedido por anônimo bloqueada (401, ponto da devolutiva), `DELETE` protegido e produto removido que some da API mas continua no banco.
 
 ![Projeto 1 rodando](reports/screenshots/projeto-1.png)
 
@@ -290,7 +290,7 @@ Cada print mostra o boot da aplicação refatorada e chamadas reais com `curl`: 
 
 ![Projeto 2 rodando](reports/screenshots/projeto-2.png)
 
-**Projeto 3: task-manager-api (Python/Flask + SQLAlchemy)**: seed + boot, validação 400 (antes 500), escalada de privilégio bloqueada e soft delete com `deleted_by`.
+**Projeto 3: task-manager-api (Python/Flask + SQLAlchemy)**: seed + boot, validação 400 (antes 500), escalada de privilégio bloqueada, troca da senha do admin bloqueada (401 para anônimo, 403 para outro usuário) e soft delete com `deleted_by` e cascata lógica.
 
 ![Projeto 3 rodando](reports/screenshots/projeto-3.png)
 

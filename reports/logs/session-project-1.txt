@@ -1,20 +1,19 @@
- ▐▛███▛█   Claude Code v2.1.286
+ ▐▛███▛█   Claude Code v2.1.301
 ▝▜██████▀  Opus 5.5 · Claude Pro
  ▝▝   ▝▝   C:\Treinamentos\MBA\Desafios Praticos\skill_review\code-smells-p…
 
-▎ Your voice can help guide AI
-▎ Take 15 min to share your experiences with Anthropic Interviewer. Start now
 
 ❯ /refactor-arch                                                                
 
-● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && cat
-      .claude/skills/refactor-arch/references/project-analysis.md && echo ----
-      && g…)
-  ⎿  # Análise de Projeto: heurísticas da Fase 1
+● Começando a Fase 1. Vou ler a referência de análise.
 
-     Referência da **Fase 1 (Análise)**. Objetivo: entender o projeto **sem
-     … +202 lines (ctrl+o to expand)
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && ls -la && ls
+      .claude/skills/refactor-arch/references && cat .claude/skills/refact…)
+  ⎿  total 46
+     drwxr-xr-x 1 vinicius.ventura 1049089     0 Oct  1 09:00 .
+     drwxr-xr-x 1 vinicius.ventura 1049089     0 Oct  1 10:21 ..
+     … +194 lines (ctrl+o to expand)
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios
       Praticos/skill_review/code-smells-project" && cat README.md
@@ -22,85 +21,136 @@
   ⎿  # code-smells-project
 
      API de E-commerce em Python/Flask usada como entrada do desafio `refac
-     … +192 lines (ctrl+o to expand)
+     … +187 lines (ctrl+o to expand)
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios
       Praticos/skill_review/code-smells-project" && cat -n controllers.py &&
       echo ---- && cat -n models.py)
-  ⎿       1     from flask import request, jsonify
-          2     import models
-          3     from database import get_db
+  ⎿       1  from flask import request, jsonify
+          2  import models
+          3  from database import get_db
      … +604 lines (ctrl+o to expand)
 
-● Fase 1 lida. Agora as referências da Fase 2.
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && git ls-files . | grep -v
+      "^.claude" ; ls .venv/Scripts | head -30; .venv/Scripts/…)
+  ⎿  Error: Exit code 2
+     .env.example
+     README.md
+     app.py
+     config/__init__.py
+     config/settings.py
+     controllers/__init__.py
+     controllers/admin_controller.py
+     controllers/health_controller.py
+     controllers/pedido_controller.py
+     … +41 lines (ctrl+o to expand)
+
+● Fase 1 concluída na leitura. Agora as referências da Fase 2.
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/code-smells-projec
-      t/.claude/skills/refactor-arch/references" && cat anti-patterns-catalog.md
-      && echo ====…)
+      t/.claude/skills/refactor-arch/references" && cat
+      anti-patterns-catalog.md)
   ⎿  # Catálogo de Anti-patterns
 
      Referência da **Fase 2 (Auditoria)**. Cada entrada define **o que proc
-     … +547 lines (ctrl+o to expand)
-
-  Read 1 file (ctrl+o to expand)
+     … +440 lines (ctrl+o to expand)
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/code-smells-projec
-      t/.claude/skills/refactor-arch/references" && grep -n "^## "
+      t/.claude/skills/refactor-arch/references" && cat audit-report-template.md
+      && echo ====…)
+  ⎿  # Template do Relatório de Auditoria (Fase 2)
+
+     Formato **obrigatório** da saída da Fase 2. O mesmo conteúdo é impress
+     … +152 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/code-smells-projec
+      t/.claude/skills/refactor-arch/references" && sed -n 93,225p
       mvc-guidelines.md)
-  ⎿  7:## 1. MVC aplicado a uma API
-     30:## 2. Responsabilidades: pode × não pode
-     71:## 3. Direção das dependências
-     … +4 lines (ctrl+o to expand)
+  ⎿  ## 4. Estrutura alvo por stack
 
-  Read 1 file (ctrl+o to expand)
+     ### Python / Flask
+     … +129 lines (ctrl+o to expand)
 
-● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && F="app.py controllers.py
-      models.py database.py" && echo "## AP01" && grep -nE "(S…)
-  ⎿  ## AP01
-     models.py:28:    cursor.execute("SELECT * FROM produtos WHERE id = " +
-      str(id))
-     … +67 lines (ctrl+o to expand)
+● Rodando os sinais de detecção do catálogo (AP-01 a AP-14) nos 4
+  arquivos-fonte.
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && git ls-files | grep -c
-      "\.db$"; ls *.db 2>/dev/null; grep -rn "ativo" --include=*…)
-  ⎿  0
-     ./controllers.py:44:            return jsonify({"erro": "Preço não pod
-     e ser negativo"}), 400
-     … +10 lines (ctrl+o to expand)
+      Praticos/skill_review/code-smells-project" && wc -l app.py controllers.py
+      database.py models.py && echo "== AP-01" && grep -nE…)
+  ⎿     88 app.py
+       292 controllers.py
+        86 database.py
+     … +83 lines (ctrl+o to expand)
 
-● Terminei a análise e as buscas por sinais. Agora vou montar o relatório de
-  auditoria.
+● Confirmei os sinais lendo o código: o regex do AP-01 tinha falhas no colchete,
+  então contei as queries direto no models.py; não encontrei mecanismo de
+  auth/hash, e o loja.db não está versionado. Agora vou montar o relatório.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && ls reports 2>&1; ls loja.db
+      2>&1; grep -n "tipo" controllers.py)
+  ⎿  ls: cannot access 'reports': No such file or directory
+     ls: cannot access 'loja.db': No such file or directory
 
 ● Write(reports\audit-report.md)
-  ⎿  Wrote 288 lines to reports\audit-report.md
+  ⎿  Wrote 316 lines to reports\audit-report.md
        1 ================================
        2 ARCHITECTURE AUDIT REPORT
        4 Project:  code-smells-project
-       5 Stack:    Python 3.14.4 + Flask 3.1.1 (Werkzeug 3.1.8, flask-cor
-         s 5.0.1) + sqlite3
-       7 Date:     2026-10-01
-       8 Architecture: A) Monolítica: 4 arquivos; `models.py` concentra S
-         QL de 4 domínios e regra de desconto, `app.py` mistura config, r
+       5 Stack:    Python 3.14.4 + Flask 3.1.1 (flask-cors 5.0.1, Werkzeu
+         g 3.1.8)
+       7 Date:     2026-10-15
+       8 Architecture: A) Monolítica: 4 arquivos na raiz, sem pastas de c
+         amada; `controllers.py` e `models.py` atendem 4 domínios cada e 
        9 
       10 ## Summary
-     … +472 lines (ctrl+o to expand)
+     … +583 lines (ctrl+o to expand)
+
+● Update(reports\audit-report.md)
+  ⎿  Added 1 line, removed 1 line
+      221      return jsonify({"erro": "Nome é obrigatório"}), 400     # 
+           controllers.py:30 e 74
+      222  ```
+      223  Impact: as correções precisam ser feitas em vários lugares, e 
+           a regra de categoria já está inconsistente entre create e upda
+           te.
+      224 -Recommendation: `validar_produto(dados)` única no model de pro
+          -duto, usada por create e update; `_produto_to_dict`/`_usuario_
+          -to_dict`; uma função de listagem de pedidos com filtro opciona
+          -l (PT-11). Manter o comportamento do update quanto ao que ele 
+          -aceita hoje? Não: a regra única aplica a validação completa no
+          -s dois, o que alinha o `PUT` ao `POST`.                       
+      224 +Recommendation: `validar_produto(dados)` única no model de pro
+          +duto, usada por create e update; `_produto_to_dict`/`_usuario_
+          +to_dict`; uma função de listagem de pedidos com filtro opciona
+          +l (PT-11). A regra única aplica a validação completa nos dois 
+          +casos, o que alinha o `PUT` ao `POST`.                        
+      225  Contract change: YES: `PUT /produtos/<id>` com categoria invál
+           ida ou nome fora de 2-200 caracteres passa a responder 400, co
+           mo já acontece no `POST`.
+      226  
+      227  ### F-13 [MEDIUM] Erro engolido / sem handler central / valida
+           ção ausente (AP-12)
 
 ● ================================
   PHASE 1: PROJECT ANALYSIS
   ================================
-  Language:      Python 3.14.4 (.venv; nenhuma versão declarada no projeto)
-  Framework:     Flask 3.1.1 (Werkzeug 3.1.8)
-  Dependencies:  flask==3.1.1, flask-cors==5.0.1 (dados: sqlite3 da stdlib)
-  Database:      SQLite via driver cru sqlite3, arquivo loja.db (não versionado)
-  Domain:        API de e-commerce (produtos, usuários, pedidos, itens de 
-  pedido, relatório de vendas)
-  Architecture:  A) Monolítica: 4 arquivos; models.py concentra SQL de 4 
-  domínios e a regra de desconto, app.py mistura config, rotas e SQL
-  Entry point:   app.py → `python app.py` (0.0.0.0:5000, debug=True); schema e 
-  seed rodam no boot via get_db()
-  Source files:  4 files analyzed | ~780 lines (não há scripts auxiliares)
+  Language:      Python 3.14.4 (interpretador da .venv; versão não declarada no 
+  manifesto)
+  Framework:     Flask 3.1.1 (Werkzeug 3.1.8 instalado)
+  Dependencies:  flask==3.1.1, flask-cors==5.0.1 (dados: sqlite3 da stdlib; 
+  nenhuma dependência declarada sem uso)
+  Database:      SQLite via driver cru sqlite3 (SQL manual), arquivo loja.db 
+  (não versionado), schema e seed no 1º get_db()
+  Domain:        API de e-commerce (produtos, usuários, pedidos/itens, relatório
+  de vendas)
+  Architecture:  A) Monolítica: 4 arquivos na raiz; controllers.py e models.py 
+  atendem 4 domínios cada; app.py mistura config, rotas e SQL
+  Entry point:   app.py: `python app.py`, 0.0.0.0:5000, debug=True; sem 
+  pré-requisito (seed automático no boot)
+  Source files:  4 files analyzed | ~780 lines (app 88, controllers 292, 
+  database 86, models 314; sem scripts auxiliares)
   DB tables:     produtos, usuarios, pedidos, itens_pedido
   Endpoints:     19 endpoints (lista abaixo)
   ================================
@@ -111,6 +161,9 @@
   ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
   │ GET  │ /                        │ app.index                   │ app.py: │
   │      │                          │                             │ 32      │
+  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
+  │ GET  │ /health                  │ controllers.health_check    │ app.py: │
+  │      │                          │                             │ 30      │
   ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
   │ GET  │ /produtos                │ controllers.listar_produtos │ app.py: │
   │      │                          │                             │ 11      │
@@ -157,14 +210,11 @@
   │ GET  │ /relatorios/vendas       │ controllers.relatorio_venda │ app.py: │
   │      │                          │ s                           │ 28      │
   ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
-  │ GET  │ /health                  │ controllers.health_check    │ app.py: │
-  │      │                          │                             │ 30      │
-  ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
   │ POST │ /admin/reset-db          │ app.reset_database ⚠        │ app.py: │
   │      │                          │ destrutiva                  │ 47      │
   ├──────┼──────────────────────────┼─────────────────────────────┼─────────┤
   │ POST │ /admin/query             │ app.executar_query ⚠        │ app.py: │
-  │      │                          │ destrutiva                  │ 59      │
+  │      │                          │ destrutiva (SQL arbitrário) │ 59      │
   └──────┴──────────────────────────┴─────────────────────────────┴─────────┘
 
   ---
@@ -173,179 +223,178 @@
   ARCHITECTURE AUDIT REPORT
   ================================
   Project:  code-smells-project
-  Stack:    Python 3.14.4 + Flask 3.1.1 (Werkzeug 3.1.8, flask-cors 5.0.1) + 
-  sqlite3
+  Stack:    Python 3.14.4 + Flask 3.1.1 (flask-cors 5.0.1, Werkzeug 3.1.8)
   Files:    4 analyzed | ~780 lines of code
-  Date:     2026-10-01
-  Architecture: A) Monolítica
+  Date:     2026-10-15
+  Architecture: A) Monolítica: 4 arquivos na raiz, sem pastas de camada
 
   Summary
 
-  CRITICAL: 6 | HIGH: 3 | MEDIUM: 3 | LOW: 3
+  CRITICAL: 6 | HIGH: 4 | MEDIUM: 3 | LOW: 3
 
   ID: F-01
   Severity: CRITICAL
   Anti-pattern: SQL Injection (AP-01)
-  Location: models.py: 19 queries (28, 48, 58, 68, 92, 110, 127, 140, 149, 155,
-  158, 164, 174, 188, 192, 220, 224, 280, 291-297)
+  Location: models.py: 19 queries (28, 47-50, 57-61, 68, 92, 109-111, 126-129,
+  140, 148-151, 155, 157-161, 163-166, 174, 188, 192, 220, 224, 279-281,
+  289-299)
   ────────────────────────────────────────
   ID: F-02
   Severity: CRITICAL
   Anti-pattern: Credenciais hardcoded (AP-02)
-  Location: app.py:7, controllers.py:289
+  Location: app.py:7, 8, 88; controllers.py:287-289
   ────────────────────────────────────────
   ID: F-03
   Severity: CRITICAL
   Anti-pattern: Senha em texto puro (AP-03)
-  Location: models.py:110, 127-128; database.py:76-78
+  Location: models.py:109-111, 126-129; database.py:75-83
   ────────────────────────────────────────
   ID: F-04
   Severity: CRITICAL
   Anti-pattern: Exposição de dados sensíveis (AP-04)
-  Location: models.py:83, 99; controllers.py:286-289
+  Location: models.py:83, 99; controllers.py:285-289
   ────────────────────────────────────────
   ID: F-05
   Severity: CRITICAL
   Anti-pattern: Endpoint sensível sem autenticação (AP-05)
-  Location: app.py:47-57, 59-78, 14-16, 18, 24, 26, 28
+  Location: app.py:14, 15, 16, 18, 19, 23, 26, 47-57, 59-78
   ────────────────────────────────────────
   ID: F-06
   Severity: CRITICAL
   Anti-pattern: God File (AP-06)
-  Location: models.py, app.py, controllers.py, database.py
+  Location: app.py, controllers.py, models.py
   ────────────────────────────────────────
   ID: F-07
   Severity: HIGH
-  Anti-pattern: Regra de negócio na camada errada (AP-07)
-  Location: models.py:139-146, 256-262; controllers.py:208-210, 247-250
+  Anti-pattern: Leitura de dados de terceiros sem auth (AP-05)
+  Location: app.py:24, 25, 28
   ────────────────────────────────────────
   ID: F-08
+  Severity: HIGH
+  Anti-pattern: Regra de negócio na camada errada (AP-07)
+  Location: models.py:256-262; controllers.py:52-54, 208-210, 247-250, 264-274;
+  app.py:47-78
+  ────────────────────────────────────────
+  ID: F-09
   Severity: HIGH
   Anti-pattern: Estado global mutável (AP-08)
   Location: database.py:4-11
   ────────────────────────────────────────
-  ID: F-09
-  Severity: HIGH
-  Anti-pattern: Escrita em várias etapas sem transação e exclusão física (AP-09)
-  Location: models.py:148-168, 68; app.py:51-55
-  ────────────────────────────────────────
   ID: F-10
-  Severity: MEDIUM
-  Anti-pattern: Query N+1 e queries repetidas (AP-10)
-  Location: models.py:187-193, 219-225, 140+155, 239-254; controllers.py:268-274
+  Severity: HIGH
+  Anti-pattern: Sem transação + exclusão física (AP-09)
+  Location: models.py:133-169, 65-70
   ────────────────────────────────────────
   ID: F-11
   Severity: MEDIUM
-  Anti-pattern: Código duplicado (AP-11)
-  Location: 7 blocos em models.py e controllers.py
+  Anti-pattern: Query N+1 (AP-10)
+  Location: models.py:187-199, 219-231, 139-141, 154-156, 239-254;
+  controllers.py:268-274
   ────────────────────────────────────────
   ID: F-12
   Severity: MEDIUM
-  Anti-pattern: Erros engolidos, sem handler central e sem validação (AP-12)
-  Location: 17× except Exception, além de 500s causados por entrada inválida
+  Anti-pattern: Código duplicado (AP-11)
+  Location: controllers.py:28-50, 72-90; models.py (7 blocos)
   ────────────────────────────────────────
   ID: F-13
-  Severity: LOW
-  Anti-pattern: Magic numbers (AP-14)
-  Location: models.py:257-262; controllers.py:47-52, 242
+  Severity: MEDIUM
+  Anti-pattern: Erro engolido / validação ausente (AP-12)
+  Location: 17 except genéricos; controllers.py:118-121, 169-170, 239-245
   ────────────────────────────────────────
   ID: F-14
+  Severity: LOW
+  Anti-pattern: Magic numbers (AP-14)
+  Location: models.py:247-262; controllers.py:52, 242, 285-286; app.py:36
+  ────────────────────────────────────────
+  ID: F-15
   Severity: LOW
   Anti-pattern: Código morto (AP-14)
   Location: database.py:2; models.py:2; controllers.py:268
   ────────────────────────────────────────
-  ID: F-15
+  ID: F-16
   Severity: LOW
-  Anti-pattern: Logging com print e debug fixo (AP-14)
-  Location: 19 prints; app.py:8, 88
+  Anti-pattern: Logging inadequado (AP-14)
+  Location: 19 print (app.py 5, controllers.py 14)
 
-  Principais pontos (o texto completo, com evidências, está em
-  reports/audit-report.md):
-  - Login sem senha: com email = "admin@loja.com' --", o login como admin
-    funciona sem senha.
-  - Banco aberto para qualquer um: /admin/query executa qualquer SQL sem
-    autenticação, e /admin/reset-db apaga o banco também sem autenticação.
-  - Senhas e chave expostas: GET /usuarios devolve as senhas, que estão gravadas
-    em texto puro. /health devolve a secret_key.
-  - Quantidade negativa aumenta o estoque: um pedido com quantidade negativa
-    soma ao estoque em vez de subtrair (F-12).
-  - Histórico perdido no DELETE: excluir um produto deixa o histórico dos
-    pedidos com o nome "Desconhecido" (F-09).
-  - Cancelamento não devolve estoque: a mensagem "Devolver estoque" aparece, mas
-    o estoque não é devolvido. Isso foi só registrado e não será alterado.
+  Principais findings
+
+  - F-01: 15 das 19 queries concatenam valores vindos da requisição. Com email =
+    "admin@loja.com' --" dá para entrar como admin sem senha. A busca ?q=
+    permite UNION SELECT em qualquer tabela. → todas parametrizadas com ?
+    (PT-01).
+  - F-02/F-04: a SECRET_KEY está escrita no código e o /health a devolve junto
+    com debug e db_path. GET /usuarios e GET /usuarios/<id> devolvem a senha de
+    todos os usuários.
+  - F-03: as senhas são gravadas em texto puro e conferidas dentro do SQL. →
+    werkzeug.security + migração no boot que gera o hash das senhas existentes.
+  - F-05: o projeto não tem nenhuma autenticação. /admin/query executa SQL vindo
+    do body, /admin/reset-db apaga o banco, e qualquer anônimo altera produto,
+    preço e estoque, muda o status de pedidos e cria pedidos em nome de outro
+    usuário. Escritas que ficam públicas, com justificativa: POST /usuarios
+    (cadastro, o tipo não vem do body) e POST /login.
+  - F-10: criar_pedido grava em 3 tabelas sem rollback, e na conexão global o
+    commit() de outra requisição persiste escritas pela metade. A baixa de
+    estoque não tem condição, então o estoque pode ficar negativo. O DELETE de
+    produto é físico e faz os pedidos antigos mostrarem "Desconhecido".
+  - F-12: o PUT /produtos já diverge do POST e aceita categoria inválida.
+  - F-13: PUT /pedidos/<id>/status responde 200 mesmo quando o pedido não
+    existe.
+
+  Os 16 findings completos, com evidência, impacto e recomendação de cada um,
+  estão em reports/audit-report.md.
 
   Deprecated APIs
 
-  Nenhuma foi encontrada na análise estática. A prova com o app rodando (-W 
-  default) fica para o baseline da Fase 3.
+  Nenhum padrão da tabela do AP-13 aparece no código para Python 3.14 / Flask
+  3.1.1. Vou confirmar rodando com -W default no baseline da Fase 3.
 
   Refactoring Plan (Phase 3 preview)
 
-  Strategy: A, decomposição completa.
+  Strategy: A) decomposição completa.
+  Target structure (§4 Flask): app.py (create_app) · config/settings.py ·
+  database.py (conexão por requisição em flask.g, schema, migrações, seed) ·
+  models/ · controllers/ · views/ (Blueprints só delegam) ·
+  services/notificacao_service.py · middlewares/error_handler.py e auth.py ·
+  utils/constants.py · .env.example. controllers.py e models.py da raiz são
+  removidos. As URLs e os endpoint names continuam os mesmos.
 
-  Target structure:
-  - app.py com create_app() e config/settings.py lendo as variáveis de ambiente.
-  - database.py: conexão por requisição em flask.g, migrações, seed e
-    transaction().
-  - Camadas por domínio:
-    - models/{produto,usuario,pedido,relatorio}_model.py
-    - controllers/{produto,usuario,pedido,relatorio,health,admin}_controller.py
-    - views/*_routes.py, com Blueprints que só delegam para os controllers.
-  - Apoio:
-    - services/notificacao_service.py
-    - middlewares/error_handler.py e middlewares/auth.py
-    - utils/constants.py
-    - .env.example
-  - controllers.py e models.py da raiz serão removidos.
+  Contract changes requiring approval:
+  - F-04: senha sai das respostas de usuário. secret_key, debug e db_path saem
+    do /health.
+  - F-05: /admin/query é removida (404). POST /login passa a devolver
+    dados.token. Exigem Bearer token:
+    - só admin: /admin/reset-db, POST/PUT/DELETE /produtos, PUT 
+      /pedidos/<id>/status, GET /usuarios;
+    - dono ou admin: GET /usuarios/<id>, POST /pedidos.
+    - Sem token → 401; sem o papel ou sem ser o dono → 403.
+  - F-07: GET /pedidos e GET /relatorios/vendas passam a ser só admin. GET 
+    /pedidos/usuario/<id> passa a ser dono ou admin.
+  - F-10: DELETE /produtos/<id> vira soft delete: a tabela produtos ganha
+    removido_em e removido_por, com ALTER TABLE no boot e sem cascata. A
+    resposta do DELETE não muda.
+  - F-12: o PUT /produtos passa a validar categoria e tamanho do nome como o
+    POST (400).
+  - F-13: entrada malformada passa de 500 para 400. O 500 não devolve mais
+    str(e). Status de pedido inexistente passa de 200 para 404.
 
-  Soft delete:
-  - Os produtos ganham as colunas removido e removido_em, adicionadas com ALTER 
-    TABLE no boot quando ainda não existirem.
-  - As leituras de negócio filtram removido = 0.
-  - O histórico dos pedidos e o relatório mantêm o nome do produto.
-
-  Mudanças de contrato que precisam da sua aprovação:
-  1. Campos sensíveis removidos: senha sai das respostas de /usuarios.
-     secret_key, debug e db_path saem do /health.
-  2. /admin/query deixa de existir: a rota passa a responder 404.
-  3. Rotas que passam a exigir token de admin (401 sem token, 403 sem papel
-     admin):
-     - /admin/reset-db
-     - GET /usuarios
-     - GET /pedidos
-     - /relatorios/vendas
-     - POST, PUT e DELETE em /produtos
-     - PUT /pedidos/<id>/status
-  4. /login passa a devolver dados.token.
-  5. Erros e validação:
-     - Entradas inválidas que hoje dão 500 passam a dar 400.
-     - quantidade ≤ 0 passa a dar 400.
-     - Mudar o status de um pedido inexistente passa a dar 404 em vez de 200.
-     - Erros 500 deixam de mostrar a mensagem interna.
-
-  Fora do escopo: devolver o estoque no cancelamento e unificar a validação
-  entre POST e PUT /produtos. As duas mudariam o comportamento atual.
+  Out of scope:
+  - Devolver estoque no cancelamento: hoje só existe um print, e implementar
+    seria regra de negócio nova.
+  - E-mail duplicado em usuarios: a tabela não tem UNIQUE; fica só como
+    observação.
 
   ================================
-  Total: 15 findings
+  Total: 16 findings
   ================================
 
   Phase 2 complete. Report saved to reports/audit-report.md.
   Proceed with refactoring (Phase 3)? [y/n]
 
-✻ Sautéed for 3m 14s · done 9:04
+✻ Worked for 4m 46s · done 19:44
 
-❯ y, mas restrinja o F-05: remova /admin/query e exija token de admin apenas em 
-  /admin/reset-db, DELETE /produtos/<id> e                                      
-    GET /relatorios/vendas (mesmo critério do outro projeto: rotas              
-  administrativas, destrutivas e financeiras). As demais                        
-    rotas continuam públicas como hoje; registre a autenticação delas como      
-  recomendação fora do escopo.                                                  
+❯ y                                                                             
 
-● Plano ajustado: /admin/query sai, e o token de admin passa a ser exigido só em
-  /admin/reset-db, DELETE /produtos/<id> e GET /relatorios/vendas. As demais
-  rotas continuam públicas, e a autenticação delas fica registrada como
-  recomendação fora do escopo. Começando a Fase 3.
+● Seguindo para a Fase 3. Lendo as referências.
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review/code-smells-projec
       t/.claude/skills/refactor-arch/references" && sed -n 1,92p
@@ -360,171 +409,218 @@
   ⎿  # Playbook de Refatoração
 
      Referência da **Fase 3 (Refatoração)**. Para cada anti-pattern do catá
-     … +713 lines (ctrl+o to expand)
+     … +689 lines (ctrl+o to expand)
 
   Read 1 file (ctrl+o to expand)
 
-● Antes de mudar qualquer coisa, vou gravar o baseline. Vou escrever um harness
-  que apaga o loja.db, sobe o app com -W default, chama todos os endpoints e
-  grava os resultados.
+● Encontrei uma divergência: o PT-09 pede a coluna removido além de
+  removido_em/removido_por, mas o F-10 do relatório menciona só as duas últimas.
+  Vou atualizar o F-10 para incluir removido, mantendo relatório e código
+  alinhados conforme a regra 8.
 
-  Made 1 scratchpad edit +161 (ctrl+o to expand)
-
-● Bash(S="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-De
-      safios-Praticos-skill-review-code-smells-project/61538d37-189d-4f87-971d-f
-      1b3135fe00a/s…)
-  ⎿  200 GET    /                                                         i
-     ndex                               ['endpoints', 'mensagem', 'versao']
-     200 GET    /produtos                                                 l
-     … +107 lines (ctrl+o to expand)
-  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
-     Praticos\skill_review\code-smells-project
-  ⎿  (timeout 3m)
-
-● Baseline de 57 chamadas gravado, sem warnings de deprecation; o harness
-  confirmou que o login por injeção passa e que quantidade negativa é aceita
-  (201). Agora vou conferir alguns corpos de resposta de referência.
-
-● Bash(cd "C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
-      esafios-Praticos-skill-review-code-smells-project/61538d37-189d-4f87-971d-
-      f1b3135fe00a/…)
-  ⎿  produto por id {"dados": {"ativo": 1, "categoria": "informatica", "cri
-     ado_em": "2026-10-01 12:07:17", "descricao": "Notebook potente para jo
-     gos", "estoque": 10, "id": 1, "nome": "Notebook Gamer", "preco": 5999.
-     … +36 lines (ctrl+o to expand)
-  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
-     Praticos\skill_review\code-smells-project
-
-● Agora vou registrar no relatório o ajuste do F-05 que você aprovou e, em
-  seguida, começar as transformações pelo bloco de config.
 ● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && .venv/Scripts/python.exe -
-      <<'EOF'
-      p = "reports/audit-report.md"…)
-  ⎿  282:- F-05 (ajustado pelo usuário na aprovação): `POST /admin/query` r
-     emovida (404); `POST /admin/reset-db`, `DELETE /produtos/<id>` e `GET
-     /relatorios/vendas` passam a exigir `Authorization: Bearer <token>` de
-     … +9 lines (ctrl+o to expand)
+      Praticos/skill_review/code-smells-project" && python - <<'EOF'
+      p="reports/audit-report.md"…)  ⎿  191:2. Soft delete de produtos: tabela `produtos` ganha `removido INTE
+     GER NOT NULL DEFAULT 0`, `removido_em TIMESTAMP NULL` e `removido_por
+     INTEGER NULL` (id do admin do token). `DELETE /produtos/<id>` faz `UPD
+     … +11 lines (ctrl+o to expand)
   ⎿  1 file changed (binary, mode only or too large to show)
 
-● Bloco 1: config e constantes (PT-02, PT-14)
+● 3.0 Baseline
+
+  Vou escrever o script de chamadas no scratchpad. Ele é reutilizado na
+  validação e sempre envia o token de admin quando o login devolve um. O app
+  original ignora esse header.
+
+  Made 1 scratchpad edit +111 (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && SP="C:/Users/VINICI~1.VEN/Ap
+      pData/Local/Temp/claude/C--Treinamentos-MBA-Desafios-…)
+  ⎿  GET    /                                             200  ['endpoints'
+     , 'mensagem', 'versao']
+     GET    /health                                       200  ['ambiente',
+     … +55 lines (ctrl+o to expand)
+
+● Bash(SP="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
+      esafios-Praticos-skill-review-code-smells-project/2a3af826-fc00-41c4-bd2b-
+      5b14d83f2df6/…)
+  ⎿  /produtos/busca?preco_min=abc (erro) {"erro": "could not convert strin
+     g to float: 'abc'"}
+     /login sem body (erro) {"erro": "415 Unsupported Media Type: Did not a
+     … +13 lines (ctrl+o to expand)
+  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
+     Praticos\skill_review\code-smells-project
+
+● Baseline confirmado: F-10 (pedido antigo "Desconhecido" pós-DELETE), F-13 (500
+  com str(e) e status 999 retornando 200) e F-04 (senha/secret_key expostos na
+  resposta), sem warnings de deprecation além do aviso padrão do servidor dev.
+  Agora vou parar o processo, lembrando que o reloader do debug gera dois
+  processos.
+
+● PowerShell(Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+            Where-Object { $_.CommandLine -like '*app.py*' } | ForEach-Object {
+            Stop-Process -Id $_.ProcessId -F…)
+  ⎿  killed 17184
+     Stop-Process: Não é possível localizar um processo com o identificador
+      de processo 25492.
+     … +4 lines (ctrl+o to expand)
+
+● Registrei o baseline (37 chamadas, 19 rotas) e defini o plano de transformação
+  mapeando cada parte do código legado para a nova estrutura modular (config,
+  models, controllers, views, services, middlewares). Agora vou iniciar a
+  execução pelo bloco 1: config + utils.
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios
       Praticos/skill_review/code-smells-project" && mkdir -p config models
-      controllers views services middlewares utils && touch conf…)
-  ⎿  ok 5000
+      controllers views services middlewares utils && for d in c…)
+  ⎿  ok
   ⎿  Created config\__init__.py (+0 -0)
-  ⎿  Created controllers\__init__.py (+0 -0)
-  ⎿  Created middlewares\__init__.py (+0 -0)
   ⎿  Created models\__init__.py (+0 -0)
   ⎿  Created services\__init__.py (+0 -0)
-  ⎿  … 3 more files changed
+  ⎿  Created utils\__init__.py (+0 -0)
 
-● Bloco 2: banco por requisição, models, controllers, views e entry point 
-  (PT-06, PT-08, PT-01, PT-09, PT-10)
+● Write(config\settings.py)
+  ⎿  Wrote 19 lines to config\settings.py
+       1 import os
+       2 import secrets
+       3 
+       5 def _bool(nome, padrao="false"):
+       6     return os.environ.get(nome, padrao).strip().lower() in ("1",
+          "true", "yes", "sim")
+       7 
+       9 class Settings:
+      10     # Sem SECRET_KEY no ambiente, uma chave aleatória é gerada p
+         or processo:
+     … +13 lines (ctrl+o to expand)
+
+● Write(utils\constants.py)
+  ⎿  Wrote 19 lines to utils\constants.py
+      1 API_VERSION = "1.0.0"
+      2 
+      3 PAPEL_ADMIN = "admin"
+      4 PAPEL_CLIENTE = "cliente"
+      5 
+      6 CATEGORIAS_VALIDAS = ["informatica", "moveis", "vestuario", "gera
+        l", "eletronicos", "livros"]
+      7 CATEGORIA_PADRAO = "geral"
+      8 NOME_PRODUTO_MIN = 2
+      9 NOME_PRODUTO_MAX = 200
+     … +12 lines (ctrl+o to expand)
+
+● Bloco 2: camadas. Começo pelo database.py e pelos models.
 
 ● Write(database.py)
-  ⎿  Added 146 lines, removed 78 lines
+  ⎿  Added 137 lines, removed 78 lines
         1 +import logging                                                
         2  import sqlite3
         2 -import os                                                     
-        3 +from contextlib import contextmanager                         
-        4  
+        3  
         4 -db_connection = None                                          
         5 -db_path = "loja.db"                                           
-        5 +from flask import current_app, g                              
-        6 +from werkzeug.security import generate_password_hash          
-        7  
-        8 +logger = logging.getLogger(__name__)                          
-        9 +                                                              
-       10 +# Prefixos dos hashes gerados por werkzeug.security           
-       11 +HASH_PREFIXOS = ("scrypt:", "pbkdf2:")                        
-       12 +                                                              
-       13 +PRODUTOS_INICIAIS = [                                         
-       14 +    ("Notebook Gamer", "Notebook potente para jogos", 5999.99,
+        4 +from flask import current_app, g                              
+        5 +from werkzeug.security import generate_password_hash          
+        6  
+        7 +logger = logging.getLogger(__name__)                          
+        8 +                                                              
+        9 +SCHEMA = [                                                    
+       10 +    """                                                       
+       11 +    CREATE TABLE IF NOT EXISTS produtos (                     
+       12 +        id INTEGER PRIMARY KEY AUTOINCREMENT,                 
+       13 +        nome TEXT,                                            
+       14 +        descricao TEXT,                                       
+       15 +        preco REAL,                                           
+       16 +        estoque INTEGER,                                      
+       17 +        categoria TEXT,                                       
+       18 +        ativo INTEGER DEFAULT 1,                              
+       19 +        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,        
+       20 +        removido INTEGER NOT NULL DEFAULT 0,                  
+       21 +        removido_em TIMESTAMP,                                
+       22 +        removido_por INTEGER                                  
+       23 +    )                                                         
+       24 +    """,                                                      
+       25 +    """                                                       
+       26 +    CREATE TABLE IF NOT EXISTS usuarios (                     
+       27 +        id INTEGER PRIMARY KEY AUTOINCREMENT,                 
+       28 +        nome TEXT,                                            
+       29 +        email TEXT,                                           
+       30 +        senha TEXT,                                           
+       31 +        tipo TEXT DEFAULT 'cliente',                          
+       32 +        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP         
+       33 +    )                                                         
+       34 +    """,                                                      
+       35 +    """                                                       
+       36 +    CREATE TABLE IF NOT EXISTS pedidos (                      
+       37 +        id INTEGER PRIMARY KEY AUTOINCREMENT,                 
+       38 +        usuario_id INTEGER,                                   
+       39 +        status TEXT DEFAULT 'pendente',                       
+       40 +        total REAL,                                           
+       41 +        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP         
+       42 +    )                                                         
+       43 +    """,                                                      
+       44 +    """                                                       
+       45 +    CREATE TABLE IF NOT EXISTS itens_pedido (                 
+       46 +        id INTEGER PRIMARY KEY AUTOINCREMENT,                 
+       47 +        pedido_id INTEGER,                                    
+       48 +        produto_id INTEGER,                                   
+       49 +        quantidade INTEGER,                                   
+       50 +        preco_unitario REAL                                   
+       51 +    )                                                         
+       52 +    """,                                                      
+       53 +]                                                             
+       54 +                                                              
+       55 +PRODUTOS_INICIAIS = [                                         
+       56 +    ("Notebook Gamer", "Notebook potente para jogos", 5999.99,
           + 10, "informatica"),                                          
-       15 +    ("Mouse Wireless", "Mouse sem fio ergonômico", 89.90, 50, 
+       57 +    ("Mouse Wireless", "Mouse sem fio ergonômico", 89.90, 50, 
           +"informatica"),                                               
-       16 +    ("Teclado Mecânico", "Teclado mecânico RGB", 299.90, 30, "
+       58 +    ("Teclado Mecânico", "Teclado mecânico RGB", 299.90, 30, "
           +informatica"),                                                
-       17 +    ("Monitor 27''", "Monitor 27 polegadas 144hz", 1899.90, 15
+       59 +    ("Monitor 27''", "Monitor 27 polegadas 144hz", 1899.90, 15
           +, "informatica"),                                             
-       18 +    ("Headset Gamer", "Headset com microfone", 199.90, 25, "in
+       60 +    ("Headset Gamer", "Headset com microfone", 199.90, 25, "in
           +formatica"),                                                  
-       19 +    ("Cadeira Gamer", "Cadeira ergonômica", 1299.90, 8, "movei
+       61 +    ("Cadeira Gamer", "Cadeira ergonômica", 1299.90, 8, "movei
           +s"),                                                          
-       20 +    ("Webcam HD", "Webcam 1080p", 249.90, 20, "informatica"), 
-       21 +    ("Hub USB", "Hub USB 3.0 7 portas", 79.90, 40, "informatic
+       62 +    ("Webcam HD", "Webcam 1080p", 249.90, 20, "informatica"), 
+       63 +    ("Hub USB", "Hub USB 3.0 7 portas", 79.90, 40, "informatic
           +a"),                                                          
-       22 +    ("SSD 1TB", "SSD NVMe 1TB", 449.90, 35, "informatica"),   
-       23 +    ("Camiseta Dev", "Camiseta estampa código", 59.90, 100, "v
+       64 +    ("SSD 1TB", "SSD NVMe 1TB", 449.90, 35, "informatica"),   
+       65 +    ("Camiseta Dev", "Camiseta estampa código", 59.90, 100, "v
           +estuario"),                                                   
-       24 +]                                                             
-       25 +                                                              
-       26 +USUARIOS_INICIAIS = [                                         
-       27 +    ("Admin", "admin@loja.com", "admin123", "admin"),         
-       28 +    ("João Silva", "joao@email.com", "123456", "cliente"),    
-       29 +    ("Maria Santos", "maria@email.com", "senha123", "cliente")
+       66 +]                                                             
+       67 +                                                              
+       68 +USUARIOS_INICIAIS = [                                         
+       69 +    ("Admin", "admin@loja.com", "admin123", "admin"),         
+       70 +    ("João Silva", "joao@email.com", "123456", "cliente"),    
+       71 +    ("Maria Santos", "maria@email.com", "senha123", "cliente")
           +,                                                             
-       30 +]                                                             
-       31 +                                                              
-       32 +SCHEMA = """                                                  
-       33 +CREATE TABLE IF NOT EXISTS produtos (                         
-       34 +    id INTEGER PRIMARY KEY AUTOINCREMENT,                     
-       35 +    nome TEXT,                                                
-       36 +    descricao TEXT,                                           
-       37 +    preco REAL,                                               
-       38 +    estoque INTEGER,                                          
-       39 +    categoria TEXT,                                           
-       40 +    ativo INTEGER DEFAULT 1,                                  
-       41 +    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,            
-       42 +    removido INTEGER NOT NULL DEFAULT 0,                      
-       43 +    removido_em TIMESTAMP                                     
-       44 +);                                                            
-       45 +CREATE TABLE IF NOT EXISTS usuarios (                         
-       46 +    id INTEGER PRIMARY KEY AUTOINCREMENT,                     
-       47 +    nome TEXT,                                                
-       48 +    email TEXT,                                               
-       49 +    senha TEXT,                                               
-       50 +    tipo TEXT DEFAULT 'cliente',                              
-       51 +    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP             
-       52 +);                                                            
-       53 +CREATE TABLE IF NOT EXISTS pedidos (                          
-       54 +    id INTEGER PRIMARY KEY AUTOINCREMENT,                     
-       55 +    usuario_id INTEGER,                                       
-       56 +    status TEXT DEFAULT 'pendente',                           
-       57 +    total REAL,                                               
-       58 +    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP             
-       59 +);                                                            
-       60 +CREATE TABLE IF NOT EXISTS itens_pedido (                     
-       61 +    id INTEGER PRIMARY KEY AUTOINCREMENT,                     
-       62 +    pedido_id INTEGER,                                        
-       63 +    produto_id INTEGER,                                       
-       64 +    quantidade INTEGER,                                       
-       65 +    preco_unitario REAL                                       
-       66 +);                                                            
-       67 +"""                                                           
-       68 +                                                              
-       69 +                                                              
-       70 +def connect(path):                                            
-       71 +    conn = sqlite3.connect(path)                              
-       72 +    conn.row_factory = sqlite3.Row                            
-       73 +    return conn                                               
-       74 +                                                              
-       75 +                                                              
-       76  def get_db():
+       72 +]                                                             
+       73 +                                                              
+       74 +# prefixos dos formatos gerados por werkzeug.security.generate
+          +_password_hash                                                
+       75 +_PREFIXOS_HASH = ("scrypt:", "pbkdf2:")                       
+       76 +                                                              
+       77 +                                                              
+       78 +def connect(path):                                            
+       79 +    conn = sqlite3.connect(path)                              
+       80 +    conn.row_factory = sqlite3.Row                            
+       81 +    return conn                                               
+       82 +                                                              
+       83 +                                                              
+       84  def get_db():
         8 -    global db_connection                                      
         9 -    if db_connection is None:                                 
        10 -        db_connection = sqlite3.connect(db_path, check_same_th
           -read=False)                                                   
        11 -        db_connection.row_factory = sqlite3.Row               
        12 -        cursor = db_connection.cursor()                       
-       77 +    """Conexão da requisição atual, guardada em flask.g e fech
-          +ada no teardown."""                                           
-       78 +    if "db" not in g:                                         
-       79 +        g.db = connect(current_app.config["DATABASE_PATH"])   
-       80 +    return g.db                                               
-       81  
+       85 +    """Conexão da requisição atual (uma por contexto de app, f
+          +echada no teardown)."""                                       
+       86 +    if "db" not in g:                                         
+       87 +        g.db = connect(current_app.config["DB_PATH"])         
+       88 +    return g.db                                               
+       89  
        14 -        cursor.execute("""                                    
        15 -            CREATE TABLE IF NOT EXISTS produtos (             
        16 -                id INTEGER PRIMARY KEY AUTOINCREMENT,         
@@ -566,7 +662,7 @@
        52 -            )                                                 
        53 -        """)                                                  
        54 -        db_connection.commit()                                
-       82  
+       90  
        56 -        cursor.execute("SELECT COUNT(*) FROM produtos")       
        57 -        if cursor.fetchone()[0] == 0:                         
        58 -            produtos = [                                      
@@ -596,11 +692,11 @@
           - estoque, categoria) VALUES (?, ?, ?, ?, ?)",                 
        72 -                produtos                                      
        73 -            )                                                 
-       83 +def close_db(exc=None):                                       
-       84 +    db = g.pop("db", None)                                    
-       85 +    if db is not None:                                        
-       86 +        db.close()                                            
-       87  
+       91 +def close_db(exc=None):                                       
+       92 +    db = g.pop("db", None)                                    
+       93 +    if db is not None:                                        
+       94 +        db.close()                                            
+       95  
        75 -            usuarios = [                                      
        76 -                ("Admin", "admin@loja.com", "admin123", "admin
           -"),                                                           
@@ -615,301 +711,294 @@
        82 -                usuarios                                      
        83 -            )                                                 
        84 -            db_connection.commit()                            
-       88  
+       96  
        86 -    return db_connection                                      
-       89 +@contextmanager                                               
-       90 +def transaction(db):                                          
-       91 +    """Executa o bloco numa transação: commit se tudo der cert
-          +o, rollback em qualquer erro."""                              
-       92 +    db.execute("BEGIN IMMEDIATE")                             
-       93 +    try:                                                      
-       94 +        yield db                                              
-       95 +        db.commit()                                           
-       96 +    except BaseException:                                     
-       97 +        db.rollback()                                         
-       98 +        raise                                                 
-       99 +                                                              
-      100 +                                                              
-      101 +def _garantir_coluna(db, tabela, coluna, ddl):                
-      102 +    # tabela/coluna/ddl são nomes internos fixos, nunca input 
-          +do usuário                                                    
-      103 +    colunas = {row["name"] for row in db.execute(f"PRAGMA tabl
-          +e_info({tabela})")}                                           
-      104 +    if coluna not in colunas:                                 
-      105 +        db.execute(f"ALTER TABLE {tabela} ADD COLUMN {ddl}")  
-      106 +        logger.info("Migração: coluna %s.%s adicionada", tabel
-          +a, coluna)                                                    
-      107 +                                                              
-      108 +                                                              
-      109 +def _migrar_senhas_texto_puro(db):                            
-      110 +    linhas = db.execute("SELECT id, senha FROM usuarios").fetc
-          +hall()                                                        
-      111 +    pendentes = [                                             
-      112 +        (generate_password_hash(row["senha"]), row["id"])     
-      113 +        for row in linhas                                     
-      114 +        if row["senha"] is not None and not row["senha"].start
-          +swith(HASH_PREFIXOS)                                          
-      115 +    ]                                                         
-      116 +    if pendentes:                                             
-      117 +        db.executemany("UPDATE usuarios SET senha = ? WHERE id
-          + = ?", pendentes)                                             
-      118 +        logger.info("Migração: %d senha(s) em texto puro conve
-          +rtida(s) para hash", len(pendentes))                          
-      119 +                                                              
-      120 +                                                              
-      121 +def _popular_dados_iniciais(db):                              
-      122 +    if db.execute("SELECT COUNT(*) FROM produtos").fetchone()[
-          +0] > 0:                                                       
-      123 +        return                                                
-      124 +    db.executemany(                                           
-      125 +        "INSERT INTO produtos (nome, descricao, preco, estoque
-          +, categoria) VALUES (?, ?, ?, ?, ?)",                         
-      126 +        PRODUTOS_INICIAIS,                                    
-      127 +    )                                                         
-      128 +    db.executemany(                                           
-      129 +        "INSERT INTO usuarios (nome, email, senha, tipo) VALUE
-          +S (?, ?, ?, ?)",                                              
-      130 +        [(nome, email, generate_password_hash(senha), tipo) fo
-          +r nome, email, senha, tipo in USUARIOS_INICIAIS],             
-      131 +    )                                                         
-      132 +                                                              
-      133 +                                                              
-      134 +def init_schema(db):                                          
-      135 +    """Cria as tabelas, aplica migrações idempotentes e popula
-          + os dados de exemplo."""                                      
-      136 +    db.executescript(SCHEMA)                                  
-      137 +    with transaction(db):                                     
-      138 +        _garantir_coluna(db, "produtos", "removido", "removido
+       97 +def init_app(app):                                            
+       98 +    app.teardown_appcontext(close_db)                         
+       99 +    with app.app_context():                                   
+      100 +        init_schema(get_db())                                 
+      101 +                                                              
+      102 +                                                              
+      103 +def init_schema(db):                                          
+      104 +    with db:                                                  
+      105 +        for ddl in SCHEMA:                                    
+      106 +            db.execute(ddl)                                   
+      107 +        # bancos criados antes do soft delete não têm estas co
+          +lunas                                                         
+      108 +        _garantir_coluna(db, "produtos", "removido", "removido
           + INTEGER NOT NULL DEFAULT 0")                                 
-      139 +        _garantir_coluna(db, "produtos", "removido_em", "remov
+      109 +        _garantir_coluna(db, "produtos", "removido_em", "remov
           +ido_em TIMESTAMP")                                            
-      140 +        _migrar_senhas_texto_puro(db)                         
-      141 +        _popular_dados_iniciais(db)                           
-      142 +                                                              
-      143 +                                                              
-      144 +def reset_dados(db):                                          
-      145 +    """Apaga todos os registros (rota administrativa /admin/re
-          +set-db)."""                                                   
-      146 +    with transaction(db):                                     
-      147 +        for tabela in ("itens_pedido", "pedidos", "produtos", 
-          +"usuarios"):                                                  
-      148 +            db.execute(f"DELETE FROM {tabela}")               
-      149 +                                                              
-      150 +                                                              
-      151 +def init_app(app):                                            
-      152 +    app.teardown_appcontext(close_db)                         
-      153 +    with app.app_context():                                   
-      154 +        init_schema(get_db())                                 
+      110 +        _garantir_coluna(db, "produtos", "removido_por", "remo
+          +vido_por INTEGER")                                            
+      111 +        _migrar_senhas_em_texto(db)                           
+      112 +        _seed(db)                                             
+      113 +                                                              
+      114 +                                                              
+      115 +def _garantir_coluna(db, tabela, coluna, ddl):                
+      116 +    # tabela/coluna/ddl são nomes internos fixos, nunca entrad
+          +a do usuário                                                  
+      117 +    colunas = {row["name"] for row in db.execute(f"PRAGMA tabl
+          +e_info({tabela})")}                                           
+      118 +    if coluna not in colunas:                                 
+      119 +        db.execute(f"ALTER TABLE {tabela} ADD COLUMN {ddl}")  
+      120 +        logger.info("Migração: coluna %s.%s adicionada", tabel
+          +a, coluna)                                                    
+      121 +                                                              
+      122 +                                                              
+      123 +def _eh_hash(senha):                                          
+      124 +    return bool(senha) and senha.startswith(_PREFIXOS_HASH) an
+          +d senha.count("$") == 2                                       
+      125 +                                                              
+      126 +                                                              
+      127 +def _migrar_senhas_em_texto(db):                              
+      128 +    rows = db.execute("SELECT id, senha FROM usuarios").fetcha
+          +ll()                                                          
+      129 +    pendentes = [(generate_password_hash(r["senha"]), r["id"])
+          + for r in rows if r["senha"] and not _eh_hash(r["senha"])]    
+      130 +    if pendentes:                                             
+      131 +        db.executemany("UPDATE usuarios SET senha = ? WHERE id
+          + = ?", pendentes)                                             
+      132 +        logger.info("Migração: %d senha(s) em texto puro conve
+          +rtidas para hash", len(pendentes))                            
+      133 +                                                              
+      134 +                                                              
+      135 +def _seed(db):                                                
+      136 +    if db.execute("SELECT COUNT(*) FROM produtos").fetchone()[
+          +0] > 0:                                                       
+      137 +        return                                                
+      138 +    db.executemany(                                           
+      139 +        "INSERT INTO produtos (nome, descricao, preco, estoque
+          +, categoria) VALUES (?, ?, ?, ?, ?)",                         
+      140 +        PRODUTOS_INICIAIS,                                    
+      141 +    )                                                         
+      142 +    db.executemany(                                           
+      143 +        "INSERT INTO usuarios (nome, email, senha, tipo) VALUE
+          +S (?, ?, ?, ?)",                                              
+      144 +        [(nome, email, generate_password_hash(senha), tipo) fo
+          +r nome, email, senha, tipo in USUARIOS_INICIAIS],             
+      145 +    )                                                         
 
-● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && cat >
-      middlewares/error_handler.py <<'EOF'
-      import logging…)
-  ⎿  Error: Exit code 2
-     /usr/bin/bash: -c: line 176: unexpected EOF while looking for matching `''
+● Write(models\produto_model.py)
+  ⎿  Wrote 144 lines to models\produto_model.py
+       1 from numbers import Number
+       2 
+       3 from utils.constants import CATEGORIA_PADRAO, CATEGORIAS_VALIDAS
+       4 
+       5 _COLUNAS = "id, nome, descricao, preco, estoque, categoria, ativ
+         o, criado_em"
+       6 
+       8 def _to_dict(row):
+       9     return {
+      10         "id": row["id"],
+     … +151 lines (ctrl+o to expand)
 
-● Um heredoc falhou no Git Bash. Vou criar esses arquivos com a ferramenta
-  Write.
+● Write(models\usuario_model.py)
+  ⎿  Wrote 45 lines to models\usuario_model.py
+       1 from werkzeug.security import check_password_hash, generate_pass
+         word_hash
+       2 
+       3 from utils.constants import PAPEL_CLIENTE
+       4 
+       6 def _to_dict(row):
+       7     # serializador público: a senha (hash) nunca sai do model
+       8     return {
+       9         "id": row["id"],
+      10         "nome": row["nome"],
+     … +44 lines (ctrl+o to expand)
 
-● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && ls -la middlewares models;
-      git status --short)
-  ⎿  middlewares:
-     total 4
-     drwxr-xr-x 1 vinicius.ventura 1049089 0 Oct  1 09:08 .
-     … +16 lines (ctrl+o to expand)
+● Write(models\pedido_model.py)
+  ⎿  Wrote 98 lines to models\pedido_model.py
+       1 from models import produto_model
+       2 from utils.constants import STATUS_APROVADO, STATUS_CANCELADO, S
+       3 
+       4 
+       5 class PedidoInvalidoError(Exception):
+         istente, estoque insuficiente)."""
+       7 
+       8 
+      10     """Cria pedido, itens e baixa de estoque numa transação únic
+         a. Levanta PedidoInvalidoError."""
+     … +105 lines (ctrl+o to expand)
+
+● Write(models\relatorio_model.py)
+  ⎿  Wrote 26 lines to models\relatorio_model.py
+      1 from models import pedido_model
+      2 from utils.constants import FAIXAS_DESCONTO
+      3 
+      4 
+      5 def calcular_desconto(faturamento):
+      6     for limite, percentual in FAIXAS_DESCONTO:
+      7         if faturamento > limite:
+      8             return faturamento * percentual
+      9     return 0
+     … +18 lines (ctrl+o to expand)
+
+● Write(models\admin_model.py)
+  ⎿  Wrote 7 lines to models\admin_model.py
+      1 def resetar_banco(db):
+      2     """Ferramenta administrativa: esvazia todas as tabelas numa t
+        ransação única."""
+      3     with db:
+      4         db.execute("DELETE FROM itens_pedido")
+      5         db.execute("DELETE FROM pedidos")
+      6         db.execute("DELETE FROM produtos")
+      7         db.execute("DELETE FROM usuarios")
+
+● Agora middlewares e service.
 
 ● Write(middlewares\error_handler.py)
-  ⎿  Wrote 47 lines to middlewares\error_handler.py
+  ⎿  Wrote 46 lines to middlewares\error_handler.py
        1 import logging
        2 
        3 from flask import jsonify
        4 from werkzeug.exceptions import HTTPException
        5 
+       6 logger = logging.getLogger(__name__)
        7 
        8 
        9 class AppError(Exception):
-      10     """Erro de aplicação convertido em {"erro": mensagem, **extr
-         a} com o status da classe."""
-     … +40 lines (ctrl+o to expand)
-
-● Write(models\produto_model.py)
-  ⎿  Wrote 75 lines to models\produto_model.py
-       1 from database import transaction
-       2 
-       3 
-       4 def _to_dict(row):
-       5     return {
-       6         "id": row["id"],
-       7         "nome": row["nome"],
-       8         "descricao": row["descricao"],
-       9         "preco": row["preco"],
-      10         "estoque": row["estoque"],
-     … +73 lines (ctrl+o to expand)
-
-● Write(models\usuario_model.py)
-  ⎿  Wrote 47 lines to models\usuario_model.py
-       1 from werkzeug.security import check_password_hash, generate_pass
-         word_hash
-       2 
-       4 from utils.constants import TIPO_USUARIO_PADRAO
-       5 
-       6 
-       7 def _to_dict(row):
-         "
-       9     return {
-      10         "id": row["id"],
-     … +45 lines (ctrl+o to expand)
-
-● Write(models\pedido_model.py)
-  ⎿  Wrote 95 lines to models\pedido_model.py
-       1 from database import transaction
-       2 from utils.constants import STATUS_PEDIDO_INICIAL
-       3 
-       5 class PedidoInvalidoError(Exception):
-       6     """Regra de domínio violada ao criar um pedido (produto inex
-         istente, estoque insuficiente)."""
-       7 
-       9 def criar(db, usuario_id, itens):
-      10     """Valida estoque, calcula o total e grava pedido, itens e b
-         aixa de estoque numa única transação."""
-     … +99 lines (ctrl+o to expand)
-
-● Write(models\relatorio_model.py)
-  ⎿  Wrote 24 lines to models\relatorio_model.py
-       1 from utils.constants import FAIXAS_DESCONTO
-       2 
-       3 
-       5     """Totais de pedidos e faturamento em uma única agregação.""
-         "
-       6     row = db.execute(
-       7         """
-       9                COALESCE(SUM(total), 0) AS faturamento,
-      10                COALESCE(SUM(CASE WHEN status = 'pendente' THEN 1
-          ELSE 0 END), 0) AS pendentes,
-     … +18 lines (ctrl+o to expand)
-
-● Agora o service, o middleware de auth e os controllers.
-
-● Write(services\notificacao_service.py)
-  ⎿  Wrote 17 lines to services\notificacao_service.py
-       1 """Notificações ao cliente (e-mail, SMS, push). Simuladas por lo
-         g até existir um provedor real."""
-       3 
-       4 logger = logging.getLogger(__name__)
-       5 
-       7 def notificar_pedido_criado(pedido_id, usuario_id):
-       8     logger.info("ENVIANDO EMAIL: Pedido %s criado para usuario %
-         s", pedido_id, usuario_id)
-      10     logger.info("ENVIANDO PUSH: Novo pedido recebido pelo sistem
-         a")
-     … +11 lines (ctrl+o to expand)
+      10     status_code = 400
+     … +39 lines (ctrl+o to expand)
 
 ● Write(middlewares\auth.py)
-  ⎿  Wrote 32 lines to middlewares\auth.py
+  ⎿  Wrote 41 lines to middlewares\auth.py
        1 from functools import wraps
        2 
-       4 from itsdangerous import BadSignature, SignatureExpired, URLSafe
+       3 from flask import current_app, g, request
          TimedSerializer
        5 
+       6 from middlewares.error_handler import ForbiddenError, Unauthoriz
          edError
-       7 
        8 
-      10     return URLSafeTimedSerializer(current_app.config["SECRET_KEY
-         "], salt="auth")
-     … +28 lines (ctrl+o to expand)
+       9 
+      10 def _serializer():
+     … +40 lines (ctrl+o to expand)
+
+● Write(services\notificacao_service.py)
+  ⎿  Wrote 19 lines to services\notificacao_service.py
+       1 """Notificações ao cliente. Os envios ainda são simulados (só re
+         gistram em log), como no código original."""
+       2 import logging
+       4 from utils.constants import STATUS_APROVADO, STATUS_CANCELADO
+       5 
+       6 logger = logging.getLogger(__name__)
+       7 
+       9 def notificar_pedido_criado(pedido_id, usuario_id):
+      10     logger.info("ENVIANDO EMAIL: Pedido %s criado para usuario %
+         s", pedido_id, usuario_id)
+     … +13 lines (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && : > middlewares/__init__.py
+      && : > controllers/__init__.py && echo ok)
+  ⎿  ok
+  ⎿  Created controllers\__init__.py (+0 -0)
+  ⎿  Created middlewares\__init__.py (+0 -0)
+
+● Agora os controllers. Ficam com o fluxo e a validação de entrada, sem SQL e
+  sem try/except genérico.
+● Write(controllers\comum.py)
+  ⎿  Wrote 10 lines to controllers\comum.py
+       1 from flask import request
+       2 
+       3 
+       5     """Body JSON da requisição, ou None se ausente/malformado (v
+         ira 400 no controller, não 500)."""
+       6     return request.get_json(silent=True)
+       7 
+       9 def eh_inteiro(valor):
+      10     return isinstance(valor, int) and not isinstance(valor, bool
+         )
+     … +1 line (ctrl+o to expand)
 
 ● Write(controllers\produto_controller.py)
-  ⎿  Wrote 114 lines to controllers\produto_controller.py
-      1 import logging
-      2 from numbers import Number
-      3 
-      4 from flask import jsonify, request
-      5 
-      7 from middlewares.error_handler import NotFoundError, ValidationEr
-        ror
-      8 from models import produto_model
-      9 from utils.constants import CATEGORIA_PADRAO, CATEGORIAS_VALIDAS,
-         NOME_PRODUTO_MAX, NOME_PRODUTO_MIN
-     … +114 lines (ctrl+o to expand)
-
-● Write(controllers\usuario_controller.py)
-  ⎿  Wrote 60 lines to controllers\usuario_controller.py
+  ⎿  Wrote 69 lines to controllers\produto_controller.py
        1 import logging
        2 
-       3 from flask import jsonify, request
+       3 from flask import g, jsonify, request
        4 
-       5 from database import get_db
-       7 from middlewares.error_handler import NotFoundError, Unauthorize
-         dError, ValidationError
-       8 from models import usuario_model
+       5 from controllers.comum import ler_json
+       7 from middlewares.error_handler import NotFoundError, ValidationE
+         rror
+       8 from models import produto_model
        9 
       10 logger = logging.getLogger(__name__)
-     … +56 lines (ctrl+o to expand)
+     … +66 lines (ctrl+o to expand)
+
+● Write(controllers\usuario_controller.py)
+  ⎿  Wrote 64 lines to controllers\usuario_controller.py
+      1 import logging
+      2 
+      3 from flask import jsonify
+      4 
+      5 from controllers.comum import ler_json
+      6 from database import get_db
+      7 from middlewares.auth import emitir_token, exigir_dono_ou_admin
+      8 from middlewares.error_handler import NotFoundError, Unauthorized
+        Error, ValidationError
+      9 from models import usuario_model
+     … +60 lines (ctrl+o to expand)
 
 ● Write(controllers\pedido_controller.py)
   ⎿  Wrote 66 lines to controllers\pedido_controller.py
-       1 from flask import jsonify, request
-       2 
-       3 from database import get_db
-       4 from middlewares.error_handler import NotFoundError, ValidationE
-         rror
-       6 from services import notificacao_service
-       7 from utils.constants import STATUS_PEDIDO
-       8 
-       9 
-      10 def _inteiro(valor):
+      1 from flask import jsonify
+      2 
+      3 from controllers.comum import eh_inteiro, ler_json
+      4 from database import get_db
+      5 from middlewares.auth import exigir_dono_ou_admin
+      6 from middlewares.error_handler import NotFoundError, ValidationEr
+        ror
+      7 from models import pedido_model
+      8 from services import notificacao_service
+      9 from utils.constants import STATUS_PEDIDO
      … +67 lines (ctrl+o to expand)
 
 ● Write(controllers\relatorio_controller.py)
-  ⎿  Wrote 23 lines to controllers\relatorio_controller.py
-       1 from flask import jsonify
-       2 
-       3 from database import get_db
-       4 from models import relatorio_model
-       5 
-       6 
-       7 def relatorio_vendas():
-       8     totais = relatorio_model.totais_vendas(get_db())
-       9     faturamento = totais["faturamento"]
-      10     total_pedidos = totais["total_pedidos"]
-     … +14 lines (ctrl+o to expand)
+  ⎿  Wrote 8 lines to controllers\relatorio_controller.py
+      1 from flask import jsonify
+      2 
+      3 from database import get_db
+      4 from models import relatorio_model
+      5 
+      6 
+      7 def relatorio_vendas():
+      8     return jsonify({"dados": relatorio_model.relatorio_vendas(get
+        _db()), "sucesso": True}), 200
 
 ● Write(controllers\health_controller.py)
-  ⎿  Wrote 46 lines to controllers\health_controller.py
-       1 import logging
-       2 import sqlite3
-       3 
-       4 from flask import current_app, jsonify
-       5 
-       6 from database import get_db
-       7 from models import pedido_model, produto_model, usuario_model
-       8 from utils.constants import API_VERSAO
-       9 
-      10 logger = logging.getLogger(__name__)
-     … +37 lines (ctrl+o to expand)
+  ⎿  Wrote 47 lines to controllers\health_controller.py
+      1 import logging
+      2 
+      3 from flask import current_app, jsonify
+      4 
+      5 from database import get_db
+      6 from models import pedido_model, produto_model, usuario_model
+      7 from utils.constants import API_VERSION
+      8 
+      9 logger = logging.getLogger(__name__)
+     … +40 lines (ctrl+o to expand)
 
 ● Write(controllers\admin_controller.py)
-  ⎿  Wrote 13 lines to controllers\admin_controller.py
-       1 import logging
-       2 
-       3 from flask import jsonify
-       4 
-       5 import database
-       6 
-       7 logger = logging.getLogger(__name__)
-       8 
-       9 
-      10 def reset_database():
-     … +4 lines (ctrl+o to expand)
-● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && mkdir -p views && printf
-      '%s\n' \
-      'from views.admin_routes import admin_bp' \…)
-  ⎿  from flask import Blueprint
+  ⎿  Wrote 14 lines to controllers\admin_controller.py
+      1 import logging
+      2 
+      3 from flask import g, jsonify
+      4 
+      5 from database import get_db
+      6 from models import admin_model
+      7 
+      8 logger = logging.getLogger(__name__)
+      9 
+     … +6 lines (ctrl+o to expand)
 
-     from controllers import produto_controller
-     … +13 lines (ctrl+o to expand)
+● Agora as views (Blueprints que só delegam e declaram auth) e o entry point.
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && cat >
+      views/produto_routes.py <<'EOF'
+      from flask import Blueprint…)
+  ⎿  ok
   ⎿  Created views\__init__.py (+11 -0)
        1 +from views.admin_routes import admin_bp                        
        2 +from views.health_routes import health_bp                      
@@ -920,65 +1009,84 @@
        7 +                                                               
        8 +                                                               
        9 +def register_blueprints(app):                                  
-      10 +    for blueprint in (produto_bp, usuario_bp, pedido_bp, relato
-         +rio_bp, health_bp, admin_bp):                                  
-      11 +        app.register_blueprint(blueprint)                      
-  ⎿  Created views\admin_routes.py (+8 -0)
-      1 +from flask import Blueprint                                     
-      2 +                                                                
-      3 +from controllers import admin_controller                        
-      4 +from middlewares.auth import require_auth                       
-      5 +from utils.constants import TIPO_ADMIN                          
-      6 +                                                                
-      7 +admin_bp = Blueprint("admin", __name__)                         
-      8 +admin_bp.post("/admin/reset-db")(require_auth(tipo=TIPO_ADMIN)(a
-        +dmin_controller.reset_database))                                
-  ⎿  Created views\health_routes.py (+7 -0)
+      10 +    for bp in (produto_bp, usuario_bp, pedido_bp, relatorio_bp,
+         + health_bp, admin_bp):                                         
+      11 +        app.register_blueprint(bp)                             
+  ⎿  Created views\admin_routes.py (+10 -0)
+       1 +from flask import Blueprint                                    
+       2 +                                                               
+       3 +from controllers import admin_controller                       
+       4 +from middlewares.auth import require_auth                      
+       5 +from utils.constants import PAPEL_ADMIN                        
+       6 +                                                               
+       7 +admin_bp = Blueprint("admin", __name__)                        
+       8 +                                                               
+       9 +# /admin/query (SQL arbitrário vindo do body) foi removida: F-0
+         +5                                                              
+      10 +admin_bp.add_url_rule("/admin/reset-db", "reset_database", requ
+         +ire_auth(papel=PAPEL_ADMIN)(admin_controller.reset_database), m
+         +ethods=["POST"])                                               
+  ⎿  Created views\health_routes.py (+8 -0)
       1 +from flask import Blueprint                                     
       2 +                                                                
       3 +from controllers import health_controller                       
       4 +                                                                
       5 +health_bp = Blueprint("health", __name__)                       
-      6 +health_bp.get("/")(health_controller.index)                     
-      7 +health_bp.get("/health")(health_controller.health_check)        
-  ⎿  Created views\pedido_routes.py (+9 -0)
-      1 +from flask import Blueprint                                     
-      2 +                                                                
-      3 +from controllers import pedido_controller                       
-      4 +                                                                
-      5 +pedido_bp = Blueprint("pedidos", __name__)                      
-      6 +pedido_bp.post("/pedidos")(pedido_controller.criar_pedido)      
-      7 +pedido_bp.get("/pedidos")(pedido_controller.listar_todos_pedidos
-        +)                                                               
-      8 +pedido_bp.get("/pedidos/usuario/<int:usuario_id>")(pedido_contro
-        +ller.listar_pedidos_usuario)                                    
-      9 +pedido_bp.put("/pedidos/<int:pedido_id>/status")(pedido_controll
-        +er.atualizar_status_pedido)                                     
-  ⎿  Created views\produto_routes.py (+13 -0)
+      6 +                                                                
+      7 +health_bp.add_url_rule("/", "index", health_controller.index, me
+        +thods=["GET"])                                                  
+      8 +health_bp.add_url_rule("/health", "health_check", health_control
+        +ler.health_check, methods=["GET"])                              
+  ⎿  Created views\pedido_routes.py (+14 -0)
+       1 +from flask import Blueprint                                    
+       2 +                                                               
+       3 +from controllers import pedido_controller                      
+       4 +from middlewares.auth import require_auth                      
+       5 +from utils.constants import PAPEL_ADMIN                        
+       6 +                                                               
+       7 +pedido_bp = Blueprint("pedidos", __name__)                     
+       8 +admin_only = require_auth(papel=PAPEL_ADMIN)                   
+       9 +autenticado = require_auth()                                   
+      10 +                                                               
+      11 +pedido_bp.add_url_rule("/pedidos", "criar_pedido", autenticado(
+         +pedido_controller.criar_pedido), methods=["POST"])             
+      12 +pedido_bp.add_url_rule("/pedidos", "listar_todos_pedidos", admi
+         +n_only(pedido_controller.listar_todos_pedidos), methods=["GET"]
+         +)                                                              
+      13 +pedido_bp.add_url_rule("/pedidos/usuario/<int:usuario_id>", "li
+         +star_pedidos_usuario", autenticado(pedido_controller.listar_ped
+         +idos_usuario), methods=["GET"])                                
+      14 +pedido_bp.add_url_rule("/pedidos/<int:pedido_id>/status", "atua
+         +lizar_status_pedido", admin_only(pedido_controller.atualizar_st
+         +atus_pedido), methods=["PUT"])                                 
+  ⎿  Created views\produto_routes.py (+15 -0)
        1 +from flask import Blueprint                                    
        2 +                                                               
        3 +from controllers import produto_controller                     
        4 +from middlewares.auth import require_auth                      
-       5 +from utils.constants import TIPO_ADMIN                         
+       5 +from utils.constants import PAPEL_ADMIN                        
        6 +                                                               
        7 +produto_bp = Blueprint("produtos", __name__)                   
-       8 +produto_bp.get("/produtos")(produto_controller.listar_produtos)
-       9 +produto_bp.get("/produtos/busca")(produto_controller.buscar_pro
-         +dutos)                                                         
-      10 +produto_bp.get("/produtos/<int:id>")(produto_controller.buscar_
-         +produto)                                                       
-      11 +produto_bp.post("/produtos")(produto_controller.criar_produto) 
-      12 +produto_bp.put("/produtos/<int:id>")(produto_controller.atualiz
-         +ar_produto)                                                    
-      13 +produto_bp.delete("/produtos/<int:id>")(require_auth(tipo=TIPO_
-         +ADMIN)(produto_controller.deletar_produto))                    
+       8 +admin_only = require_auth(papel=PAPEL_ADMIN)                   
+       9 +                                                               
+      10 +produto_bp.add_url_rule("/produtos", "listar_produtos", produto
+         +_controller.listar_produtos, methods=["GET"])                  
+      11 +produto_bp.add_url_rule("/produtos/busca", "buscar_produtos", p
+         +roduto_controller.buscar_produtos, methods=["GET"])            
+      12 +produto_bp.add_url_rule("/produtos/<int:id>", "buscar_produto",
+         + produto_controller.buscar_produto, methods=["GET"])           
+      13 +produto_bp.add_url_rule("/produtos", "criar_produto", admin_onl
+         +y(produto_controller.criar_produto), methods=["POST"])         
+      14 +produto_bp.add_url_rule("/produtos/<int:id>", "atualizar_produt
+         +o", admin_only(produto_controller.atualizar_produto), methods=[
+         +"PUT"])                                                        
+      15 +produto_bp.add_url_rule("/produtos/<int:id>", "deletar_produto"
+         +, admin_only(produto_controller.deletar_produto), methods=["DEL
+         +ETE"])                                                         
   ⎿  … 2 more files changed
 
-● Agora o entry point. Também removo o controllers.py e o models.py da raiz,
-  cujo código já foi todo migrado para os pacotes.
-
 ● Write(app.py)
-  ⎿  Added 20 lines, removed 79 lines
+  ⎿  Added 22 lines, removed 79 lines
        1 -from flask import Flask, jsonify, request                      
        1 +import logging                                                 
        2 +                                                               
@@ -1033,18 +1141,23 @@
       15 +    app = Flask(__name__)                                      
       16 +    app.config.from_object(settings)                           
       17 +    CORS(app)                                                  
-      18 +    database.init_app(app)                                     
-      19 +    register_blueprints(app)                                   
-      20 +    register_error_handlers(app)                               
-      21 +    return app                                                 
-      22  
+      18 +    if not settings.SECRET_KEY_DO_AMBIENTE:                    
+      19 +        logger.warning("SECRET_KEY não definida no ambiente: us
+         +ando chave aleatória (tokens expiram a cada restart)")         
+      20 +    database.init_app(app)                                     
+      21 +    register_blueprints(app)                                   
+      22 +    register_error_handlers(app)                               
+      23 +    return app                                                 
+      24  
       28 -app.add_url_rule("/relatorios/vendas", "relatorio_vendas", cont
          -rollers.relatorio_vendas, methods=["GET"])                     
-      23  
+      25  
       30 -app.add_url_rule("/health", "health_check", controllers.health_
          -check, methods=["GET"])                                        
-      24 +app = create_app()                                             
-      25  
+      26 +logging.basicConfig(level=logging.INFO, format="%(asctime)s %(l
+         +evelname)s %(name)s: %(message)s")                             
+      27 +app = create_app()                                             
+      28  
       32 -@app.route("/")                                                
       33 -def index():                                                   
       34 -    return jsonify({                                           
@@ -1096,7 +1209,7 @@
       77 -    except Exception as e:                                     
       78 -        return jsonify({"erro": str(e)}), 500                  
       79 -                                                               
-      26  if __name__ == "__main__":
+      29  if __name__ == "__main__":
       81 -                                                               
       82 -    get_db()                                                   
       83 -    print("=" * 50)                                            
@@ -1105,20 +1218,21 @@
       86 -    print("=" * 50)                                            
       87 -                                                               
       88 -    app.run(host="0.0.0.0", port=5000, debug=True)             
-      27 +    logging.basicConfig(level=logging.INFO, format="%(asctime)s
-         + %(levelname)s %(name)s: %(message)s")                         
-      28 +    logger.info("Servidor iniciado em http://%s:%s", Settings.H
+      30 +    logger.info("Servidor iniciado em http://%s:%s", Settings.H
          +OST, Settings.PORT)                                            
-      29 +    app.run(host=Settings.HOST, port=Settings.PORT, debug=Setti
+      31 +    app.run(host=Settings.HOST, port=Settings.PORT, debug=Setti
          +ngs.DEBUG)                                                     
+
+● Removo os arquivos antigos já migrados e confiro se o projeto carrega. Uso
+  DB_PATH temporário para o import não criar loja.db.
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios
       Praticos/skill_review/code-smells-project" && rm controllers.py models.py
-      && DATABASE_PATH="$TEMP/importcheck.db" .venv/Scripts…)
-  ⎿  ['/ GET', '/admin/reset-db POST', '/health GET', '/login POST', '/pedi
-     dos GET', '/pedidos POST', '/pedidos/<int:pedido_id>/status PUT', '/pe
-     didos/usuario/<int:usuario_id> GET', '/produtos GET', '/produtos POST'
-     … +5 lines (ctrl+o to expand)
+      && SP="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claud…)
+  ⎿  2026-10-15 19:52:47,332 WARNING app: SECRET_KEY n�o definida no ambien
+     te: usando chave aleat�ria (tokens expiram a cada restart)
+     ['/ GET', '/admin/reset-db POST', '/health GET', '/login POST', '/pedi
+     … +6 lines (ctrl+o to expand)
   ⎿  Deleted controllers.py (+0 -292)
         1 -from flask import request, jsonify                            
         2 -import models                                                 
@@ -1211,43 +1325,37 @@
        40 -        }                                                     
      … 274 more lines (ctrl+o to expand)
 
-● O app carrega com 18 rotas (as 19 originais menos /admin/query); o loja.db
-  visto é resíduo do baseline, não versionado, apagado pelo harness antes de
-  cada execução. Agora vou verificar .env.example, README e .gitignore.
+● Carrega sem erro, com 18 rotas (as 19 originais menos a /admin/query); o
+  loja.db visto é resíduo do baseline e será apagado antes da validação, assim
+  como na preparação do baseline.
 
-● Bash(cd "C:/Treinamentos/MBA/Desafios Praticos/skill_review" && git rev-parse
-      --show-toplevel; ls -a; cat .gitignore 2>/dev/null; cat
-      code-smells-project/.gitignore…)
-  ⎿  Error: Exit code 1
-     C:/Treinamentos/MBA/Desafios Praticos/skill_review
-     .
-     ..
-     .git
-     .gitignore
-     README.md
-     code-smells-project
-     ecommerce-api-legacy
-     reports
-     … +13 lines (ctrl+o to expand)
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && cat > .env.example <<'EOF'
+      # Chave para assinar os tokens de login. Obrigatória e…)
+  ⎿  ---
+     .gitignore:1:.env       .env
+     .gitignore:11:*.db      loja.db
+  ⎿  Created .env.example (+12 -0)
+       1 +# Chave para assinar os tokens de login. Obrigatória em produçã
+         +o.                                                             
+       2 +# Se ausente, o app gera uma chave aleatória por processo (os t
+         +okens deixam de valer a cada restart).                         
+       3 +SECRET_KEY=                                                    
+       4 +# true para ligar o modo debug do Flask (nunca em produção)    
+       5 +FLASK_DEBUG=false                                              
+       6 +HOST=0.0.0.0                                                   
+       7 +PORT=5000                                                      
+       8 +DB_PATH=loja.db                                                
+       9 +# validade do token de login, em segundos                      
+      10 +TOKEN_MAX_AGE=3600                                             
+      11 +# valor devolvido em "ambiente" no GET /health                 
+      12 +APP_ENV=producao                                               
 
-● O .gitignore da raiz do repositório já cobre .env e *.db.
-
-● Write(.env.example)
-  ⎿  Wrote 12 lines to .env.example
-       1 # Chave usada para assinar os tokens de login. Sem ela, uma chav
-         e aleatória é gerada a cada boot
-       2 # (tokens emitidos antes de um restart deixam de valer).
-       3 SECRET_KEY=
-       4 # Debug do Flask (true/false). Nunca habilite em produção.
-       6 DATABASE_PATH=loja.db
-       7 HOST=0.0.0.0
-       8 PORT=5000
-       9 # Valor exibido em GET /health
-      10 APP_ENV=producao
-     … +3 lines (ctrl+o to expand)
+● O .env e o *.db já são ignorados pelo .gitignore da raiz do repositório. Agora
+  o README.
 
 ● Write(README.md)
-  ⎿  Added 32 lines, removed 1 line
+  ⎿  Added 42 lines, removed 1 line
        9  python app.py
       10  ```
       11  
@@ -1256,274 +1364,334 @@
          -utos e usuários de exemplo.                                    
       12 +A aplicação sobe em `http://localhost:5000`. O banco SQLite (`l
          +oja.db`) é criado automaticamente no primeiro boot, já com prod
-         +utos e usuários de exemplo (senhas gravadas com hash). Bancos a
-         +ntigos são migrados no boot: ganham a coluna de soft delete de 
-         +produtos, e as senhas em texto puro são convertidas para hash. 
+         +utos e usuários de exemplo. Bancos antigos são migrados no boot
+         + (colunas de soft delete em `produtos`, senhas em texto puro co
+         +nvertidas para hash).                                          
       13 +                                                               
       14 +## Configuração                                                
       15 +                                                               
-      16 +As variáveis de ambiente estão em `.env.example`. Todas têm def
-         +ault de desenvolvimento. Sem `SECRET_KEY`, uma chave aleatória 
-         +é gerada a cada boot, e os tokens emitidos deixam de valer quan
-         +do o servidor reinicia.                                        
+      16 +Variáveis de ambiente (veja `.env.example`):                   
       17 +                                                               
-      18 +## Autenticação                                                
-      19 +                                                               
-      20 +`POST /login` devolve `dados.token`. As rotas administrativas e
-         +xigem o header `Authorization: Bearer <token>` de um usuário `a
-         +dmin` (401 sem token e 403 para quem não é admin):             
-      21 +                                                               
-      22 +- `POST /admin/reset-db`                                       
-      23 +- `DELETE /produtos/<id>`: soft delete; o produto continua no h
-         +istórico dos pedidos                                           
-      24 +- `GET /relatorios/vendas`                                     
-      25 +                                                               
-      26 +```bash                                                        
-      27 +curl -X POST localhost:5000/login -H "Content-Type: application
-         +/json" -d '{"email":"admin@loja.com","senha":"admin123"}'      
-      28 +curl localhost:5000/relatorios/vendas -H "Authorization: Bearer
-         + <token>"                                                      
-      29 +```                                                            
+      18 +| Variável | Padrão | Uso |                                    
+      19 +|---|---|---|                                                  
+      20 +| `SECRET_KEY` | aleatória por processo | assina os tokens de l
+         +ogin; defina em produção |                                     
+      21 +| `FLASK_DEBUG` | `false` | modo debug do Flask |              
+      22 +| `HOST` / `PORT` | `0.0.0.0` / `5000` | endereço do servidor |
+      23 +| `DB_PATH` | `loja.db` | arquivo do banco SQLite |            
+      24 +| `TOKEN_MAX_AGE` | `3600` | validade do token, em segundos |  
+      25 +| `APP_ENV` | `producao` | valor de `ambiente` no `/health` |  
+      26 +                                                               
+      27 +## Autenticação                                                
+      28 +                                                               
+      29 +`POST /login` devolve `dados.token`. Envie-o nas rotas protegid
+         +as como `Authorization: Bearer <token>`.                       
       30 +                                                               
-      31 +## Estrutura                                                   
-      32 +                                                               
-      33 +| Pasta | Camada |                                             
-      34 +|---|---|                                                      
-      35 +| `app.py` | Entry point (`create_app`) |                      
-      36 +| `config/` | Configuração lida do ambiente |                  
-      37 +| `database.py` | Conexão por requisição, schema, migrações e s
-         +eed |                                                          
-      38 +| `models/` | Acesso a dados e regras de domínio, um arquivo po
-         +r domínio |                                                    
-      39 +| `controllers/` | Fluxo de cada caso de uso e validação de ent
-         +rada |                                                         
-      40 +| `views/` | Rotas (Blueprints), só delegam aos controllers |  
-      41 +| `services/` | Notificações (e-mail, SMS e push, simulados por
-         + log) |                                                        
-      42 +| `middlewares/` | Tratamento de erro centralizado e autenticaç
-         +ão |                                                           
-      43 +| `utils/` | Constantes de domínio |                           
+      31 +| Acesso | Rotas |                                             
+      32 +|---|---|                                                      
+      33 +| Público | `GET /`, `GET /health`, `GET /produtos`, `GET /prod
+         +utos/busca`, `GET /produtos/<id>`, `POST /usuarios`, `POST /log
+         +in` |                                                          
+      34 +| Admin | `POST /produtos`, `PUT /produtos/<id>`, `DELETE /prod
+         +utos/<id>`, `GET /usuarios`, `GET /pedidos`, `PUT /pedidos/<id>
+         +/status`, `GET /relatorios/vendas`, `POST /admin/reset-db` |   
+      35 +| Próprio usuário ou admin | `GET /usuarios/<id>`, `GET /pedido
+         +s/usuario/<id>`, `POST /pedidos` (`usuario_id` do body) |      
+      36 +                                                               
+      37 +Sem token: 401. Sem o papel ou sem ser o dono do recurso: 403. 
+         +Usuários de exemplo: `admin@loja.com` / `admin123` (admin), `jo
+         +ao@email.com` / `123456` (cliente).                            
+      38 +                                                               
+      39 +`DELETE /produtos/<id>` é soft delete: o produto some do catálo
+         +go, mas continua no banco (`removido`, `removido_em`, `removido
+         +_por`) e no histórico de pedidos.                              
+      40 +                                                               
+      41 +## Estrutura                                                   
+      42 +                                                               
+      43 +```                                                            
+      44 +app.py            # entry point: create_app()                  
+      45 +config/           # Settings lidas do ambiente                 
+      46 +database.py       # conexão por requisição, schema, migrações e
+         + seed                                                          
+      47 +models/           # SQL parametrizado e regras de domínio, um a
+         +rquivo por domínio                                             
+      48 +controllers/      # fluxo de cada caso de uso                  
+      49 +views/            # Blueprints: URL -> controller              
+      50 +services/         # notificações (simuladas em log)            
+      51 +middlewares/      # tratamento de erro e autenticação          
+      52 +utils/            # constantes                                 
+      53 +```                                                            
 
-● Todas as camadas estão criadas. Agora rodo a validação com exatamente a mesma
-  preparação do baseline.
+● 3.3 Validação
 
-● Bash(cd "C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
-      esafios-Praticos-skill-review-code-smells-project/61538d37-189d-4f87-971d-
-      f1b3135fe00a/…)
-  ⎿  200 GET    /                                                         i
-     ndex                               ['endpoints', 'mensagem', 'versao']
-     200 GET    /produtos                                                 l
-     … +118 lines (ctrl+o to expand)
+  Antes de rodar, vou escrever as verificações de auth e de soft delete. O
+  script de endpoints é o mesmo do baseline.
+
+  Made 1 scratchpad edit +86 (ctrl+o to expand)
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && SP="C:/Users/VINICI~1.VEN/Ap
+      pData/Local/Temp/claude/C--Treinamentos-MBA-Desafios-…)
+  ⎿  GET    /                                             200  ['endpoints'
+     , 'mensagem', 'versao']
+     GET    /health                                       200  ['ambiente',
+     … +55 lines (ctrl+o to expand)
+  ⎿  (timeout 1m 30s)
+
+● Agora a comparação automática com o baseline, inclusive dos valores de
+  negócio: totais, relatório e nome do produto no pedido antigo.
+
+● Bash(SP="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
+      esafios-Praticos-skill-review-code-smells-project/2a3af826-fc00-41c4-bd2b-
+      5b14d83f2df6/…)
+  ⎿  DIFF GET /health 200 -> 200 ['ambiente', 'counts', 'database', 'db_pat
+     h', 'debug', 'secret_key', 'status', 'versao'] -> ['ambiente', 'counts
+     ', 'database', 'status', 'versao']
+     … +19 lines (ctrl+o to expand)
   ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
      Praticos\skill_review\code-smells-project
-  ⎿  (timeout 3m)
 
-● Todos os status batem com o esperado. Vou comparar baseline e depois de forma
-  automática, conferir os valores dos corpos e testar o 403 com um token de
-  cliente.
+● As 10 diferenças correspondem a mudanças de contrato já aprovadas; o traceback
+  é só um bug no script de comparação, onde a rota /pedidos casa primeiro com o
+  POST. Vou corrigir isso e comparar os valores novamente.
 
-● Bash(cd "C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
-      esafios-Praticos-skill-review-code-smells-project/61538d37-189d-4f87-971d-
-      f1b3135fe00a/…)
-  ⎿  DIFF GET /produtos/busca?q=%27%20OR%201%3D1%20-- busca injection 500 [
-     'erro'] -> 200 ['dados', 'sucesso', 'total']
-     DIFF POST /produtos criar produto com aspas 500 ['erro'] -> 201 ['dado
+● Bash(SP="C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-D
+      esafios-Praticos-skill-review-code-smells-project/2a3af826-fc00-41c4-bd2b-
+      5b14d83f2df6/…)
+  ⎿  baseline pedidos: [(1, 'pendente', 6179.79, [(1, 'Notebook Gamer', 1,
+     5999.99), (2, 'Mouse Wireless', 2, 89.9)])]
+     baseline apos delete: [(1, 'Notebook Gamer'), (2, 'Desconhecido')]
+     … +17 lines (ctrl+o to expand)
+  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
+     Praticos\skill_review\code-smells-project
+
+● Confirmei que os valores de negócio batem e que, após o DELETE, o pedido
+  antigo exibe "Mouse Wireless" em vez de "Desconhecido", conforme aprovado em
+  F-10. Agora vou parar o app, apagar o banco e subir novamente para verificar
+  auth e soft delete.
+
+● PowerShell(Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+            Where-Object { $_.CommandLine -like '*app.py*' } | ForEach-Object {
+            Stop-Process -Id $_.ProcessId -F…)  ⎿  killed 28324
+     killed 25624
+     porta livre
+
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && SP="C:/Users/VINICI~1.VEN/Ap
+      pData/Local/Temp/claude/C--Treinamentos-MBA-Desafios-…)
+  ⎿  OK   POST /produtos sem token = 401  -> 401
+     OK   POST /produtos token inválido = 401  -> 401
+     OK   POST /produtos cliente de outro recurso = 403  -> 403
      … +49 lines (ctrl+o to expand)
-  ⎿  Shell cwd was reset to C:\Treinamentos\MBA\Desafios 
-     Praticos\skill_review\code-smells-project
+  ⎿  (timeout 1m 30s)
 
-● As 13 diferenças encontradas são todas esperadas, com os corpos das leituras
-  idênticos ao baseline. Vou testar agora o 403 com token de cliente, a migração
-  de um banco no formato antigo e a atomicidade do pedido.
+● Os 50 checks de auth, credencial e soft delete passaram. Agora vou verificar
+  três itens extras: migração de banco em formato antigo, bloqueio de bypass de
+  login via SQL injection e tratamento de item de pedido malformado com estoque
+  duplicado.
 
-● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && .venv/Scripts/python.exe -W
-      error::DeprecationWarning - <<'PYEOF'
-      import os, sqli…)
-  ⎿  Error: Exit code 1
-     migra��o colunas: True
-     senhas migradas: ['scrypt:', 'scrypt:']
-     seed n�o duplicado (produtos): 1
-     cliente GET /relatorios/vendas 403 {'erro': 'Acesso negado'}
-     cliente DELETE /produtos/1 403 {'erro': 'Acesso negado'}
-     cliente POST /admin/reset-db 403 {'erro': 'Acesso negado'}
-     token adulterado 401
-     pedido parcial gravado? 0 estoque prod1: 3
-     Traceback (most recent call last):
-     … +2 lines (ctrl+o to expand)
-
-● Tudo passou — o erro final foi só um passo extra do meu script tentando
-  renomear um arquivo ainda aberto, sem efeito real, e o teste com -W 
-  error::DeprecationWarning não gerou nenhum warning. Agora vou rodar novamente
-  os sinais dos anti-patterns e o checklist da §7.
+● PowerShell(Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+            Where-Object { $_.CommandLine -like '*app.py*' } | ForEach-Object {
+            Stop-Process -Id $_.ProcessId -F…)
+  ⎿  porta livre
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && F=$(git ls-files -co
-      --exclude-standard -- '*.py' | grep -v "^.claude"); echo "$F…)
-  ⎿  config/__init__.py config/settings.py controllers/__init__.py controll
-     ers/admin_controller.py controllers/health_controller.py controllers/p
-     edido_controller.py controllers/produto_controller.py controllers/rela
-     … +45 lines (ctrl+o to expand)
+      Praticos/skill_review/code-smells-project" && SP="C:/Users/VINICI~1.VEN/Ap
+      pData/Local/Temp/claude/C--Treinamentos-MBA-Desafios-…)
+  ⎿  bypass SQLi: 401 (esperado 401)
+     login senha migrada: 200
+     busca SQLi: (200, {'dados': [], 'sucesso': True, 'total': 0})
+     … +10 lines (ctrl+o to expand)
 
-● O grep anterior deu ruído: git ls-files ainda aponta os arquivos removidos e
-  print\( colidiu com Blueprint(, enquanto os acertos de SQL são todos
-  legítimos. Vou refazer os greps de AP-02 e AP-04.
+● Confirmado: o rollback restaurou o estoque para 3 (sem pedidos/itens) e a
+  migração adicionou as colunas e o hash da senha antiga — o grep não achou
+  "Migração" só por conta do encoding cp1252 do log, mas as colunas no banco
+  comprovam que rodou. Agora vou parar o app e reexecutar os sinais do catálogo
+  no código novo.
 
-● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && F=$(ls *.py */*.py | grep -v
-      "^\.") ; echo "## AP02"; grep -nP "((?i:secret|passw…)
-  ⎿  ## AP02
-     grep: -P supports only unibyte and UTF-8 locales
-     ## AP04
-     … +13 lines (ctrl+o to expand)
-
-● Os acertos do AP-04 são leitura de entrada e verificação de hash, não saída.
-  Vou rodar o regex do AP-02 em Python e checar imports sem uso.
+● PowerShell(Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+            Where-Object { $_.CommandLine -like '*app.py*' } | ForEach-Object {
+            Stop-Process -Id $_.ProcessId -F…)
+  ⎿  porta livre
+     0
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && .venv/Scripts/python.exe -
-      <<'PYEOF'
-      import ast, glob, re…)
-  ⎿  checked 30 files
+      Praticos/skill_review/code-smells-project" && F=$(find . -name "*.py" -not
+      -path "./.venv/*" -not -path "./.claude/*" -not -pat…)
+  ⎿    997 total
+     == AP-01 concat/fstring SQL
+     ./models/produto_model.py:65:    rows = db.execute(f"SELECT {_COLUNAS}
+     … +35 lines (ctrl+o to expand)
 
-● Nenhum segredo literal e nenhum import sem uso. Vou limpar o que os meus
-  testes deixaram (loja.db, __pycache__) e confirmar que nenhum processo ficou
-  rodando.
+● Confirmei que todos os sinais encontrados são falsos positivos (SQL interpola
+  apenas constantes internas, o match de print( era de Blueprint, e o tratamento
+  de exceções preserva o contrato original). Como pyflakes não está instalado,
+  vou checar imports não utilizados via AST.
 
 ● Bash(cd "C:/Treinamentos/MBA/Desafios
-      Praticos/skill_review/code-smells-project" && rm -f loja.db && find .
-      -name __pycache__ -not -path "./.venv/*" -exec rm -rf {}…)
-  ⎿  Running in the background (↓ to manage)
+      Praticos/skill_review/code-smells-project" && .venv/Scripts/python -
+      <<'EOF'
+      import ast, pathlib…)
+  ⎿  fim
 
-● PowerShell(Set-Location "C:\Treinamentos\MBA\Desafios
-            Praticos\skill_review\code-smells-project"; Test-Path loja.db;
-            (Get-NetTCPConnection -LocalPort 5000 -State Listen -E…)
-  ⎿  False
-     porta 5000 livre
-     nenhum python rodando
-     … +14 lines (ctrl+o to expand)
+● Nenhum import sem uso. Removo o loja.db gerado pelas execuções para deixar o
+  projeto como estava; ele é recriado no próximo boot. Depois salvo o resumo.
 
-● Validação concluída. A limpeza do __pycache__ ainda está terminando em
-  background e não interfere em nada. Gravando o resumo final.
+● Bash(cd "C:/Treinamentos/MBA/Desafios
+      Praticos/skill_review/code-smells-project" && rm -f loja.db && git status
+      --short . | grep -v "^ M .claude" )
+  ⎿   M .env.example
+      M README.md
+      M app.py
+     … +27 lines (ctrl+o to expand)
 
-● Write(reports\refactor-summary.md)  ⎿  Wrote 116 lines to reports\refactor-summary.md
+● Write(reports\refactor-summary.md)
+  ⎿  Wrote 139 lines to reports\refactor-summary.md
        1 ================================
        2 PHASE 3: REFACTORING COMPLETE
        4 ## Strategy
-       5 A) Decomposição completa: o monolito de 4 arquivos virou camadas
-          MVC por domínio (produto, usuário, pedido, relatório), com conf
+       5 A) Decomposição completa: o monolito de 4 arquivos (app.py, cont
+         rollers.py, models.py, database.py) virou camadas MVC por domíni
        6 
        7 ## New Project Structure
        8 ```
-      10 ├── app.py                      # Entry point: create_app() + ap
-         p = create_app() + __main__
-     … +200 lines (ctrl+o to expand)
+      10 ├── app.py                         # Entry point: create_app() +
+          app = create_app() + __main__
+     … +221 lines (ctrl+o to expand)
 
-● Bash(cat "C:/Users/VINICI~1.VEN/AppData/Local/Temp/claude/C--Treinamentos-MBA-
-      Desafios-Praticos-skill-review-code-smells-project/61538d37-189d-4f87-971d
-      -f1b3135fe00a…)
-  ⎿  porta 5000 livre
-     sem __pycache__ no projeto
-
-● A refatoração terminou e a validação passou. Das 55 chamadas do baseline, 42
-  deram o mesmo status e as mesmas chaves. As outras 13 mudaram só por causa do
-  que você aprovou ou de bugs corrigidos. O ajuste do F-05 foi aplicado como
-  você pediu e as demais rotas continuam públicas. Não alterei o estado do git:
-  nada foi adicionado nem commitado.
+● A refatoração está pronta e todas as verificações passaram. Os 16 findings
+  foram resolvidos, inclusive os 6 CRITICAL por inteiro. O resumo completo está
+  em reports/refactor-summary.md.
 
   ================================
   PHASE 3: REFACTORING COMPLETE
   ================================
   ## Strategy
-  A) Decomposição completa: os 4 arquivos viraram camadas MVC separadas por 
-  domínio.
+  A) Decomposição completa: o monolito de 4 arquivos virou camadas MVC por 
+  domínio;
+  controllers.py e models.py da raiz foram removidos.
 
   ## New Project Structure
-  app.py                 # Entry point (create_app)
-  config/settings.py     # Config lida do ambiente
-  database.py            # Conexão por requisição (flask.g), transaction(), 
+  app.py                       # Entry point: create_app()
+  config/settings.py           # Config: tudo lido do ambiente
+  database.py                  # Database: conexão por requisição (flask.g), 
   schema, migrações, seed
-  models/                # Model: produto, usuario, pedido, relatorio (SQL com ?
-  + regras)
-  controllers/           # Controller: produto, usuario, pedido, relatorio, 
-  health, admin
-  views/                 # View: Blueprints que só repassam para o controller
-  services/              # notificacao_service (e-mail/SMS/push via logging)
-  middlewares/           # error_handler (AppError + handler central), auth 
-  (token itsdangerous)
-  utils/constants.py     # Constantes de domínio
+  models/                      # Model: produto, usuario, pedido, relatorio, 
+  admin (SQL parametrizado + regras)
+  controllers/                 # Controller: produto, usuario, pedido, 
+  relatorio, health, admin (+ comum.py)
+  views/                       # View: Blueprints só delegam; auth declarada por
+  rota
+  services/notificacao_service.py   # Service: e-mail/SMS/push simulados
+  middlewares/error_handler.py      # Handler central de erro
+  middlewares/auth.py               # Token assinado, require_auth(papel), 
+  dono-ou-admin
+  utils/constants.py                # Constantes de domínio
   .env.example
-  (controllers.py e models.py da raiz foram removidos)
 
-  ## Findings Resolved
-  | ID   | Sev      | Anti-pattern            | Status   | How |
-  |------|----------|-------------------------|----------|-----|
-  | F-01 | CRITICAL | SQL Injection           | RESOLVED | PT-01 |
-  | F-02 | CRITICAL | Credenciais hardcoded   | RESOLVED | PT-02 |
-  | F-03 | CRITICAL | Senha em texto puro     | RESOLVED | PT-03 (scrypt + 
-  migração de bancos antigos) |
-  | F-04 | CRITICAL | Dados sensíveis         | RESOLVED | PT-04 |
-  | F-05 | CRITICAL | Sem autenticação        | PARTIAL  | PT-05 no escopo que 
-  você aprovou; demais rotas públicas por sua decisão |
-  | F-06 | CRITICAL | God File                | RESOLVED | PT-06 |
-  | F-07 | HIGH     | Regra na camada errada  | RESOLVED | PT-07 |
-  | F-08 | HIGH     | Estado global           | RESOLVED | PT-08 |
-  | F-09 | HIGH     | Sem transação / DELETE  | RESOLVED | PT-09 (transação + 
-  soft delete) |
-  | F-10 | MEDIUM   | N+1                     | RESOLVED | PT-10 |
-  | F-11 | MEDIUM   | Duplicação              | PARTIAL  | PT-11; validação 
-  diferente entre POST e PUT mantida (contrato) |
-  | F-12 | MEDIUM   | Erros / validação       | RESOLVED | PT-12 |
-  | F-13 | LOW      | Magic numbers           | RESOLVED | PT-14 |
-  | F-14 | LOW      | Código morto            | RESOLVED | PT-14 |
-  | F-15 | LOW      | print / debug fixo      | RESOLVED | PT-14 |
+  Findings Resolved
 
-  ## Contract Changes Applied
-  - `senha` saiu de /usuarios; `secret_key`, `debug` e `db_path` saíram de 
-  /health
-  - /admin/query removida (404)
-  - Token de admin agora é exigido em /admin/reset-db, DELETE /produtos/<id> e 
-  GET /relatorios/vendas
-    (401 sem token, 403 com token de cliente); /login devolve dados.token
-  - Entradas inválidas: 500 → 400; quantidade ≤ 0 → 400; status de pedido 
-  inexistente: 200 → 404
-  - Bugs corrigidos junto com o F-01: apóstrofo no nome 500 → 201; login por 
-  injeção 200 → 401
+  ┌──────────┬──────────┬──────────────────────┬──────────┬─────────────────┐
+  │    ID    │   Sev.   │     Anti-pattern     │  Status  │       How       │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-01     │ CRITICAL │ SQL Injection        │ RESOLVED │ PT-01: as 19    │
+  │          │          │                      │          │ queries usam ?  │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-02     │ CRITICAL │ Credenciais          │ RESOLVED │ PT-02           │
+  │          │          │ hardcoded            │          │                 │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │          │          │                      │          │ PT-03: hash +   │
+  │ F-03     │ CRITICAL │ Senha em texto puro  │ RESOLVED │ migração no     │
+  │          │          │                      │          │ boot            │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-04     │ CRITICAL │ Dados sensíveis      │ RESOLVED │ PT-04           │
+  │          │          │ expostos             │          │                 │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-05     │ CRITICAL │ Endpoints sem auth   │ RESOLVED │ PT-05           │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-06     │ CRITICAL │ God File             │ RESOLVED │ PT-06           │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-07     │ HIGH     │ Leitura de terceiros │ RESOLVED │ PT-05           │
+  │          │          │  sem auth            │          │                 │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-08     │ HIGH     │ Regra na camada      │ RESOLVED │ PT-07           │
+  │          │          │ errada               │          │                 │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-09     │ HIGH     │ Estado global        │ RESOLVED │ PT-08           │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │          │          │ Sem transação +      │          │ PT-09:          │
+  │ F-10     │ HIGH     │ delete físico        │ RESOLVED │ transação +     │
+  │          │          │                      │          │ soft delete     │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-11     │ MEDIUM   │ N+1                  │ RESOLVED │ PT-10           │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-12     │ MEDIUM   │ Duplicação           │ RESOLVED │ PT-11           │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │ F-13     │ MEDIUM   │ Erros / validação    │ RESOLVED │ PT-12           │
+  ├──────────┼──────────┼──────────────────────┼──────────┼─────────────────┤
+  │          │          │ Magic numbers /      │          │                 │
+  │ F-14..16 │ LOW      │ código morto /       │ RESOLVED │ PT-14           │
+  │          │          │ prints               │          │                 │
+  └──────────┴──────────┴──────────────────────┴──────────┴─────────────────┘
 
-  ## Validation
+  Contract Changes Applied
+
+  - F-04: senha sai de /usuarios; secret_key, debug e db_path saem de /health
+  - F-05/F-07: /admin/query foi removida (404); o login devolve dados.token;
+    8 rotas exigem admin e 3 exigem dono ou admin (401 sem token, 403 sem papel
+    ou sem ser o dono)
+  - F-10: o DELETE de produto é soft delete; pedidos antigos mostram o nome real
+    em vez de "Desconhecido"
+  - F-12: o PUT de produto valida como o POST
+  - F-13: entrada malformada passa de 500 para 400; status de pedido inexistente
+    passa de 200 para 404
+
+  Validation
+
     ✓ Application boots without errors
-    ✓ All endpoints respond as baseline (55/55: 42 iguais + 13 mudanças 
-  aprovadas ou correções)
-    ✓ Approved contract changes verified (401 / 403 / token adulterado / 200 com
-  admin)
+    ✓ All endpoints respond as baseline (37/37: 27 iguais + 10 diferenças, todas
+  aprovadas)
+    ✓ Approved contract changes verified (50/50 checks)
     ✓ No deprecation warnings from project code
-    ✓ No CRITICAL/HIGH anti-patterns remaining (no escopo aprovado; F-05 parcial
-  por sua escolha)
+    ✓ No CRITICAL/HIGH anti-patterns remaining
+    ✓ Every CRITICAL recommendation fully applied (18/18 itens + 5/5 mudanças de
+  contrato)
     ✓ MVC structure checklist complete
-  ================================
 
-  Três pontos para você saber:
-  - Soft delete: depois de apagar o produto 2, ele some das leituras (GET
-    → 404), mas a linha continua no banco com removido=1. Os pedidos agora
-    mostram "Mouse Wireless" onde antes aparecia "Desconhecido".
-  - /admin/reset-db: continua apagando todos os dados. Essa é a finalidade da
-    rota, mas agora só um admin consegue chamá-la.
-  - SECRET_KEY: se não estiver definida no ambiente, uma chave aleatória é
-    gerada a cada boot, e os tokens deixam de valer quando o servidor reinicia.
+  How to run
 
-  Também testei um banco no formato antigo: ele ganhou as colunas de soft delete
-  e teve as senhas convertidas para hash no boot. Um pedido que falha no meio
-  não grava nada.
+  pip install -r requirements.txt && python app.py
+  Env (opcional): SECRET_KEY, FLASK_DEBUG, HOST, PORT, DB_PATH, TOKEN_MAX_AGE, 
+  APP_ENV
 
-  Ficam como recomendação fora do escopo:
-  - autenticar as rotas que continuaram públicas;
-  - devolver o estoque quando um pedido é cancelado;
-  - usar as mesmas validações no POST e no PUT de produtos;
-  - validar o formato e a unicidade do e-mail;
-  - restringir o CORS.
 
-  Arquivos em reports/:
-  - audit-report.md
-  - refactor-summary.md
+  **Testes extras:**
+  - **SQL injection:** o bypass de login com `admin@loja.com' --` agora responde
+  401.
+  - **Estoque:** um pedido com item repetido que estoura o estoque responde 400 
+  e não grava nada (rollback completo).
+  - **Banco antigo:** um `loja.db` no formato antigo é migrado no boot (colunas 
+  do soft delete e hash das senhas), e o login com a senha antiga continua 
+  funcionando.
+  - **Valores de negócio:** total do pedido, relatório de vendas e contagens do 
+  `/health` saíram idênticos ao baseline.
 
-✻ Crunched for 10m 9s · done 9:16
+  **Pontos de atenção:**
+  - **Relatório de auditoria ajustado antes da Fase 3:** o F-10 ganhou a coluna 
+  `removido` no soft delete, como pede o padrão PT-09 do playbook. O contrato 
+  não muda.
+  - **SECRET_KEY:** sem ela no ambiente, o app gera uma chave aleatória a cada 
+  boot, e os tokens deixam de valer quando o servidor reinicia. Em produção, 
+  defina a variável.
+  - **Fora do escopo:** e-mail duplicado no cadastro e devolução de estoque 
+  quando um pedido é cancelado continuam como estavam, como registrado no 
+  relatório.
+  - **Git:** não mexi no estado do git. Os caminhos novos (`config/`, `models/`,
+  `views/` etc.) já existiam no último commit de uma execução anterior, por 
+  isso o `git status` mostra esses arquivos como modificados, não como novos. 
+  `reports/refactor-summary.md` aparecia como deletado nessa listagem e foi 
+  recriado no fim. O commit fica com você.
+  - **Limpeza:** o `loja.db` das execuções foi apagado e nenhum processo ficou 
+  rodando na porta 5000.
+
+✻ Crunched for 9m 34s · done 19:57

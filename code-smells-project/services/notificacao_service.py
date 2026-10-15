@@ -1,5 +1,7 @@
-"""Notificações ao cliente (e-mail, SMS, push). Simuladas por log até existir um provedor real."""
+"""Notificações ao cliente. Os envios ainda são simulados (só registram em log), como no código original."""
 import logging
+
+from utils.constants import STATUS_APROVADO, STATUS_CANCELADO
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +13,7 @@ def notificar_pedido_criado(pedido_id, usuario_id):
 
 
 def notificar_status_pedido(pedido_id, novo_status):
-    if novo_status == "aprovado":
+    if novo_status == STATUS_APROVADO:
         logger.info("NOTIFICAÇÃO: Pedido %s foi aprovado! Preparar envio.", pedido_id)
-    if novo_status == "cancelado":
+    if novo_status == STATUS_CANCELADO:
         logger.info("NOTIFICAÇÃO: Pedido %s cancelado. Devolver estoque.", pedido_id)

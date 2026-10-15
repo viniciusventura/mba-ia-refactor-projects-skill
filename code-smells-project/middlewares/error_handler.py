@@ -7,13 +7,12 @@ logger = logging.getLogger(__name__)
 
 
 class AppError(Exception):
-    """Erro de aplicação convertido em {"erro": mensagem, **extra} com o status da classe."""
-
     status_code = 400
 
-    def __init__(self, message, **extra):
-        super().__init__(message)
-        self.message = message
+    def __init__(self, mensagem, **extra):
+        """extra: chaves adicionais do contrato original (ex.: sucesso=False)."""
+        super().__init__(mensagem)
+        self.mensagem = mensagem
         self.extra = extra
 
 
@@ -36,11 +35,11 @@ class NotFoundError(AppError):
 def register_error_handlers(app):
     @app.errorhandler(AppError)
     def handle_app_error(err):
-        return jsonify({"erro": err.message, **err.extra}), err.status_code
+        return jsonify({"erro": err.mensagem, **err.extra}), err.status_code
 
     @app.errorhandler(Exception)
     def handle_unexpected(err):
-        # 404/405 do próprio Flask mantêm a resposta padrão do framework (contrato original)
+        # 404/405 do próprio Flask seguem com a resposta padrão do framework
         if isinstance(err, HTTPException):
             return err
         logger.exception("Erro inesperado")

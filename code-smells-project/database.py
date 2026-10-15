@@ -1,14 +1,56 @@
 import logging
 import sqlite3
-from contextlib import contextmanager
 
 from flask import current_app, g
 from werkzeug.security import generate_password_hash
 
 logger = logging.getLogger(__name__)
 
-# Prefixos dos hashes gerados por werkzeug.security
-HASH_PREFIXOS = ("scrypt:", "pbkdf2:")
+SCHEMA = [
+    """
+    CREATE TABLE IF NOT EXISTS produtos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT,
+        descricao TEXT,
+        preco REAL,
+        estoque INTEGER,
+        categoria TEXT,
+        ativo INTEGER DEFAULT 1,
+        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        removido INTEGER NOT NULL DEFAULT 0,
+        removido_em TIMESTAMP,
+        removido_por INTEGER
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT,
+        email TEXT,
+        senha TEXT,
+        tipo TEXT DEFAULT 'cliente',
+        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS pedidos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        usuario_id INTEGER,
+        status TEXT DEFAULT 'pendente',
+        total REAL,
+        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS itens_pedido (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        pedido_id INTEGER,
+        produto_id INTEGER,
+        quantidade INTEGER,
+        preco_unitario REAL
+    )
+    """,
+]
 
 PRODUTOS_INICIAIS = [
     ("Notebook Gamer", "Notebook potente para jogos", 5999.99, 10, "informatica"),
@@ -29,42 +71,8 @@ USUARIOS_INICIAIS = [
     ("Maria Santos", "maria@email.com", "senha123", "cliente"),
 ]
 
-SCHEMA = """
-CREATE TABLE IF NOT EXISTS produtos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    descricao TEXT,
-    preco REAL,
-    estoque INTEGER,
-    categoria TEXT,
-    ativo INTEGER DEFAULT 1,
-    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    removido INTEGER NOT NULL DEFAULT 0,
-    removido_em TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS usuarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    email TEXT,
-    senha TEXT,
-    tipo TEXT DEFAULT 'cliente',
-    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS pedidos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    usuario_id INTEGER,
-    status TEXT DEFAULT 'pendente',
-    total REAL,
-    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS itens_pedido (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    pedido_id INTEGER,
-    produto_id INTEGER,
-    quantidade INTEGER,
-    preco_unitario REAL
-);
-"""
+# prefixos dos formatos gerados por werkzeug.security.generate_password_hash
+_PREFIXOS_HASH = ("scrypt:", "pbkdf2:")
 
 
 def connect(path):
@@ -74,9 +82,9 @@ def connect(path):
 
 
 def get_db():
-    """Conexão da requisição atual, guardada em flask.g e fechada no teardown."""
+    """Conexão da requisição atual (uma por contexto de app, fechada no teardown)."""
     if "db" not in g:
-        g.db = connect(current_app.config["DATABASE_PATH"])
+        g.db = connect(current_app.config["DB_PATH"])
     return g.db
 
 
@@ -86,39 +94,45 @@ def close_db(exc=None):
         db.close()
 
 
-@contextmanager
-def transaction(db):
-    """Executa o bloco numa transação: commit se tudo der certo, rollback em qualquer erro."""
-    db.execute("BEGIN IMMEDIATE")
-    try:
-        yield db
-        db.commit()
-    except BaseException:
-        db.rollback()
-        raise
+def init_app(app):
+    app.teardown_appcontext(close_db)
+    with app.app_context():
+        init_schema(get_db())
+
+
+def init_schema(db):
+    with db:
+        for ddl in SCHEMA:
+            db.execute(ddl)
+        # bancos criados antes do soft delete não têm estas colunas
+        _garantir_coluna(db, "produtos", "removido", "removido INTEGER NOT NULL DEFAULT 0")
+        _garantir_coluna(db, "produtos", "removido_em", "removido_em TIMESTAMP")
+        _garantir_coluna(db, "produtos", "removido_por", "removido_por INTEGER")
+        _migrar_senhas_em_texto(db)
+        _seed(db)
 
 
 def _garantir_coluna(db, tabela, coluna, ddl):
-    # tabela/coluna/ddl são nomes internos fixos, nunca input do usuário
+    # tabela/coluna/ddl são nomes internos fixos, nunca entrada do usuário
     colunas = {row["name"] for row in db.execute(f"PRAGMA table_info({tabela})")}
     if coluna not in colunas:
         db.execute(f"ALTER TABLE {tabela} ADD COLUMN {ddl}")
         logger.info("Migração: coluna %s.%s adicionada", tabela, coluna)
 
 
-def _migrar_senhas_texto_puro(db):
-    linhas = db.execute("SELECT id, senha FROM usuarios").fetchall()
-    pendentes = [
-        (generate_password_hash(row["senha"]), row["id"])
-        for row in linhas
-        if row["senha"] is not None and not row["senha"].startswith(HASH_PREFIXOS)
-    ]
+def _eh_hash(senha):
+    return bool(senha) and senha.startswith(_PREFIXOS_HASH) and senha.count("$") == 2
+
+
+def _migrar_senhas_em_texto(db):
+    rows = db.execute("SELECT id, senha FROM usuarios").fetchall()
+    pendentes = [(generate_password_hash(r["senha"]), r["id"]) for r in rows if r["senha"] and not _eh_hash(r["senha"])]
     if pendentes:
         db.executemany("UPDATE usuarios SET senha = ? WHERE id = ?", pendentes)
-        logger.info("Migração: %d senha(s) em texto puro convertida(s) para hash", len(pendentes))
+        logger.info("Migração: %d senha(s) em texto puro convertidas para hash", len(pendentes))
 
 
-def _popular_dados_iniciais(db):
+def _seed(db):
     if db.execute("SELECT COUNT(*) FROM produtos").fetchone()[0] > 0:
         return
     db.executemany(
@@ -129,26 +143,3 @@ def _popular_dados_iniciais(db):
         "INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, ?)",
         [(nome, email, generate_password_hash(senha), tipo) for nome, email, senha, tipo in USUARIOS_INICIAIS],
     )
-
-
-def init_schema(db):
-    """Cria as tabelas, aplica migrações idempotentes e popula os dados de exemplo."""
-    db.executescript(SCHEMA)
-    with transaction(db):
-        _garantir_coluna(db, "produtos", "removido", "removido INTEGER NOT NULL DEFAULT 0")
-        _garantir_coluna(db, "produtos", "removido_em", "removido_em TIMESTAMP")
-        _migrar_senhas_texto_puro(db)
-        _popular_dados_iniciais(db)
-
-
-def reset_dados(db):
-    """Apaga todos os registros (rota administrativa /admin/reset-db)."""
-    with transaction(db):
-        for tabela in ("itens_pedido", "pedidos", "produtos", "usuarios"):
-            db.execute(f"DELETE FROM {tabela}")
-
-
-def init_app(app):
-    app.teardown_appcontext(close_db)
-    with app.app_context():
-        init_schema(get_db())

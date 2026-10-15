@@ -1,24 +1,26 @@
+from models import pedido_model
 from utils.constants import FAIXAS_DESCONTO
 
 
-def totais_vendas(db):
-    """Totais de pedidos e faturamento em uma única agregação."""
-    row = db.execute(
-        """
-        SELECT COUNT(*) AS total_pedidos,
-               COALESCE(SUM(total), 0) AS faturamento,
-               COALESCE(SUM(CASE WHEN status = 'pendente' THEN 1 ELSE 0 END), 0) AS pendentes,
-               COALESCE(SUM(CASE WHEN status = 'aprovado' THEN 1 ELSE 0 END), 0) AS aprovados,
-               COALESCE(SUM(CASE WHEN status = 'cancelado' THEN 1 ELSE 0 END), 0) AS cancelados
-        FROM pedidos
-        """
-    ).fetchone()
-    return dict(row)
-
-
 def calcular_desconto(faturamento):
-    """Regra de negócio: desconto aplicável conforme a faixa de faturamento."""
-    for limite, taxa in FAIXAS_DESCONTO:
+    for limite, percentual in FAIXAS_DESCONTO:
         if faturamento > limite:
-            return faturamento * taxa
+            return faturamento * percentual
     return 0
+
+
+def relatorio_vendas(db):
+    # relatório é leitura histórica: inclui pedidos com produtos removidos
+    t = pedido_model.totais(db)
+    faturamento = t["faturamento"]
+    desconto = calcular_desconto(faturamento)
+    return {
+        "total_pedidos": t["total_pedidos"],
+        "faturamento_bruto": round(faturamento, 2),
+        "desconto_aplicavel": round(desconto, 2),
+        "faturamento_liquido": round(faturamento - desconto, 2),
+        "pedidos_pendentes": t["pendentes"],
+        "pedidos_aprovados": t["aprovados"],
+        "pedidos_cancelados": t["cancelados"],
+        "ticket_medio": round(faturamento / t["total_pedidos"], 2) if t["total_pedidos"] > 0 else 0,
+    }

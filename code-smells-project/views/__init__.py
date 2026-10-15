@@ -7,5 +7,5 @@ from views.usuario_routes import usuario_bp
 
 
 def register_blueprints(app):
-    for blueprint in (produto_bp, usuario_bp, pedido_bp, relatorio_bp, health_bp, admin_bp):
-        app.register_blueprint(blueprint)
+    for bp in (produto_bp, usuario_bp, pedido_bp, relatorio_bp, health_bp, admin_bp):
+        app.register_blueprint(bp)

@@ -1,11 +1,10 @@
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import transaction
-from utils.constants import TIPO_USUARIO_PADRAO
+from utils.constants import PAPEL_CLIENTE
 
 
 def _to_dict(row):
-    """Representação pública do usuário: nunca inclui a senha."""
+    # serializador público: a senha (hash) nunca sai do model
     return {
         "id": row["id"],
         "nome": row["nome"],
@@ -16,8 +15,7 @@ def _to_dict(row):
 
 
 def listar(db):
-    rows = db.execute("SELECT * FROM usuarios ORDER BY id").fetchall()
-    return [_to_dict(row) for row in rows]
+    return [_to_dict(r) for r in db.execute("SELECT * FROM usuarios ORDER BY id").fetchall()]
 
 
 def buscar_por_id(db, id):
@@ -25,22 +23,22 @@ def buscar_por_id(db, id):
     return _to_dict(row) if row else None
 
 
-def autenticar(db, email, senha):
-    """Retorna o usuário cujo e-mail e senha conferem, ou None. A senha é verificada pelo hash."""
-    rows = db.execute("SELECT * FROM usuarios WHERE email = ? ORDER BY id", (email,)).fetchall()
-    for row in rows:
-        if row["senha"] and check_password_hash(row["senha"], senha):
-            return {"id": row["id"], "nome": row["nome"], "email": row["email"], "tipo": row["tipo"]}
-    return None
-
-
-def criar(db, nome, email, senha, tipo=TIPO_USUARIO_PADRAO):
-    with transaction(db):
-        cursor = db.execute(
+def criar(db, nome, email, senha, tipo=PAPEL_CLIENTE):
+    with db:
+        cur = db.execute(
             "INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, ?)",
             (nome, email, generate_password_hash(senha), tipo),
         )
-    return cursor.lastrowid
+    return cur.lastrowid
+
+
+def autenticar(db, email, senha):
+    """Usuário (sem senha) se e-mail e senha conferem; senão None. A senha é verificada no código, não no SQL."""
+    # a tabela não tem e-mail único: confere cada cadastro com o e-mail, como o SQL original fazia
+    for row in db.execute("SELECT * FROM usuarios WHERE email = ? ORDER BY id", (email,)).fetchall():
+        if row["senha"] and check_password_hash(row["senha"], senha):
+            return {"id": row["id"], "nome": row["nome"], "email": row["email"], "tipo": row["tipo"]}
+    return None
 
 
 def contar(db):

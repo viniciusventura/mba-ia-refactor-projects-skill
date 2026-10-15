@@ -161,6 +161,18 @@ console.log(`Processando cartão ${cc} na chave ${config.paymentGatewayKey}`);
 **Como confirmar**
 - Existe middleware global que proteja a rota (ex.: `app.use(auth)` antes das rotas, `before_request`)? Se sim, não é finding.
 - A ação é realmente sensível (lê dados de outros usuários, altera privilégio, apaga dados)?
+- **Percorra o inventário de endpoints inteiro, não só as rotas com nome suspeito.** Classifique cada rota sem auth em uma das classes abaixo. As classes 1 a 4 entram no finding CRITICAL. A classe 5 entra no mesmo finding se expuser senha/hash/token; caso contrário, vira finding separado HIGH.
+
+  | # | Classe | Exemplos | Proteção mínima |
+  |---|---|---|---|
+  | 1 | Administrativa / executa comando | `/admin/*`, reset de banco, SQL do body | papel admin (ou remover) |
+  | 2 | Destrutiva | `DELETE` de qualquer entidade | admin, ou dono do recurso |
+  | 3 | Escrita em dado compartilhado ou de terceiro | criar/editar produto, preço, estoque, categoria; mudar status de pedido; editar task/usuário de **outra** pessoa | admin, ou dono do recurso |
+  | 4 | Credencial e privilégio | trocar senha/e-mail/`role`/`active` de um usuário | o próprio usuário autenticado ou admin; `role`/`active` só admin |
+  | 5 | Leitura de dados de outros | listar usuários, todos os pedidos, relatório financeiro | autenticado (financeiro: admin) |
+
+  Não são sensíveis: health check, login, cadastro público de usuário comum, checkout/criação de pedido do próprio cliente e catálogo público de leitura.
+- **Teste de "não esqueci nada":** para cada rota de escrita (POST/PUT/PATCH/DELETE) fora do finding, escreva no relatório por que um anônimo chamá-la não é problema. Se não houver motivo, ela entra no finding. Atenção especial a `PUT /users/<id>` público: troca de senha/e-mail de outra pessoa = tomada de conta, inclusive do admin.
 
 **Exemplo**
 ```python

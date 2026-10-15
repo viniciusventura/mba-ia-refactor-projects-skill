@@ -258,7 +258,15 @@ admin_bp.post("/admin/reset-db")(require_auth(role="admin")(admin_controller.res
 
 # controller: cadastro público não escolhe privilégio
 role = "user"          # role só pode ser alterada por rota protegida com require_auth(role="admin")
+
+# controller: "dono do recurso ou admin" (classes 2-4 do AP-05), com a rota declarando require_auth()
+def atualizar_usuario(id):
+    if g.user["id"] != id and g.user.get("role") != "admin":
+        raise ForbiddenError("Acesso negado")                                # → 403
+    ...
 ```
+
+**Cobertura:** a lista de rotas protegidas vem da classificação do AP-05 (classes 1-5), não do nome da rota. Ao terminar, cada rota de escrita (POST/PUT/PATCH/DELETE) está protegida ou consta no relatório como pública com o motivo.
 
 **Depois (Node: `src/middlewares/auth.js`, token de admin vindo da config/ambiente)**
 ```js

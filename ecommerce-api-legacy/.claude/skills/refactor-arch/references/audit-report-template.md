@@ -144,4 +144,4 @@ Proceed with refactoring (Phase 3)? [y/n]
 
 - `y` / `sim` / `yes`: segue para a Fase 3, aplicando as mudanças de contrato listadas.
 - `n` / `não`: encerra sem modificar nada.
-- Qualquer outra resposta (ex.: "sim, mas mantenha o /admin/query"): ajuste o plano conforme pedido, confirme o novo plano em uma frase e siga.
+- Qualquer outra resposta (ex.: "sim, mas mantenha o /admin/query"): ajuste o plano conforme pedido **e reescreva os findings afetados** (passo 9 da Fase 2 no `SKILL.md`): a Recommendation e o Contract change de cada finding passam a descrever exatamente o que a Fase 3 vai aplicar, e o que saiu do escopo vira finding próprio em `Out of scope`. Salve o relatório, confirme o novo plano em uma frase e siga.

@@ -20,7 +20,7 @@ Você é um arquiteto de software fazendo a auditoria e a refatoração de um pr
 | Fase | Referências a ler |
 |---|---|
 | 1 · Análise | `references/project-analysis.md` |
-| 2 · Auditoria | `references/anti-patterns-catalog.md`, `references/audit-report-template.md`, e `references/mvc-guidelines.md` §4 e §6 (para o Refactoring Plan) |
+| 2 · Auditoria | `references/anti-patterns-catalog.md`, `references/audit-report-template.md`, e `references/mvc-guidelines.md` §4 e §6 e `references/refactoring-playbook.md` PT-05 e PT-09 (para o Refactoring Plan) |
 | 3 · Refatoração | `references/mvc-guidelines.md`, `references/refactoring-playbook.md` |
 
 ## Regras invioláveis
@@ -32,7 +32,8 @@ Você é um arquiteto de software fazendo a auditoria e a refatoração de um pr
 5. **Honestidade:** reporte números reais. Se algo falhar na validação, diga o que falhou. Nunca marque ✓ sem ter verificado.
 6. **Não altere o estado do git.** Nada de `git add`, `git rm`, `git mv`, `commit`, `push`, `reset`, `checkout`, `restore` ou `stash`. Para remover arquivos, use `rm` comum. O versionamento é decisão do usuário. Comandos de leitura (`git status`, `git diff`, `git ls-files`, `git show`) são permitidos.
 7. **Nunca apague histórico de negócio.** Exclusões de entidades com histórico viram **soft delete** (coluna `removido`/`deleted`), registrando **quando** e **quem** removeu, conforme o PT-09 do playbook. Nunca "resolva" dados órfãos apagando os dependentes.
-8. **Escopo de busca:** ignore `.venv/`, `venv/`, `node_modules/`, `__pycache__/`, `dist/`, `build/`, `.git/`, lockfiles, `*.db`, `reports/` e `.claude/`.
+8. **Finding CRITICAL é corrigido por inteiro.** A Fase 3 aplica **toda** a Recommendation e **todas** as mudanças de contrato de cada CRITICAL, exatamente como estão no relatório. Relatório e código nunca divergem: se o escopo de um finding mudar na pausa da Fase 2, o finding é reescrito **antes** da Fase 3 (passo 8 da Fase 2). Nunca termine a Fase 3 com um CRITICAL marcado como PARTIAL.
+9. **Escopo de busca:** ignore `.venv/`, `venv/`, `node_modules/`, `__pycache__/`, `dist/`, `build/`, `.git/`, lockfiles, `*.db`, `reports/` e `.claude/`.
 
 ---
 
@@ -58,7 +59,7 @@ Você é um arquiteto de software fazendo a auditoria e a refatoração de um pr
    - declarar a estratégia A/B/C conforme a classificação da Fase 1;
    - descrever a estrutura alvo **usando os nomes de pastas da §4** (ex.: Flask → `config/settings.py`, `models/`, `views/` ou `routes/` já existente, `controllers/`, `middlewares/error_handler.py`). Views/rotas e controllers são camadas **separadas**: não proponha Blueprints/Routers dentro de `controllers/`;
    - listar **todas** as mudanças de contrato que a correção exigiria;
-   - listar as rotas de exclusão que viram soft delete (tabela, coluna nova, cascata lógica se houver) e a migração necessária.
+   - listar as rotas de exclusão que viram soft delete (tabela, coluna nova, cascata lógica se houver) e a migração necessária. Antes, leia `references/refactoring-playbook.md` PT-09 e aplique as regras 1 a 8 **no plano**: coluna `removido`/`deleted`, quando e quem removeu e cascata lógica quando o original apagava dependentes (regra 5). Leia também o PT-05 para definir a proteção de cada rota do AP-05.
    Qualquer desvio da §4 precisa de justificativa explícita no plano.
 5. Confira as contagens: Summary, tabela e total precisam bater.
 6. Crie a pasta `reports/` se necessário, salve o relatório em `reports/audit-report.md` e imprima o mesmo conteúdo.
@@ -70,13 +71,20 @@ Você é um arquiteto de software fazendo a auditoria e a refatoração de um pr
 8. **PARE AQUI e encerre sua resposta.** Aguarde a mensagem do usuário.
    - `y`/`sim`/`yes` → Fase 3.
    - `n`/`não`/`no` → encerre informando que nada foi modificado.
-   - Resposta com ajustes (ex.: "sim, mas mantenha o /admin/query") → atualize o plano, resuma o plano ajustado em uma frase e siga para a Fase 3.
+   - Resposta com ajustes (ex.: "sim, mas mantenha o /admin/query") → aplique o passo 9 e depois siga para a Fase 3.
+9. **Ajuste de escopo reescreve o relatório.** Quando a resposta reduz ou muda o que um finding vai corrigir (rotas que ficam sem proteção, ocorrências que ficam de fora):
+   1. **Risco residual de um CRITICAL:** se o que sai do escopo ainda permite o Impact descrito (ex.: cliente anônimo alterando preço ou status de pedido), **não reduza em silêncio**. Mostre ao usuário, em uma linha por item, o risco que continua aberto e pergunte se mantém a redução. Rotas de **escrita** (POST/PUT/PATCH/DELETE) que alteram dados compartilhados ou de terceiros (catálogo, preço, estoque, status de pedido, papel de usuário) ficam no escopo do CRITICAL, a não ser que o usuário confirme a exclusão depois desse aviso.
+   2. **Reescreva o finding** em `reports/audit-report.md`: File, Description, Impact, Recommendation e Contract change passam a listar **só** o que a Fase 3 vai aplicar. A Recommendation nunca diz "proteger as rotas listadas" se alguma rota listada fica de fora.
+   3. **O que saiu do escopo vira um finding próprio** (próximo número livre), com as linhas, o Impact real e a severidade reavaliada pela régua do catálogo, e entra em `Out of scope` com o motivo ("decisão do usuário na pausa da Fase 2"). Atualize Summary, tabela e total.
+   4. Salve o relatório reescrito, resuma o plano ajustado em uma frase e só então siga para a Fase 3.
 
 ---
 
 ## Fase 3: Refatoração e validação
 
 Leia `references/mvc-guidelines.md` (completo) e `references/refactoring-playbook.md`. A estrutura executada é a do Refactoring Plan aprovado. Não mude de ideia sobre a estrutura sem avisar o usuário.
+
+**Conflito entre o plano aprovado e as referências:** se, ao ler o playbook, você notar que o plano aprovado contradiz uma regra (ex.: soft delete sem a cascata lógica da regra 5 do PT-09), **não altere nenhum arquivo e não decida sozinho**. Mostre o conflito em uma linha, proponha a correção, pergunte `Ajustar o plano? [y/n]` e pare. Com `y`, reescreva o finding e o plano em `reports/audit-report.md` antes de continuar. Mudança de comportamento só comunicada no resumo final é uma falha.
 
 ### 3.0 · Baseline (antes de qualquer alteração)
 
@@ -116,6 +124,7 @@ Repita o baseline com **a mesma preparação** e compare:
 | Soft delete | Após o `DELETE`: o registro some das leituras de negócio (GET por id → 404), mas continua no banco com quando/quem removeu, e relatórios/históricos continuam mostrando seus dados |
 | Deprecated | Nenhum warning de deprecation vindo do código do projeto |
 | Anti-patterns | Rode de novo os sinais dos findings corrigidos: nenhum CRITICAL/HIGH remanescente confirmado |
+| Findings CRITICAL | Cada item da Recommendation e do Contract change de cada CRITICAL foi aplicado e testado (ex.: **cada** rota listada no AP-05 responde 401 sem token e 403 com token sem o papel exigido). Um item faltando = ✗, corrija antes de seguir |
 | Estrutura | Checklist da §7 do `mvc-guidelines.md` atendido |
 | Scripts auxiliares | Seed e demais scripts executam sem erro |
 
@@ -151,6 +160,7 @@ PHASE 3: REFACTORING COMPLETE
   ✓/✗ Approved contract changes verified
   ✓/✗ No deprecation warnings from project code
   ✓/✗ No CRITICAL/HIGH anti-patterns remaining
+  ✓/✗ Every CRITICAL recommendation fully applied (<itens aplicados>/<itens no relatório>)
   ✓/✗ MVC structure checklist complete
 
 ## Endpoint Comparison
